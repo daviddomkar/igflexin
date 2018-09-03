@@ -1,12 +1,12 @@
 package com.appapply.igflexin.ui.dashboard
 
-import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.appapply.igflexin.R
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DashboardFragment : Fragment() {
 
@@ -14,7 +14,7 @@ class DashboardFragment : Fragment() {
         fun newInstance() = DashboardFragment()
     }
 
-    private lateinit var viewModel: DashboardViewModel
+    private val dashboardViewModelviewModel: DashboardViewModel by viewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -23,7 +23,6 @@ class DashboardFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(DashboardViewModel::class.java)
         // TODO: Use the ViewModel
     }
 

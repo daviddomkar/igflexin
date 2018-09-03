@@ -3,17 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_auth"
-    android:label="Auth Graph"
-    app:startDestination="@+id/welcomeScreenFragment">
+    app:startDestination="@id/welcomeScreenFragment">
 
     <fragment
         android:id="@+id/welcomeScreenFragment"
         android:name="com.appapply.igflexin.ui.welcomescreen.WelcomeScreenFragment"
         android:label="welcome_screen_fragment"
-        tools:layout="@layout/welcome_screen_fragment" >
-        <action
-            android:id="@+id/action_welcomeScreenFragment_to_nav_graph_main"
-            app:destination="@id/nav_graph_main" />
-    </fragment>
-    <include app:graph="@navigation/nav_graph_main" />
+        tools:layout="@layout/welcome_screen_fragment" />
 </navigation>

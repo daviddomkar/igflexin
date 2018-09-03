@@ -7,14 +7,14 @@ import com.appapply.igflexin.ui.dashboard.DashboardViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-import org.koin.android.viewmodel.ext.koin.viewModel
+import org.koin.androidx.viewmodel.ext.koin.viewModel
 import org.koin.dsl.module.module
 
 val appModule = module {
 
-    single<UserRepository> { FirebaseUserRepository() }
+    single<UserRepository> { FirebaseUserRepository(get()) }
 
-    //viewModel { DashboardViewModel(get()) }
+    viewModel { DashboardViewModel(get()) }
 }
 
 val firebaseModule = module {
