@@ -3,22 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_main"
-    android:label="Main Graph"
     app:startDestination="@id/dashboardFragment">
 
     <fragment
         android:id="@+id/dashboardFragment"
         android:name="com.appapply.igflexin.ui.dashboard.DashboardFragment"
         android:label="dashboard_fragment"
-        tools:layout="@layout/dashboard_fragment">
+        tools:layout="@layout/dashboard_fragment" >
         <action
             android:id="@+id/action_dashboardFragment_to_instagramAccountManagementFragment"
             app:destination="@id/instagramAccountManagementFragment" />
         <action
             android:id="@+id/action_dashboardFragment_to_nav_graph_auth"
-            app:destination="@id/nav_graph_auth"
-            app:popUpTo="@+id/dashboardFragment"
-            app:popUpToInclusive="true" />
+            app:destination="@id/nav_graph_auth" />
     </fragment>
     <fragment
         android:id="@+id/instagramAccountManagementFragment"

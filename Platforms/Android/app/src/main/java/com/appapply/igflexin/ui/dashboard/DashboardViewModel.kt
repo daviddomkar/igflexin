@@ -1,8 +1,8 @@
 package com.appapply.igflexin.ui.dashboard
 
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.ViewModel
 import com.appapply.igflexin.repositories.UserRepository
 
-class DashboardViewModel() : ViewModel() {
+class DashboardViewModel(val userRepository: UserRepository) : ViewModel() {
     // TODO: Implement the ViewModel
 }
