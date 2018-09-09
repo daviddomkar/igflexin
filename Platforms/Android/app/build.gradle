@@ -15,15 +15,14 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled true
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-    dataBinding {
-        enabled = true
     }
 }
 
@@ -40,24 +39,30 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0-rc02'
     implementation 'androidx.appcompat:appcompat:1.0.0-rc02'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha2'
+    implementation 'com.android.support:multidex:1.0.3'
 
     // Android architecture components deps
     implementation "androidx.lifecycle:lifecycle-extensions:2.0.0-rc01"
     implementation "android.arch.navigation:navigation-fragment-ktx:1.0.0-alpha05"
-    implementation "android.arch.navigation:navigation-ui-ktx:1.0.0-alpha05"
+    implementation("android.arch.navigation:navigation-ui-ktx:1.0.0-alpha05") { transitive = false }
 
     // Dependency injection
-    implementation 'org.koin:koin-android:1.0.0-beta-9'
-    implementation 'org.koin:koin-androidx-scope:1.0.0-beta-9'
-    implementation 'org.koin:koin-androidx-viewmodel:1.0.0-beta-9'
+    implementation 'org.koin:koin-android:1.0.0-RC-2'
+    implementation 'org.koin:koin-androidx-scope:1.0.0-RC-2'
+    implementation 'org.koin:koin-androidx-viewmodel:1.0.0-RC-2'
 
     // Firebase
     implementation 'com.google.firebase:firebase-core:16.0.3'
     implementation 'com.google.firebase:firebase-auth:16.0.3'
     implementation 'com.google.firebase:firebase-firestore:17.1.0'
 
+    // Auth
+    implementation 'com.facebook.android:facebook-login:4.35.0'
+    implementation 'com.google.android.gms:play-services-auth:16.0.0'
+
     // Test helpers
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0-rc01'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0-rc01'
     androidTestImplementation "android.arch.navigation:navigation-testing-ktx:1.0.0-alpha05"
 
     // Normal tests

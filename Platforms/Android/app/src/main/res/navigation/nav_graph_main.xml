@@ -5,22 +5,110 @@
     android:id="@+id/nav_graph_main"
     app:startDestination="@id/dashboardFragment">
 
+    <action
+        android:id="@+id/action_finish_auth"
+        app:popUpTo="@id/welcomeScreenFragment"
+        app:popUpToInclusive="true" />
+
     <fragment
         android:id="@+id/dashboardFragment"
         android:name="com.appapply.igflexin.ui.dashboard.DashboardFragment"
-        android:label="dashboard_fragment"
-        tools:layout="@layout/dashboard_fragment" >
+        android:label="@string/dashboard"
+        tools:layout="@layout/dashboard_fragment">
         <action
             android:id="@+id/action_dashboardFragment_to_instagramAccountManagementFragment"
-            app:destination="@id/instagramAccountManagementFragment" />
+            app:destination="@id/instagramAccountManagementFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_dashboardFragment_to_nav_graph_auth"
+            app:destination="@id/nav_graph_auth"
+            app:popUpTo="@id/dashboardFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_nav_graph_auth2"
             app:destination="@id/nav_graph_auth" />
     </fragment>
     <fragment
         android:id="@+id/instagramAccountManagementFragment"
         android:name="com.appapply.igflexin.ui.instagramaccountmanagement.InstagramAccountManagementFragment"
-        android:label="instagram_account_management_fragment"
-        tools:layout="@layout/instagram_account_management_fragment" />
-    <include app:graph="@navigation/nav_graph_auth" />
+        android:label="@string/accounts"
+        tools:layout="@layout/instagram_account_management_fragment">
+        <action
+            android:id="@+id/action_instagramAccountManagementFragment_to_subscriptionManagementFragment"
+            app:destination="@id/subscriptionManagementFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_instagramAccountManagementFragment_to_nav_graph_add_ig_account"
+            app:destination="@id/nav_graph_add_ig_account" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/subscriptionManagementFragment"
+        android:name="com.appapply.igflexin.ui.subscriptionmanagement.SubscriptionManagementFragment"
+        android:label="@string/subscription"
+        tools:layout="@layout/subscription_management_fragment" />
+
+    <navigation
+        android:id="@+id/nav_graph_auth"
+        app:startDestination="@id/welcomeScreenFragment">
+
+        <fragment
+            android:id="@+id/welcomeScreenFragment"
+            android:name="com.appapply.igflexin.ui.welcomescreen.WelcomeScreenFragment"
+            android:label="@string/welcome_to_igflexin"
+            tools:layout="@layout/welcome_screen_fragment" >
+            <action
+                android:id="@+id/action_welcomeScreenFragment_to_signUpFragment"
+                app:destination="@id/signUpFragment"
+                app:enterAnim="@anim/slide_in_right"
+                app:exitAnim="@anim/slide_out_left"
+                app:popEnterAnim="@anim/slide_in_left"
+                app:popExitAnim="@anim/slide_out_right" />
+            <action
+                android:id="@+id/action_welcomeScreenFragment_to_signInFragment"
+                app:destination="@id/signInFragment"
+                app:enterAnim="@anim/slide_in_left"
+                app:exitAnim="@anim/slide_out_right"
+                app:popEnterAnim="@anim/slide_in_right"
+                app:popExitAnim="@anim/slide_out_left" />
+            <action
+                android:id="@+id/action_welcomeScreenFragment_to_howItWorksFragment"
+                app:destination="@id/howItWorksFragment"
+                app:enterAnim="@anim/slide_in_down"
+                app:exitAnim="@anim/slide_out_down"
+                app:popEnterAnim="@anim/slide_in_down"
+                app:popExitAnim="@anim/slide_out_down" />
+        </fragment>
+        <fragment
+            android:id="@+id/signInFragment"
+            android:name="com.appapply.igflexin.ui.signin.SignInFragment"
+            android:label="Sign in"
+            tools:layout="@layout/sign_in_fragment" />
+        <fragment
+            android:id="@+id/signUpFragment"
+            android:name="com.appapply.igflexin.ui.signup.SignUpFragment"
+            android:label="Sign up"
+            tools:layout="@layout/sign_up_fragment" />
+        <fragment
+            android:id="@+id/howItWorksFragment"
+            android:name="com.appapply.igflexin.ui.howitworks.HowItWorksFragment"
+            android:label="How IGFlexin works?"
+            tools:layout="@layout/how_it_works_fragment" />
+    </navigation>
+
+    <navigation
+        android:id="@+id/nav_graph_add_ig_account"
+        app:startDestination="@id/addInstagramAccountFragment">
+
+        <fragment
+            android:id="@+id/addInstagramAccountFragment"
+            android:name="com.appapply.igflexin.ui.AddInstagramAccountFragment"
+            android:label="add_instagram_account_fragment"
+            tools:layout="@layout/add_instagram_account_fragment" />
+    </navigation>
 </navigation>

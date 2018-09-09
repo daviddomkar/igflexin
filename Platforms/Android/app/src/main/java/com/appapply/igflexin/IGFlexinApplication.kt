@@ -1,13 +1,12 @@
 package com.appapply.igflexin
 
-import android.app.Application
+import androidx.multidex.MultiDexApplication
 import com.appapply.igflexin.koin.allModules
 import org.koin.android.ext.android.startKoin
 
-class IGFlexinApplication: Application() {
+class IGFlexinApplication : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
-
         startKoin(this, allModules)
     }
 }
