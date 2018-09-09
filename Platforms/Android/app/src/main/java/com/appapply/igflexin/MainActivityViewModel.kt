@@ -14,6 +14,7 @@ class MainActivityViewModel(private val authRepository: AuthRepository) : ViewMo
     private val onActivityResultCallLiveData: MutableLiveData<Event<OnActivityResultCall>> = MutableLiveData()
     private val snackMessageLiveData: MutableLiveData<Event<String>> = MutableLiveData()
     private val drawerItemSelectedLiveData: MutableLiveData<Event<MenuItem>> = MutableLiveData()
+    private val disableBackNavigationLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     fun startActivityForResultCall() : LiveData<Event<StartActivityForResultCall>> {
         return  startActivityForResultCallLiveData
@@ -49,5 +50,13 @@ class MainActivityViewModel(private val authRepository: AuthRepository) : ViewMo
 
     fun snack(message: String) {
         snackMessageLiveData.value = Event(message)
+    }
+
+    fun disableBackNavigation(disable: Boolean) {
+        disableBackNavigationLiveData.value = disable
+    }
+
+    fun getDisableBackNavigationLiveData() : LiveData<Boolean>  {
+        return disableBackNavigationLiveData
     }
 }

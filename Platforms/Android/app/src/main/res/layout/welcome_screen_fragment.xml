@@ -64,13 +64,13 @@
                 android:text="@string/sign_in"
                 android:theme="@style/PrimaryButton"
                 app:layout_constraintBottom_toTopOf="@+id/titleTextView4"
-                app:layout_constraintEnd_toStartOf="@+id/signUpButton"
+                app:layout_constraintEnd_toStartOf="@+id/signInOrRetryButton"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/subTitletextView" />
 
             <Button
-                android:id="@+id/signUpButton"
+                android:id="@+id/signInOrRetryButton"
                 android:layout_width="125dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="3dp"
@@ -185,6 +185,8 @@
         android:animateLayoutChanges="true"
         android:background="@color/colorPrimaryDark"
         android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -15,10 +15,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DashboardFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = DashboardFragment()
-    }
-
     private val mainActivityViewModel: MainActivityViewModel by sharedViewModel()
     private val dashboardViewModel: DashboardViewModel by viewModel()
 

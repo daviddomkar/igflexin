@@ -131,13 +131,34 @@
                         </option>
                         <option name="myPositions">
                           <map>
+                            <entry key="emailVerificationFragment">
+                              <value>
+                                <LayoutPositions>
+                                  <option name="myPosition">
+                                    <Point>
+                                      <option name="x" value="599" />
+                                      <option name="y" value="427" />
+                                    </Point>
+                                  </option>
+                                  <option name="myPositions">
+                                    <map>
+                                      <entry key="action_emailVerificationFragment_to_welcomeScreenFragment">
+                                        <value>
+                                          <LayoutPositions />
+                                        </value>
+                                      </entry>
+                                    </map>
+                                  </option>
+                                </LayoutPositions>
+                              </value>
+                            </entry>
                             <entry key="howItWorksFragment">
                               <value>
                                 <LayoutPositions>
                                   <option name="myPosition">
                                     <Point>
-                                      <option name="x" value="51" />
-                                      <option name="y" value="422" />
+                                      <option name="x" value="82" />
+                                      <option name="y" value="466" />
                                     </Point>
                                   </option>
                                 </LayoutPositions>
@@ -148,8 +169,8 @@
                                 <LayoutPositions>
                                   <option name="myPosition">
                                     <Point>
-                                      <option name="x" value="307" />
-                                      <option name="y" value="-154" />
+                                      <option name="x" value="698" />
+                                      <option name="y" value="-234" />
                                     </Point>
                                   </option>
                                 </LayoutPositions>
@@ -160,9 +181,18 @@
                                 <LayoutPositions>
                                   <option name="myPosition">
                                     <Point>
-                                      <option name="x" value="305" />
-                                      <option name="y" value="229" />
+                                      <option name="x" value="375" />
+                                      <option name="y" value="130" />
                                     </Point>
+                                  </option>
+                                  <option name="myPositions">
+                                    <map>
+                                      <entry key="action_signUpFragment_to_emailVerificationFragment">
+                                        <value>
+                                          <LayoutPositions />
+                                        </value>
+                                      </entry>
+                                    </map>
                                   </option>
                                 </LayoutPositions>
                               </value>
@@ -208,8 +238,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="647" />
-                            <option name="y" value="-152" />
+                            <option name="x" value="692" />
+                            <option name="y" value="-183" />
                           </Point>
                         </option>
                       </LayoutPositions>

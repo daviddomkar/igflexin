@@ -27,10 +27,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class WelcomeScreenFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = WelcomeScreenFragment()
-    }
-
     private val mainActivityViewModel: MainActivityViewModel by sharedViewModel()
     private val welcomeScreenViewModel: WelcomeScreenViewModel by viewModel()
 
@@ -75,15 +71,6 @@ class WelcomeScreenFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        welcomeScreenViewModel.getDisableUILiveData().observe(this, Observer {
-            signInButton.isEnabled = !it
-            signUpButton.isEnabled = !it
-            googleSignInButton.isEnabled = !it
-            facebookSignInButton.isEnabled = !it
-
-            uiDisabled = it
-        })
-
         welcomeScreenViewModel.getShowProgressBarLiveData().observe(this, Observer {
             if(it) {
                 progressBarHolder.visibility = View.VISIBLE
@@ -100,19 +87,19 @@ class WelcomeScreenFragment : Fragment() {
             findNavController().navigate(R.id.action_welcomeScreenFragment_to_signInFragment)
         }
 
-        signUpButton.setOnClickListener {
+        signInOrRetryButton.setOnClickListener {
             findNavController().navigate(R.id.action_welcomeScreenFragment_to_signUpFragment)
         }
 
         googleSignInButton.setOnClickListener { _ ->
-            showLoadingAndDisableUI(true)
+            showLoading(true)
             welcomeScreenViewModel.getGoogleSignInSignInIntentLiveData().observe(this, EventObserver {
                 mainActivityViewModel.sendStartActivityForResultCall(StartActivityForResultCall(it, 1000))
             })
         }
 
         facebookSignInButton.setOnClickListener {
-            showLoadingAndDisableUI(true)
+            showLoading(true)
             welcomeScreenViewModel.continueWithFacebook(requireActivity())
         }
 
@@ -159,18 +146,13 @@ class WelcomeScreenFragment : Fragment() {
         acceptingTermsTextView.highlightColor = ResourcesCompat.getColor(resources, R.color.colorAccent, null)
     }
 
-    private fun disableUI(disabled: Boolean) {
-        welcomeScreenViewModel.disableUI(disabled)
-    }
-
-    private fun showLoadingAndDisableUI(show: Boolean) {
-        disableUI(show)
+    private fun showLoading(show: Boolean) {
         welcomeScreenViewModel.showProgressBar(show)
     }
 
     private fun handleAuthStatus(authStatusCode: StatusCode) {
         if(authStatusCode != StatusCode.SUCCESS) {
-            showLoadingAndDisableUI(false)
+            showLoading(false)
         }
 
         when(authStatusCode) {
@@ -213,14 +195,14 @@ class WelcomeScreenFragment : Fragment() {
                 return
             }
             StatusCode.NETWORK_ERROR -> {
-                showLoadingAndDisableUI(false)
+                showLoading(false)
                 mainActivityViewModel.snack(getString(R.string.error_check_your_connection))
             }
             StatusCode.CANCELED -> {
-                showLoadingAndDisableUI(false)
+                showLoading(false)
             }
             StatusCode.ERROR -> {
-                showLoadingAndDisableUI(false)
+                showLoading(false)
                 mainActivityViewModel.snack(getString(R.string.error_occurred))
             }
         }

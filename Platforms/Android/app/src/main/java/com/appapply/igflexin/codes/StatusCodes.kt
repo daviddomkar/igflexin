@@ -6,6 +6,7 @@ open class StatusCode(private val code: Int) {
         val CANCELED = StatusCode(1)
         val NETWORK_ERROR = StatusCode(3)
         val ERROR = StatusCode(4)
+        val PENDING = StatusCode(5)
     }
 }
 

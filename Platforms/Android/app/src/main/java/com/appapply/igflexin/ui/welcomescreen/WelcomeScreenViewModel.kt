@@ -2,7 +2,6 @@ package com.appapply.igflexin.ui.welcomescreen
 
 import android.app.Activity
 import android.content.Intent
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,15 +14,10 @@ import com.appapply.igflexin.repositories.GoogleSignInRepository
 import com.google.firebase.auth.AuthCredential
 
 class WelcomeScreenViewModel(private val authRepository: AuthRepository, private val googleSignInRepository: GoogleSignInRepository, private val facebookRepository: FacebookRepository) : ViewModel() {
-    private val disableUILiveData: MutableLiveData<Boolean> = MutableLiveData()
     private val showProgressBarLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     fun init() {
         facebookRepository.load()
-    }
-
-    fun disableUI(disabled: Boolean) {
-        disableUILiveData.value = disabled
     }
 
     fun showProgressBar(show: Boolean) {
@@ -32,10 +26,6 @@ class WelcomeScreenViewModel(private val authRepository: AuthRepository, private
 
     fun aquireActivityResult(onActivityResultCall: OnActivityResultCall) {
         facebookRepository.aquireActivityResult(onActivityResultCall)
-    }
-
-    fun getDisableUILiveData(): LiveData<Boolean> {
-        return disableUILiveData
     }
 
     fun getShowProgressBarLiveData(): LiveData<Boolean> {

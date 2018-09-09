@@ -1,17 +1,16 @@
-package com.appapply.igflexin.ui.signup
+package com.appapply.igflexin.ui.emailverification
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.appapply.igflexin.codes.StatusCode
-import com.appapply.igflexin.events.Event
 import com.appapply.igflexin.repositories.AuthRepository
 
-class SignUpViewModel(private val authRepository: AuthRepository) : ViewModel() {
+class EmailVerificationViewModel(private val authRepository: AuthRepository) : ViewModel() {
     private val showProgressBarLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
-    fun signUp(name: String, email: String, password: String) {
-        authRepository.signUp(name, email, password)
+    fun sendVerificationEmail() {
+        authRepository.sendVerificationEmail()
     }
 
     fun showProgressBar(show: Boolean) {
@@ -22,7 +21,11 @@ class SignUpViewModel(private val authRepository: AuthRepository) : ViewModel() 
         return showProgressBarLiveData
     }
 
-    fun getAuthStatusLiveData(): LiveData<Event<StatusCode>> {
-        return authRepository.getAuthStatusLiveData()
+    fun getSignedInLiveData() : LiveData<Boolean> {
+        return authRepository.getSignedInLiveData()
+    }
+
+    fun getEmailVerificationStatusLiveData() : LiveData<StatusCode> {
+        return authRepository.getVerificationEmailStatusLiveData()
     }
 }
