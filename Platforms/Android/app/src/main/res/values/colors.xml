@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#4a0072</color>
     <color name="colorAccent">#00acc1</color>
 
+    <color name="colorWhiteHint">#aec4c7</color>
+
     <color name="fui_bgGoogle">#ffffff</color>
     <color name="fui_bgFacebook">#3B5998</color>
     <color name="fui_buttonShadow">#64BEBEBE</color>

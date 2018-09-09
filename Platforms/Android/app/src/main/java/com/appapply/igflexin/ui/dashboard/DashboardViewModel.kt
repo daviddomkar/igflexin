@@ -1,8 +1,16 @@
 package com.appapply.igflexin.ui.dashboard
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.appapply.igflexin.repositories.UserRepository
+import com.appapply.igflexin.repositories.AuthRepository
 
-class DashboardViewModel(val userRepository: UserRepository) : ViewModel() {
-    // TODO: Implement the ViewModel
+class DashboardViewModel(private val authRepository: AuthRepository) : ViewModel() {
+
+    fun signOut() {
+        authRepository.signOut()
+    }
+
+    fun getSignedInLiveData() : LiveData<Boolean> {
+        return authRepository.getSignedInLiveData()
+    }
 }
