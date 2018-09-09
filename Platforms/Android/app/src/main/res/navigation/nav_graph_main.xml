@@ -93,12 +93,37 @@
             android:id="@+id/signUpFragment"
             android:name="com.appapply.igflexin.ui.signup.SignUpFragment"
             android:label="Sign up"
-            tools:layout="@layout/sign_up_fragment" />
+            tools:layout="@layout/sign_up_fragment" >
+            <action
+                android:id="@+id/action_signUpFragment_to_emailVerificationFragment"
+                app:destination="@id/emailVerificationFragment"
+                app:enterAnim="@anim/slide_in_left"
+                app:exitAnim="@anim/slide_out_right"
+                app:popEnterAnim="@anim/slide_in_right"
+                app:popExitAnim="@anim/slide_out_left"
+                app:popUpTo="@+id/welcomeScreenFragment" />
+        </fragment>
         <fragment
             android:id="@+id/howItWorksFragment"
             android:name="com.appapply.igflexin.ui.howitworks.HowItWorksFragment"
             android:label="How IGFlexin works?"
             tools:layout="@layout/how_it_works_fragment" />
+        <fragment
+            android:id="@+id/emailVerificationFragment"
+            android:name="com.appapply.igflexin.ui.emailverification.EmailVerificationFragment"
+            android:label="email_verification_fragment"
+            tools:layout="@layout/email_verification_fragment" >
+            <action
+                android:id="@+id/action_emailVerificationFragment_to_welcomeScreenFragment"
+                app:destination="@+id/signInFragment"
+                app:enterAnim="@anim/slide_in_right"
+                app:exitAnim="@anim/slide_out_left"
+                app:launchSingleTop="true"
+                app:popEnterAnim="@anim/slide_in_right"
+                app:popExitAnim="@anim/slide_out_left"
+                app:popUpTo="@+id/welcomeScreenFragment"
+                app:popUpToInclusive="false" />
+        </fragment>
     </navigation>
 
     <navigation

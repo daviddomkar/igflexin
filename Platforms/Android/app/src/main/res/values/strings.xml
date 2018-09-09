@@ -45,4 +45,13 @@ Vivamus sit amet ullamcorper neque, eu volutpat arcu. Nulla neque eros, sagittis
     <string name="password">Password</string>
     <string name="password_again">Password Again</string>
     <string name="name_or_email">Name or email</string>
+    <string name="error_name">Name must be at least 3 characters long!</string>
+    <string name="error_email">Wrong email format!</string>
+    <string name="error_password">Password must have at least 8 characters, 1 capital letter and 1 number!</string>
+    <string name="error_password_again">Passwords are not same!</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="verification_link_has_been_sent_to_your_email_activate_your_account_and_go_back_to_the_app_to_sign_in">Verification link has been sent to your email. Activate your account and go back to the app to sign in!</string>
+    <string name="email_verification">Email verification</string>
+    <string name="try_again">Retry</string>
+    <string name="sending_verification_email_failed">Sending verification email failed!</string>
 </resources>

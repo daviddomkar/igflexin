@@ -30,6 +30,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private val mainActivityViewModel: MainActivityViewModel by viewModel()
 
+    private var backNavigationDisabled = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
@@ -73,6 +75,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 R.id.howItWorksFragment -> {
                     supportActionBar?.hide()
                 }
+                R.id.emailVerificationFragment -> {
+                    supportActionBar?.hide()
+                }
                 R.id.instagramAccountManagementFragment -> {
                     bottomNavView.visibility = View.VISIBLE
                 }
@@ -98,6 +103,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     navController.navigate(R.id.action_dashboardFragment_to_nav_graph_auth)
                 }
             }
+        })
+
+        mainActivityViewModel.getDisableBackNavigationLiveData().observe(this, Observer {
+            backNavigationDisabled = it
         })
     }
 
@@ -126,24 +135,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onBackPressed() {
+        if (backNavigationDisabled) return
+
         when (navController.currentDestination?.id) {
-            R.id.welcomeScreenFragment -> {
-                finish()
-            }
-            else -> {
-                super.onBackPressed()
-            }
+            R.id.welcomeScreenFragment -> finish()
+            else -> super.onBackPressed()
         }
     }
 
     override fun onSupportNavigateUp(): Boolean {
+        if (backNavigationDisabled) return false
+
         return when (navController.currentDestination?.id) {
-            R.id.welcomeScreenFragment -> {
-                false
-            }
-            else -> {
-                navigateUp(drawerLayout, navController)
-            }
+            R.id.welcomeScreenFragment -> false
+            else -> navigateUp(drawerLayout, navController)
         }
     }
 }
