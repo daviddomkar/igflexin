@@ -17,6 +17,10 @@ class EmailVerificationViewModel(private val authRepository: AuthRepository) : V
         showProgressBarLiveData.value = show
     }
 
+    fun signOut() {
+        authRepository.signOut()
+    }
+
     fun getShowProgressBarLiveData(): LiveData<Boolean> {
         return showProgressBarLiveData
     }

@@ -7,9 +7,11 @@ import androidx.lifecycle.ViewModel
 import com.appapply.igflexin.events.Event
 import com.appapply.igflexin.pojo.OnActivityResultCall
 import com.appapply.igflexin.pojo.StartActivityForResultCall
+import com.appapply.igflexin.pojo.User
 import com.appapply.igflexin.repositories.AuthRepository
+import com.appapply.igflexin.repositories.UserRepository
 
-class MainActivityViewModel(private val authRepository: AuthRepository) : ViewModel() {
+class MainActivityViewModel(private val authRepository: AuthRepository, private val userRepository: UserRepository) : ViewModel() {
     private val startActivityForResultCallLiveData: MutableLiveData<Event<StartActivityForResultCall>> = MutableLiveData()
     private val onActivityResultCallLiveData: MutableLiveData<Event<OnActivityResultCall>> = MutableLiveData()
     private val snackMessageLiveData: MutableLiveData<Event<String>> = MutableLiveData()
@@ -58,5 +60,9 @@ class MainActivityViewModel(private val authRepository: AuthRepository) : ViewMo
 
     fun getDisableBackNavigationLiveData() : LiveData<Boolean>  {
         return disableBackNavigationLiveData
+    }
+
+    fun getUserLiveData() : LiveData<User> {
+        return userRepository.getUserLiveData()
     }
 }

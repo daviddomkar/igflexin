@@ -54,4 +54,5 @@ Vivamus sit amet ullamcorper neque, eu volutpat arcu. Nulla neque eros, sagittis
     <string name="email_verification">Email verification</string>
     <string name="try_again">Retry</string>
     <string name="sending_verification_email_failed">Sending verification email failed!</string>
+    <string name="add_an_ig_account">Add an IG account</string>
 </resources>

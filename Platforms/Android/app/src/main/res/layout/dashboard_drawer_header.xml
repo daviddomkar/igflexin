@@ -18,5 +18,4 @@
         android:paddingTop="16dp"
         android:text="Header"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-
 </LinearLayout>

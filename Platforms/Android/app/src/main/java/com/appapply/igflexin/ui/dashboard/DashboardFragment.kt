@@ -5,7 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
 import androidx.navigation.fragment.findNavController
 import com.appapply.igflexin.MainActivityViewModel
 import com.appapply.igflexin.R
@@ -31,13 +33,36 @@ class DashboardFragment : Fragment() {
                 dashboardViewModel.signOut()
             }
         })
+
+        /*
+        Transformations.switchMap(dashboardViewModel.getSignedInLiveData()) {
+            if(!it) {
+                if (!findNavController().popBackStack(R.id.welcomeScreenFragment, false)) findNavController().navigate(R.id.action_dashboardFragment_to_nav_graph_auth)
+                return@switchMap null
+            } else {
+                return@switchMap dashboardViewModel.getUserLiveData()
+            }
+        }.observe(this, Observer { user ->
+            user?.emailVerified?.let {
+                if (!it) {
+                    if(findNavController().currentDestination?.id == R.id.dashboardFragment)
+                        findNavController().navigate(R.id.action_dashboardFragment_to_emailVerificationFragment)
+                }
+            }
+        })*/
+
+        /*
+        dashboardViewModel.getSignedInLiveData().observe(this, Observer {
+            if(!it) {
+                //findNavController().navigate(R.id.action_dashboardFragment_to_nav_graph_auth)
+
+            }
+        })*/
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dashboardViewModel.getSignedInLiveData().observe(this, Observer {
-
-        })
+        //mainActivityViewModel.showProgressBar(false, false)
     }
 }

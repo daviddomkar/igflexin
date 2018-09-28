@@ -2,7 +2,9 @@
   <dictionary name="dexit">
     <words>
       <w>aquire</w>
+      <w>deps</w>
       <w>firebase</w>
+      <w>flexin</w>
     </words>
   </dictionary>
 </component>

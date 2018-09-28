@@ -35,6 +35,11 @@
                       <LayoutPositions />
                     </value>
                   </entry>
+                  <entry key="action_verify_email">
+                    <value>
+                      <LayoutPositions />
+                    </value>
+                  </entry>
                   <entry key="dashboardFragment">
                     <value>
                       <LayoutPositions>
@@ -56,12 +61,19 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="action_dashboardFragment_to_nav_graph_auth2">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
                           </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="emailVerificationFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="121" />
+                            <option name="y" value="-327" />
+                          </Point>
                         </option>
                       </LayoutPositions>
                     </value>
@@ -77,42 +89,9 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_instagramAccountManagementFragment_to_nav_graph_add_ig_account">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
                             <entry key="action_instagramAccountManagementFragment_to_subscriptionManagementFragment">
                               <value>
                                 <LayoutPositions />
-                              </value>
-                            </entry>
-                          </map>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="nav_graph_add_ig_account">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="530" />
-                            <option name="y" value="255" />
-                          </Point>
-                        </option>
-                        <option name="myPositions">
-                          <map>
-                            <entry key="addInstagramAccountFragment">
-                              <value>
-                                <LayoutPositions>
-                                  <option name="myPosition">
-                                    <Point>
-                                      <option name="x" value="180" />
-                                      <option name="y" value="167" />
-                                    </Point>
-                                  </option>
-                                </LayoutPositions>
                               </value>
                             </entry>
                           </map>
@@ -131,27 +110,6 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="emailVerificationFragment">
-                              <value>
-                                <LayoutPositions>
-                                  <option name="myPosition">
-                                    <Point>
-                                      <option name="x" value="599" />
-                                      <option name="y" value="427" />
-                                    </Point>
-                                  </option>
-                                  <option name="myPositions">
-                                    <map>
-                                      <entry key="action_emailVerificationFragment_to_welcomeScreenFragment">
-                                        <value>
-                                          <LayoutPositions />
-                                        </value>
-                                      </entry>
-                                    </map>
-                                  </option>
-                                </LayoutPositions>
-                              </value>
-                            </entry>
                             <entry key="howItWorksFragment">
                               <value>
                                 <LayoutPositions>
@@ -169,8 +127,8 @@
                                 <LayoutPositions>
                                   <option name="myPosition">
                                     <Point>
-                                      <option name="x" value="698" />
-                                      <option name="y" value="-234" />
+                                      <option name="x" value="373" />
+                                      <option name="y" value="-216" />
                                     </Point>
                                   </option>
                                 </LayoutPositions>
@@ -185,15 +143,6 @@
                                       <option name="y" value="130" />
                                     </Point>
                                   </option>
-                                  <option name="myPositions">
-                                    <map>
-                                      <entry key="action_signUpFragment_to_emailVerificationFragment">
-                                        <value>
-                                          <LayoutPositions />
-                                        </value>
-                                      </entry>
-                                    </map>
-                                  </option>
                                 </LayoutPositions>
                               </value>
                             </entry>
@@ -202,8 +151,8 @@
                                 <LayoutPositions>
                                   <option name="myPosition">
                                     <Point>
-                                      <option name="x" value="-15" />
-                                      <option name="y" value="24" />
+                                      <option name="x" value="-33" />
+                                      <option name="y" value="11" />
                                     </Point>
                                   </option>
                                   <option name="myPositions">

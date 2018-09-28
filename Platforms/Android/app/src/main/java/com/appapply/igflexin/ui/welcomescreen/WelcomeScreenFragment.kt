@@ -14,7 +14,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.appapply.igflexin.MainActivityViewModel
-
 import com.appapply.igflexin.R
 import com.appapply.igflexin.codes.AuthStatusCode
 import com.appapply.igflexin.codes.StatusCode
@@ -72,13 +71,18 @@ class WelcomeScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         welcomeScreenViewModel.getShowProgressBarLiveData().observe(this, Observer {
-            if(it) {
+            if (it.first) {
                 progressBarHolder.visibility = View.VISIBLE
                 progressBarHolder.animate().setDuration(200).alpha(1.0f).start()
             } else {
-                progressBarHolder.animate().setDuration(200).alpha(0.0f).withEndAction {
+                if (it.second) {
+                    progressBarHolder.alpha = 0.0f
                     progressBarHolder.visibility = View.GONE
-                }.start()
+                } else {
+                    progressBarHolder.animate().setDuration(200).alpha(0.0f).withEndAction {
+                        progressBarHolder.visibility = View.GONE
+                    }.start()
+                }
             }
         })
 
@@ -92,14 +96,14 @@ class WelcomeScreenFragment : Fragment() {
         }
 
         googleSignInButton.setOnClickListener { _ ->
-            showLoading(true)
+            showLoading(true, false)
             welcomeScreenViewModel.getGoogleSignInSignInIntentLiveData().observe(this, EventObserver {
                 mainActivityViewModel.sendStartActivityForResultCall(StartActivityForResultCall(it, 1000))
             })
         }
 
         facebookSignInButton.setOnClickListener {
-            showLoading(true)
+            showLoading(true, false)
             welcomeScreenViewModel.continueWithFacebook(requireActivity())
         }
 
@@ -146,18 +150,18 @@ class WelcomeScreenFragment : Fragment() {
         acceptingTermsTextView.highlightColor = ResourcesCompat.getColor(resources, R.color.colorAccent, null)
     }
 
-    private fun showLoading(show: Boolean) {
-        welcomeScreenViewModel.showProgressBar(show)
+    private fun showLoading(show: Boolean, explicit: Boolean) {
+        welcomeScreenViewModel.showProgressBar(show, explicit)
     }
 
     private fun handleAuthStatus(authStatusCode: StatusCode) {
         if(authStatusCode != StatusCode.SUCCESS) {
-            showLoading(false)
+            showLoading(false, false)
         }
 
         when(authStatusCode) {
             StatusCode.SUCCESS -> {
-                findNavController().navigate(R.id.action_finish_auth)
+                showLoading(false, true)
             }
             StatusCode.CANCELED -> {
                 return
@@ -195,14 +199,14 @@ class WelcomeScreenFragment : Fragment() {
                 return
             }
             StatusCode.NETWORK_ERROR -> {
-                showLoading(false)
+                showLoading(false, false)
                 mainActivityViewModel.snack(getString(R.string.error_check_your_connection))
             }
             StatusCode.CANCELED -> {
-                showLoading(false)
+                showLoading(false, false)
             }
             StatusCode.ERROR -> {
-                showLoading(false)
+                showLoading(false, false)
                 mainActivityViewModel.snack(getString(R.string.error_occurred))
             }
         }

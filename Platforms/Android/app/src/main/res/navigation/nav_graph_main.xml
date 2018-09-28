@@ -7,8 +7,20 @@
 
     <action
         android:id="@+id/action_finish_auth"
-        app:popUpTo="@id/welcomeScreenFragment"
-        app:popUpToInclusive="true" />
+        app:destination="@id/dashboardFragment"
+        app:launchSingleTop="true" />
+
+    <action
+        android:id="@+id/action_verify_email"
+        app:destination="@+id/emailVerificationFragment"
+        app:launchSingleTop="true" />
+
+    <fragment
+        android:id="@+id/emailVerificationFragment"
+        android:name="com.appapply.igflexin.ui.emailverification.EmailVerificationFragment"
+        android:label="@string/email_verification"
+        tools:layout="@layout/email_verification_fragment" >
+    </fragment>
 
     <fragment
         android:id="@+id/dashboardFragment"
@@ -26,9 +38,6 @@
             android:id="@+id/action_dashboardFragment_to_nav_graph_auth"
             app:destination="@id/nav_graph_auth"
             app:popUpTo="@id/dashboardFragment" />
-        <action
-            android:id="@+id/action_dashboardFragment_to_nav_graph_auth2"
-            app:destination="@id/nav_graph_auth" />
     </fragment>
     <fragment
         android:id="@+id/instagramAccountManagementFragment"
@@ -42,9 +51,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_instagramAccountManagementFragment_to_nav_graph_add_ig_account"
-            app:destination="@id/nav_graph_add_ig_account" />
     </fragment>
 
     <fragment
@@ -74,6 +80,7 @@
                 app:destination="@id/signInFragment"
                 app:enterAnim="@anim/slide_in_left"
                 app:exitAnim="@anim/slide_out_right"
+                app:launchSingleTop="true"
                 app:popEnterAnim="@anim/slide_in_right"
                 app:popExitAnim="@anim/slide_out_left" />
             <action
@@ -93,47 +100,12 @@
             android:id="@+id/signUpFragment"
             android:name="com.appapply.igflexin.ui.signup.SignUpFragment"
             android:label="Sign up"
-            tools:layout="@layout/sign_up_fragment" >
-            <action
-                android:id="@+id/action_signUpFragment_to_emailVerificationFragment"
-                app:destination="@id/emailVerificationFragment"
-                app:enterAnim="@anim/slide_in_left"
-                app:exitAnim="@anim/slide_out_right"
-                app:popEnterAnim="@anim/slide_in_right"
-                app:popExitAnim="@anim/slide_out_left"
-                app:popUpTo="@+id/welcomeScreenFragment" />
-        </fragment>
+            tools:layout="@layout/sign_up_fragment" />
         <fragment
             android:id="@+id/howItWorksFragment"
             android:name="com.appapply.igflexin.ui.howitworks.HowItWorksFragment"
             android:label="How IGFlexin works?"
             tools:layout="@layout/how_it_works_fragment" />
-        <fragment
-            android:id="@+id/emailVerificationFragment"
-            android:name="com.appapply.igflexin.ui.emailverification.EmailVerificationFragment"
-            android:label="email_verification_fragment"
-            tools:layout="@layout/email_verification_fragment" >
-            <action
-                android:id="@+id/action_emailVerificationFragment_to_welcomeScreenFragment"
-                app:destination="@+id/signInFragment"
-                app:enterAnim="@anim/slide_in_right"
-                app:exitAnim="@anim/slide_out_left"
-                app:launchSingleTop="true"
-                app:popEnterAnim="@anim/slide_in_right"
-                app:popExitAnim="@anim/slide_out_left"
-                app:popUpTo="@+id/welcomeScreenFragment"
-                app:popUpToInclusive="false" />
-        </fragment>
     </navigation>
 
-    <navigation
-        android:id="@+id/nav_graph_add_ig_account"
-        app:startDestination="@id/addInstagramAccountFragment">
-
-        <fragment
-            android:id="@+id/addInstagramAccountFragment"
-            android:name="com.appapply.igflexin.ui.AddInstagramAccountFragment"
-            android:label="add_instagram_account_fragment"
-            tools:layout="@layout/add_instagram_account_fragment" />
-    </navigation>
 </navigation>

@@ -14,21 +14,21 @@ import com.appapply.igflexin.repositories.GoogleSignInRepository
 import com.google.firebase.auth.AuthCredential
 
 class WelcomeScreenViewModel(private val authRepository: AuthRepository, private val googleSignInRepository: GoogleSignInRepository, private val facebookRepository: FacebookRepository) : ViewModel() {
-    private val showProgressBarLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private val showProgressBarLiveData: MutableLiveData<Pair<Boolean, Boolean>> = MutableLiveData()
 
     fun init() {
         facebookRepository.load()
     }
 
-    fun showProgressBar(show: Boolean) {
-        showProgressBarLiveData.value = show
+    fun showProgressBar(show: Boolean, explicit: Boolean) {
+        showProgressBarLiveData.value = Pair(show, explicit)
     }
 
     fun aquireActivityResult(onActivityResultCall: OnActivityResultCall) {
         facebookRepository.aquireActivityResult(onActivityResultCall)
     }
 
-    fun getShowProgressBarLiveData(): LiveData<Boolean> {
+    fun getShowProgressBarLiveData(): LiveData<Pair<Boolean, Boolean>> {
         return showProgressBarLiveData
     }
 
