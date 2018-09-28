@@ -20,6 +20,8 @@ class EmailVerificationFragment : Fragment() {
     private val mainActivityViewModel: MainActivityViewModel by sharedViewModel()
     private val emailVerificationViewModel: EmailVerificationViewModel by viewModel()
 
+    private var emailSent = false
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.email_verification_fragment, container, false)
     }
@@ -31,13 +33,17 @@ class EmailVerificationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        emailSent = false
+
         mainActivityViewModel.disableBackNavigation(true)
 
         emailVerificationViewModel.getSignedInLiveData().observe(this, Observer {
             if(!it) {
                 findNavController().popBackStack(R.id.welcomeScreenFragment, false)
             } else {
-                emailVerificationViewModel.sendVerificationEmail()
+                if(!emailSent) {
+                    emailVerificationViewModel.sendVerificationEmail()
+                }
             }
         })
 
@@ -49,8 +55,10 @@ class EmailVerificationFragment : Fragment() {
                     signInOrRetryButton.text = getString(R.string.sign_in)
                     signInOrRetryButton.setOnClickListener {
                         mainActivityViewModel.disableBackNavigation(false)
-                        findNavController().navigate(R.id.action_emailVerificationFragment_to_welcomeScreenFragment)
+                        emailVerificationViewModel.signOut()
+                        findNavController().popBackStack(R.id.dashboardFragment, false)
                     }
+                    emailSent = true
                 }
                 StatusCode.PENDING -> {
                     showLoading(true)

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build.*
 import android.os.Bundle
+import android.util.Log.d
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
@@ -12,6 +13,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.*
@@ -62,6 +64,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 R.id.dashboardFragment -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                     bottomNavView.visibility = View.VISIBLE
+                    mainActivityViewModel.disableBackNavigation(false)
                 }
                 R.id.welcomeScreenFragment -> {
                     supportActionBar?.hide()
@@ -97,16 +100,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             snackbar.show()
         })
 
-        mainActivityViewModel.getSignedInLiveData().observe(this, Observer {
-            if (!it) {
-                if(navController.currentDestination?.id == R.id.dashboardFragment) {
-                    navController.navigate(R.id.action_dashboardFragment_to_nav_graph_auth)
-                }
-            }
-        })
-
         mainActivityViewModel.getDisableBackNavigationLiveData().observe(this, Observer {
             backNavigationDisabled = it
+        })
+
+        Transformations.switchMap(mainActivityViewModel.getSignedInLiveData()) {
+            if(!it) {
+                d("IGFlexin","not logged in")
+                if (navController.currentDestination?.id == R.id.dashboardFragment)
+                    navController.navigate(R.id.action_dashboardFragment_to_nav_graph_auth)
+                return@switchMap null
+            } else {
+                return@switchMap mainActivityViewModel.getUserLiveData()
+            }
+        }.observe(this, Observer { user ->
+            user?.emailVerified?.let {
+                if (!it) {
+                    d("IGFlexin","email is not verified")
+                    navController.navigate(R.id.action_verify_email)
+                } else {
+                    if (navController.currentDestination?.id != R.id.dashboardFragment) {
+                        d("IGFlexin","We have everything")
+                        navController.navigate(R.id.action_finish_auth)
+                    }
+                }
+            }
         })
     }
 
@@ -139,6 +157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         when (navController.currentDestination?.id) {
             R.id.welcomeScreenFragment -> finish()
+            R.id.dashboardFragment -> finish()
             else -> super.onBackPressed()
         }
     }

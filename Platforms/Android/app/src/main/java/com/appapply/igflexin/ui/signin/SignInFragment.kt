@@ -115,7 +115,6 @@ class SignInFragment : Fragment() {
         when(authStatusCode) {
             StatusCode.SUCCESS -> {
                 mainActivityViewModel.disableBackNavigation(false)
-                findNavController().navigate(R.id.action_finish_auth)
             }
             StatusCode.CANCELED -> {
                 return

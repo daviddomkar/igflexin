@@ -64,7 +64,7 @@ class SignUpFragment : Fragment() {
             findNavController().popBackStack(R.id.welcomeScreenFragment, false)
         }
 
-        signInOrRetryButton.setOnClickListener {
+        signUpButton.setOnClickListener {
             val name = nameInputEditText.text.toString()
             val email = emailInputEditText.text.toString()
             val password = passwordInputEditText.text.toString()
@@ -155,7 +155,7 @@ class SignUpFragment : Fragment() {
 
         when(authStatusCode) {
             StatusCode.SUCCESS -> {
-                findNavController().navigate(R.id.action_signUpFragment_to_emailVerificationFragment)
+                mainActivityViewModel.disableBackNavigation(false)
             }
             StatusCode.CANCELED -> {
                 return
