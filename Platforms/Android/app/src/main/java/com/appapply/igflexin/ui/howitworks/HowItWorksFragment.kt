@@ -13,10 +13,6 @@ import kotlinx.android.synthetic.main.how_it_works_fragment.*
 
 class HowItWorksFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = HowItWorksFragment()
-    }
-
     private lateinit var viewModel: HowItWorksViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

@@ -15,6 +15,11 @@
         app:destination="@+id/emailVerificationFragment"
         app:launchSingleTop="true" />
 
+    <action
+        android:id="@+id/action_subscription_selection"
+        app:destination="@+id/subscriptionSelectionFragment"
+        app:launchSingleTop="true" />
+
     <fragment
         android:id="@+id/emailVerificationFragment"
         android:name="com.appapply.igflexin.ui.emailverification.EmailVerificationFragment"
@@ -107,5 +112,33 @@
             android:label="How IGFlexin works?"
             tools:layout="@layout/how_it_works_fragment" />
     </navigation>
+    <fragment
+        android:id="@+id/subscriptionSelectionFragment"
+        android:name="com.appapply.igflexin.ui.subscriptionselection.SubscriptionSelectionFragment"
+        android:label="subscription_selection_fragment"
+        tools:layout="@layout/subscription_selection_fragment" >
+        <action
+            android:id="@+id/action_subscriptionSelectionFragment_to_subscriptionSelectionDetailFragment"
+            app:destination="@+id/subscriptionSelectionDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:launchSingleTop="false"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@+id/subscriptionSelectionFragment">
+            <argument
+                android:name="subscriptionID"
+                android:defaultValue="weekly_subscription" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/subscriptionSelectionDetailFragment"
+        android:name="com.appapply.igflexin.ui.subscriptionselectiondetail.SubscriptionSelectionDetailFragment"
+        android:label="subscription_selection_detail_fragment"
+        tools:layout="@layout/subscription_selection_detail_fragment" >
+        <argument
+            android:name="subscriptionID"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

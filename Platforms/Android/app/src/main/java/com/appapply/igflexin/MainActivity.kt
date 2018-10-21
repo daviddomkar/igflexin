@@ -75,6 +75,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 R.id.signInFragment -> {
                     supportActionBar?.hide()
                 }
+                R.id.subscriptionSelectionFragment -> {
+                    supportActionBar?.hide()
+                }
+                R.id.subscriptionSelectionDetailFragment -> {
+                    supportActionBar?.hide()
+                }
                 R.id.howItWorksFragment -> {
                     supportActionBar?.hide()
                 }
@@ -118,6 +124,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (!it) {
                     d("IGFlexin","email is not verified")
                     navController.navigate(R.id.action_verify_email)
+                } else if(true) {
+                    if (navController.currentDestination?.id != R.id.subscriptionSelectionDetailFragment) {
+                        navController.navigate(R.id.action_subscription_selection)
+                    }
                 } else {
                     if (navController.currentDestination?.id != R.id.dashboardFragment) {
                         d("IGFlexin","We have everything")

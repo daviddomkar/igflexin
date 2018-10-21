@@ -21,3 +21,14 @@ open class AuthStatusCode(private val code: Int) : StatusCode(code) {
         val WEAK_PASSWORD = StatusCode(106)
     }
 }
+
+open class BillingStatusCode(private val code: Int) : StatusCode(code) {
+    companion object {
+        val BILLING_UNAVAILABLE = StatusCode(200)
+        val FEATURE_NOT_SUPPORTED = StatusCode(201)
+        val ITEM_ALREADY_OWNED = StatusCode(202)
+        val ITEM_NOT_OWNED = StatusCode(203)
+        val ITEM_UNAVAILABLE = StatusCode(204)
+        val SERVICE_DISCONNECTED = StatusCode(205)
+    }
+}
