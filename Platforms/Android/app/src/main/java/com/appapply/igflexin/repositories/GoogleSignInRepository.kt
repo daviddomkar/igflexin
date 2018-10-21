@@ -39,7 +39,7 @@ class GoogleSignInRepositoryImpl(private val googleSignInClient: GoogleSignInCli
 
         try {
             val account = task.getResult(ApiException::class.java)
-            credentialLiveData.value = Event(GoogleAuthProvider.getCredential(account.idToken, null))
+            credentialLiveData.value = Event(GoogleAuthProvider.getCredential(account?.idToken, null))
             credentialStatusLiveData.value = Event(StatusCode.SUCCESS)
         } catch(e: ApiException) {
             when (e.statusCode) {

@@ -14,6 +14,6 @@ class FirebaseUserRepository(private val firebaseAuth: FirebaseAuth) : UserRepos
     private val firebaseAuthLiveData: FirebaseAuthLiveData = FirebaseAuthLiveData()
 
     override fun getUserLiveData(): LiveData<User> {
-        return Transformations.map(firebaseAuthLiveData) { firebaseAuth -> User(firebaseAuth.currentUser?.displayName, firebaseAuth.currentUser?.email, firebaseAuth.currentUser?.isEmailVerified) }
+        return Transformations.map(firebaseAuthLiveData) { firebaseAuth -> User(firebaseAuth.currentUser?.uid, firebaseAuth.currentUser?.displayName, firebaseAuth.currentUser?.email, firebaseAuth.currentUser?.isEmailVerified) }
     }
 }

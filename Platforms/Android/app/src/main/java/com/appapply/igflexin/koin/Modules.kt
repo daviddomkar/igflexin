@@ -2,11 +2,16 @@ package com.appapply.igflexin.koin
 
 import com.appapply.igflexin.MainActivityViewModel
 import com.appapply.igflexin.R
+import com.appapply.igflexin.billing.BillingManager
+import com.appapply.igflexin.billing.PurchaseVerifier
 import com.appapply.igflexin.repositories.*
 import com.appapply.igflexin.ui.dashboard.DashboardViewModel
 import com.appapply.igflexin.ui.emailverification.EmailVerificationViewModel
+import com.appapply.igflexin.ui.loading.LoadingViewModel
 import com.appapply.igflexin.ui.signin.SignInViewModel
 import com.appapply.igflexin.ui.signup.SignUpViewModel
+import com.appapply.igflexin.ui.subscriptionselection.SubscriptionSelectionViewModel
+import com.appapply.igflexin.ui.subscriptionselectiondetail.SubscriptionSelectionDetailViewModel
 import com.appapply.igflexin.ui.welcomescreen.WelcomeScreenViewModel
 import com.facebook.CallbackManager
 import com.facebook.login.LoginManager
@@ -23,15 +28,21 @@ import org.koin.dsl.module.module
 
 val appModule = module {
 
+    single { BillingManager(androidContext()) }
+    single { PurchaseVerifier(get()) }
+
     single<AuthRepository> { FirebaseAuthRepository(get(), get()) }
     single<UserRepository> { FirebaseUserRepository(get()) }
+    single<SubscriptionRepository> { SubscriptionRepositoryImpl(get(), get()) }
 
     viewModel { MainActivityViewModel(get(), get()) }
-
+    viewModel { LoadingViewModel() }
     viewModel { WelcomeScreenViewModel(get(), get(), get()) }
     viewModel { SignUpViewModel(get()) }
     viewModel { SignInViewModel(get(), get()) }
     viewModel { EmailVerificationViewModel(get()) }
+    viewModel { SubscriptionSelectionViewModel(get()) }
+    viewModel { SubscriptionSelectionDetailViewModel(get(), get()) }
 
     viewModel { DashboardViewModel(get(), get()) }
 }
