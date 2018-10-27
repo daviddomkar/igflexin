@@ -8,6 +8,7 @@ import android.util.Log.d
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
@@ -57,41 +58,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navController.addOnNavigatedListener { _, destination ->
 
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            supportActionBar?.show()
             bottomNavView.visibility = View.GONE
+            supportActionBar?.hide()
 
             when (destination.id) {
+                R.id.loadingFragment -> {
+
+                }
                 R.id.dashboardFragment -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                     bottomNavView.visibility = View.VISIBLE
                     mainActivityViewModel.disableBackNavigation(false)
-                }
-                R.id.welcomeScreenFragment -> {
-                    supportActionBar?.hide()
-                }
-                R.id.signUpFragment -> {
-                    supportActionBar?.hide()
-                }
-                R.id.signInFragment -> {
-                    supportActionBar?.hide()
-                }
-                R.id.subscriptionSelectionFragment -> {
-                    supportActionBar?.hide()
-                }
-                R.id.subscriptionSelectionDetailFragment -> {
-                    supportActionBar?.hide()
-                }
-                R.id.howItWorksFragment -> {
-                    supportActionBar?.hide()
-                }
-                R.id.emailVerificationFragment -> {
-                    supportActionBar?.hide()
+                    supportActionBar?.show()
                 }
                 R.id.instagramAccountManagementFragment -> {
                     bottomNavView.visibility = View.VISIBLE
+                    supportActionBar?.show()
                 }
                 R.id.subscriptionManagementFragment -> {
                     bottomNavView.visibility = View.VISIBLE
+                    supportActionBar?.show()
                 }
             }
         }
@@ -110,32 +96,64 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             backNavigationDisabled = it
         })
 
-        Transformations.switchMap(mainActivityViewModel.getSignedInLiveData()) {
-            if(!it) {
-                d("IGFlexin","not logged in")
-                if (navController.currentDestination?.id == R.id.dashboardFragment)
-                    navController.navigate(R.id.action_dashboardFragment_to_nav_graph_auth)
-                return@switchMap null
+        mainActivityViewModel.getShowProgressBarLiveData().observe(this, Observer {
+            if (it.first) {
+                progressBarHolder.visibility = View.VISIBLE
+                progressBarHolder.animate().setDuration(200).alpha(1.0f).start()
             } else {
-                return@switchMap mainActivityViewModel.getUserLiveData()
-            }
-        }.observe(this, Observer { user ->
-            user?.emailVerified?.let {
-                if (!it) {
-                    d("IGFlexin","email is not verified")
-                    navController.navigate(R.id.action_verify_email)
-                } else if(true) {
-                    if (navController.currentDestination?.id != R.id.subscriptionSelectionDetailFragment) {
-                        navController.navigate(R.id.action_subscription_selection)
-                    }
+                if (it.second) {
+                    progressBarHolder.alpha = 0.0f
+                    progressBarHolder.visibility = View.GONE
                 } else {
-                    if (navController.currentDestination?.id != R.id.dashboardFragment) {
-                        d("IGFlexin","We have everything")
-                        navController.navigate(R.id.action_finish_auth)
-                    }
+                    progressBarHolder.animate().setDuration(200).alpha(0.0f).withEndAction {
+                        progressBarHolder.visibility = View.GONE
+                    }.start()
                 }
             }
         })
+
+        val transformation = Transformations.switchMap(mainActivityViewModel.getEmailVerifiedLiveData()) { emailVerified ->
+            if (emailVerified) {
+                return@switchMap mainActivityViewModel.getSubscriptionPurchasedLiveData()
+            } else {
+                d("IGFlexin", "going to email")
+                navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_email_verification)
+                return@switchMap null
+            }
+        }
+
+        val transformation2 = Transformations.switchMap(mainActivityViewModel.getSignedInLiveData()) { signedIn ->
+            if (signedIn) {
+                return@switchMap transformation
+            } else {
+                d("IGFlexin", "going to auth")
+                navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_auth)
+                return@switchMap null
+            }
+        }
+
+        transformation2.observe(this, Observer {
+            if (it) {
+                d("IGFlexin", "going to app")
+                navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_app)
+            } else {
+                d("IGFlexin", "going to subscription")
+                navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_subscription)
+            }
+        })
+    }
+
+    private fun navigateFromLoading(@IdRes resId: Int) {
+        if (navController.currentDestination?.id == R.id.loadingFragment) {
+            navController.navigate(resId)
+        } else {
+            if (navController.popBackStack(R.id.loadingFragment, false)) {
+                navController.navigate(resId)
+            } else {
+                navController.navigate(R.id.loadingFragment)
+                if (navController.currentDestination?.id == R.id.loadingFragment) navController.navigate(resId)
+            }
+        }
     }
 
     private fun setupActionBar() {

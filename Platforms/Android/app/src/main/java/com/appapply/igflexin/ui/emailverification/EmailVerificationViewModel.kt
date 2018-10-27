@@ -1,32 +1,25 @@
 package com.appapply.igflexin.ui.emailverification
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.appapply.igflexin.codes.StatusCode
 import com.appapply.igflexin.repositories.AuthRepository
+import com.appapply.igflexin.repositories.UserRepository
 
-class EmailVerificationViewModel(private val authRepository: AuthRepository) : ViewModel() {
-    private val showProgressBarLiveData: MutableLiveData<Boolean> = MutableLiveData()
+class EmailVerificationViewModel(private val authRepository: AuthRepository, private val userRepository: UserRepository) : ViewModel() {
+    private val signedInLiveData = Transformations.map(userRepository.getUserLiveData()) { user -> user.uid != null}
 
     fun sendVerificationEmail() {
         authRepository.sendVerificationEmail()
-    }
-
-    fun showProgressBar(show: Boolean) {
-        showProgressBarLiveData.value = show
     }
 
     fun signOut() {
         authRepository.signOut()
     }
 
-    fun getShowProgressBarLiveData(): LiveData<Boolean> {
-        return showProgressBarLiveData
-    }
-
     fun getSignedInLiveData() : LiveData<Boolean> {
-        return authRepository.getSignedInLiveData()
+        return signedInLiveData
     }
 
     fun getEmailVerificationStatusLiveData() : LiveData<StatusCode> {

@@ -1,20 +1,18 @@
 package com.appapply.igflexin.repositories
 
+import android.util.Log.d
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import com.appapply.igflexin.codes.AuthStatusCode
 import com.appapply.igflexin.codes.StatusCode
 import com.appapply.igflexin.events.Event
-
 import com.appapply.igflexin.livedata.firebase.FirebaseAuthLiveData
-import com.appapply.igflexin.pojo.User
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.*
 import com.google.firebase.functions.FirebaseFunctions
+import org.koin.standalone.inject
 
 interface AuthRepository {
-    fun getSignedInLiveData(): LiveData<Boolean>
     fun getAuthStatusLiveData(): LiveData<Event<StatusCode>>
     fun getVerificationEmailStatusLiveData(): LiveData<StatusCode>
 
@@ -25,14 +23,9 @@ interface AuthRepository {
     fun signOut()
 }
 
-class FirebaseAuthRepository(private val firebaseAuth: FirebaseAuth, private val firebaseFunctions: FirebaseFunctions): AuthRepository {
-    private val firebaseAuthLiveData: FirebaseAuthLiveData = FirebaseAuthLiveData()
+class FirebaseAuthRepository(private val firebaseAuth: FirebaseAuth, private val firebaseFunctions: FirebaseFunctions, private val firebaseAuthLiveData: FirebaseAuthLiveData): AuthRepository {
     private val authStatusLiveData: MutableLiveData<Event<StatusCode>> = MutableLiveData()
     private val verificationEmailStatusLiveData: MutableLiveData<StatusCode> = MutableLiveData()
-
-    override fun getSignedInLiveData() : LiveData<Boolean> {
-        return Transformations.map(firebaseAuthLiveData) { firebaseAuth -> firebaseAuth.currentUser != null}
-    }
 
     override fun getAuthStatusLiveData(): LiveData<Event<StatusCode>> {
         return authStatusLiveData
@@ -56,7 +49,10 @@ class FirebaseAuthRepository(private val firebaseAuth: FirebaseAuth, private val
 
     override fun signInWithCredential(credential: AuthCredential) {
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
-            if (handleSignInTask(it)) authStatusLiveData.value = Event(StatusCode.SUCCESS)
+            if (handleSignInTask(it)) {
+                d("IGFlexin", "haha byl jsi potrolen")
+                authStatusLiveData.value = Event(StatusCode.SUCCESS)
+            }
         }
     }
 

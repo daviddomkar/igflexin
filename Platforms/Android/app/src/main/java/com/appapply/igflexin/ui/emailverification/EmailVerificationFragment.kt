@@ -1,6 +1,7 @@
 package com.appapply.igflexin.ui.emailverification
 
 import android.os.Bundle
+import android.util.Log.d
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -28,12 +29,10 @@ class EmailVerificationFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         emailSent = false
+
+        d("IGFlexin", "Jejda")
 
         mainActivityViewModel.disableBackNavigation(true)
 
@@ -73,20 +72,9 @@ class EmailVerificationFragment : Fragment() {
                 }
             }
         })
-
-        emailVerificationViewModel.getShowProgressBarLiveData().observe(this, Observer {
-            if(it) {
-                progressBarHolder.visibility = View.VISIBLE
-                progressBarHolder.animate().setDuration(200).alpha(1.0f).start()
-            } else {
-                progressBarHolder.animate().setDuration(200).alpha(0.0f).withEndAction {
-                    progressBarHolder.visibility = View.GONE
-                }.start()
-            }
-        })
     }
 
     private fun showLoading(show: Boolean) {
-        emailVerificationViewModel.showProgressBar(show)
+        mainActivityViewModel.showProgressBar(show, false)
     }
 }

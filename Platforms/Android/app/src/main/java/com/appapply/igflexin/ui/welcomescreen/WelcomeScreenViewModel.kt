@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.appapply.igflexin.codes.StatusCode
 import com.appapply.igflexin.events.Event
@@ -11,29 +12,27 @@ import com.appapply.igflexin.pojo.OnActivityResultCall
 import com.appapply.igflexin.repositories.AuthRepository
 import com.appapply.igflexin.repositories.FacebookRepository
 import com.appapply.igflexin.repositories.GoogleSignInRepository
+import com.appapply.igflexin.repositories.UserRepository
 import com.google.firebase.auth.AuthCredential
 
-class WelcomeScreenViewModel(private val authRepository: AuthRepository, private val googleSignInRepository: GoogleSignInRepository, private val facebookRepository: FacebookRepository) : ViewModel() {
-    private val showProgressBarLiveData: MutableLiveData<Pair<Boolean, Boolean>> = MutableLiveData()
+class WelcomeScreenViewModel(private val authRepository: AuthRepository, private val googleSignInRepository: GoogleSignInRepository, private val facebookRepository: FacebookRepository, private val userRepository: UserRepository) : ViewModel() {
+    private val authStatusLiveData = authRepository.getAuthStatusLiveData()
+    private val signedInLiveData = Transformations.map(userRepository.getUserLiveData()) { user -> user.uid != null}
 
     fun init() {
         facebookRepository.load()
-    }
-
-    fun showProgressBar(show: Boolean, explicit: Boolean) {
-        showProgressBarLiveData.value = Pair(show, explicit)
     }
 
     fun aquireActivityResult(onActivityResultCall: OnActivityResultCall) {
         facebookRepository.aquireActivityResult(onActivityResultCall)
     }
 
-    fun getShowProgressBarLiveData(): LiveData<Pair<Boolean, Boolean>> {
-        return showProgressBarLiveData
+    fun getSignedInLiveData(): LiveData<Boolean> {
+        return signedInLiveData
     }
 
     fun getAuthStatusLiveData(): LiveData<Event<StatusCode>> {
-        return authRepository.getAuthStatusLiveData()
+        return authStatusLiveData
     }
 
     fun getGoogleSignInSignInIntentLiveData(): LiveData<Event<Intent>> {
