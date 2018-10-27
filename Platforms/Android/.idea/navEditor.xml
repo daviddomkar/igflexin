@@ -30,38 +30,33 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
-                  <entry key="action_finish_auth">
-                    <value>
-                      <LayoutPositions />
-                    </value>
-                  </entry>
-                  <entry key="action_subscription_selection">
-                    <value>
-                      <LayoutPositions />
-                    </value>
-                  </entry>
-                  <entry key="action_verify_email">
-                    <value>
-                      <LayoutPositions />
-                    </value>
-                  </entry>
-                  <entry key="dashboardFragment">
+                  <entry key="loadingFragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="8" />
+                            <option name="x" value="-475" />
+                            <option name="y" value="-240" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_dashboardFragment_to_instagramAccountManagementFragment">
+                            <entry key="action_loadingFragment_to_nav_graph_app">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="action_dashboardFragment_to_nav_graph_auth">
+                            <entry key="action_loadingFragment_to_nav_graph_auth">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_loadingFragment_to_nav_graph_email_verification">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_loadingFragment_to_nav_graph_subscription">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -71,30 +66,28 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="emailVerificationFragment">
+                  <entry key="nav_graph_app">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="71" />
-                            <option name="y" value="-330" />
-                          </Point>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="instagramAccountManagementFragment">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="331" />
-                            <option name="y" value="-80" />
+                            <option name="x" value="113" />
+                            <option name="y" value="-15" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_instagramAccountManagementFragment_to_subscriptionManagementFragment">
+                            <entry key="dashboardFragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="instagramAccountManagementFragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="subscriptionManagementFragment">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -109,8 +102,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="211" />
-                            <option name="y" value="342" />
+                            <option name="x" value="116" />
+                            <option name="y" value="-231" />
                           </Point>
                         </option>
                         <option name="myPositions">
@@ -120,8 +113,8 @@
                                 <LayoutPositions>
                                   <option name="myPosition">
                                     <Point>
-                                      <option name="x" value="82" />
-                                      <option name="y" value="466" />
+                                      <option name="x" value="8" />
+                                      <option name="y" value="482" />
                                     </Point>
                                   </option>
                                 </LayoutPositions>
@@ -132,8 +125,8 @@
                                 <LayoutPositions>
                                   <option name="myPosition">
                                     <Point>
-                                      <option name="x" value="373" />
-                                      <option name="y" value="-216" />
+                                      <option name="x" value="269" />
+                                      <option name="y" value="-242" />
                                     </Point>
                                   </option>
                                 </LayoutPositions>
@@ -144,8 +137,8 @@
                                 <LayoutPositions>
                                   <option name="myPosition">
                                     <Point>
-                                      <option name="x" value="375" />
-                                      <option name="y" value="130" />
+                                      <option name="x" value="279" />
+                                      <option name="y" value="121" />
                                     </Point>
                                   </option>
                                 </LayoutPositions>
@@ -156,8 +149,8 @@
                                 <LayoutPositions>
                                   <option name="myPosition">
                                     <Point>
-                                      <option name="x" value="-33" />
-                                      <option name="y" value="11" />
+                                      <option name="x" value="-311" />
+                                      <option name="y" value="40" />
                                     </Point>
                                   </option>
                                   <option name="myPositions">
@@ -187,44 +180,69 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="subscriptionManagementFragment">
+                  <entry key="nav_graph_email_verification">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="692" />
-                            <option name="y" value="-183" />
-                          </Point>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="subscriptionSelectionDetailFragment">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="725" />
-                            <option name="y" value="-540" />
-                          </Point>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="subscriptionSelectionFragment">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="401" />
-                            <option name="y" value="-409" />
+                            <option name="x" value="115" />
+                            <option name="y" value="-161" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_subscriptionSelectionFragment_to_subscriptionSelectionDetailFragment">
+                            <entry key="emailVerificationFragment">
                               <value>
                                 <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="nav_graph_subscription">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="112" />
+                            <option name="y" value="-89" />
+                          </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="subscriptionSelectionDetailFragment">
+                              <value>
+                                <LayoutPositions>
+                                  <option name="myPosition">
+                                    <Point>
+                                      <option name="x" value="725" />
+                                      <option name="y" value="-540" />
+                                    </Point>
+                                  </option>
+                                </LayoutPositions>
+                              </value>
+                            </entry>
+                            <entry key="subscriptionSelectionFragment">
+                              <value>
+                                <LayoutPositions>
+                                  <option name="myPosition">
+                                    <Point>
+                                      <option name="x" value="401" />
+                                      <option name="y" value="-409" />
+                                    </Point>
+                                  </option>
+                                  <option name="myPositions">
+                                    <map>
+                                      <entry key="action_subscriptionSelectionFragment_to_subscriptionSelectionDetailFragment">
+                                        <value>
+                                          <LayoutPositions />
+                                        </value>
+                                      </entry>
+                                    </map>
+                                  </option>
+                                </LayoutPositions>
                               </value>
                             </entry>
                           </map>

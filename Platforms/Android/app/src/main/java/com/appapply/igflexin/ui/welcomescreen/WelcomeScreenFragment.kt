@@ -6,6 +6,7 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
+import android.util.Log.d
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -50,7 +51,14 @@ class WelcomeScreenFragment : Fragment() {
             welcomeScreenViewModel.aquireActivityResult(onActivityResultCall)
         })
 
+        welcomeScreenViewModel.getSignedInLiveData().observe(this, Observer {
+            if (it) {
+                findNavController().popBackStack(R.id.loadingFragment, false)
+            }
+        })
+
         welcomeScreenViewModel.getAuthStatusLiveData().observe(this, EventObserver {
+            d("IGFlexin", "Called")
             handleAuthStatus(it)
         })
 
@@ -64,26 +72,6 @@ class WelcomeScreenFragment : Fragment() {
 
         welcomeScreenViewModel.getFacebookCredentialStatusLiveData().observe(this, EventObserver {
             handleCredentialStatus(it)
-        })
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        welcomeScreenViewModel.getShowProgressBarLiveData().observe(this, Observer {
-            if (it.first) {
-                progressBarHolder.visibility = View.VISIBLE
-                progressBarHolder.animate().setDuration(200).alpha(1.0f).start()
-            } else {
-                if (it.second) {
-                    progressBarHolder.alpha = 0.0f
-                    progressBarHolder.visibility = View.GONE
-                } else {
-                    progressBarHolder.animate().setDuration(200).alpha(0.0f).withEndAction {
-                        progressBarHolder.visibility = View.GONE
-                    }.start()
-                }
-            }
         })
 
         //Setup buttons
@@ -151,7 +139,7 @@ class WelcomeScreenFragment : Fragment() {
     }
 
     private fun showLoading(show: Boolean, explicit: Boolean) {
-        welcomeScreenViewModel.showProgressBar(show, explicit)
+        mainActivityViewModel.showProgressBar(show, explicit)
     }
 
     private fun handleAuthStatus(authStatusCode: StatusCode) {
@@ -160,9 +148,6 @@ class WelcomeScreenFragment : Fragment() {
         }
 
         when(authStatusCode) {
-            StatusCode.SUCCESS -> {
-                showLoading(false, true)
-            }
             StatusCode.CANCELED -> {
                 return
             }

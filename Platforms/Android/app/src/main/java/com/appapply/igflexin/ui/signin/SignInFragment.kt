@@ -44,17 +44,6 @@ class SignInFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        signInViewModel.getShowProgressBarLiveData().observe(this, Observer {
-            if(it) {
-                progressBarHolder.visibility = View.VISIBLE
-                progressBarHolder.animate().setDuration(200).alpha(1.0f).start()
-            } else {
-                progressBarHolder.animate().setDuration(200).alpha(0.0f).withEndAction {
-                    progressBarHolder.visibility = View.GONE
-                }.start()
-            }
-        })
-
         backImageButton.setOnClickListener {
             findNavController().popBackStack(R.id.welcomeScreenFragment, false)
         }
@@ -100,7 +89,7 @@ class SignInFragment : Fragment() {
 
     private fun showLoading(show: Boolean) {
         mainActivityViewModel.disableBackNavigation(show)
-        signInViewModel.showProgressBar(show)
+        mainActivityViewModel.showProgressBar(show, false)
     }
 
     private fun hideKeyboard(view: View) {
@@ -115,6 +104,7 @@ class SignInFragment : Fragment() {
         when(authStatusCode) {
             StatusCode.SUCCESS -> {
                 mainActivityViewModel.disableBackNavigation(false)
+                findNavController().popBackStack(R.id.loadingFragment, false)
             }
             StatusCode.CANCELED -> {
                 return

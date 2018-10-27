@@ -4,6 +4,7 @@ import com.appapply.igflexin.MainActivityViewModel
 import com.appapply.igflexin.R
 import com.appapply.igflexin.billing.BillingManager
 import com.appapply.igflexin.billing.PurchaseVerifier
+import com.appapply.igflexin.livedata.firebase.FirebaseAuthLiveData
 import com.appapply.igflexin.repositories.*
 import com.appapply.igflexin.ui.dashboard.DashboardViewModel
 import com.appapply.igflexin.ui.emailverification.EmailVerificationViewModel
@@ -31,16 +32,16 @@ val appModule = module {
     single { BillingManager(androidContext()) }
     single { PurchaseVerifier(get()) }
 
-    single<AuthRepository> { FirebaseAuthRepository(get(), get()) }
-    single<UserRepository> { FirebaseUserRepository(get()) }
+    single<AuthRepository> { FirebaseAuthRepository(get(), get(), get()) }
+    single<UserRepository> { FirebaseUserRepository(get(), get()) }
     single<SubscriptionRepository> { SubscriptionRepositoryImpl(get(), get()) }
 
-    viewModel { MainActivityViewModel(get(), get()) }
-    viewModel { LoadingViewModel() }
-    viewModel { WelcomeScreenViewModel(get(), get(), get()) }
+    viewModel { MainActivityViewModel(get()) }
+    viewModel { LoadingViewModel(get(), get(), get()) }
+    viewModel { WelcomeScreenViewModel(get(), get(), get(), get()) }
     viewModel { SignUpViewModel(get()) }
     viewModel { SignInViewModel(get(), get()) }
-    viewModel { EmailVerificationViewModel(get()) }
+    viewModel { EmailVerificationViewModel(get(), get()) }
     viewModel { SubscriptionSelectionViewModel(get()) }
     viewModel { SubscriptionSelectionDetailViewModel(get(), get()) }
 
@@ -52,6 +53,7 @@ val firebaseModule = module {
     single { FirebaseAuth.getInstance() }
     single { FirebaseFirestore.getInstance() }
     single { FirebaseFunctions.getInstance() }
+    single { FirebaseAuthLiveData() }
 }
 
 val googleModule = module {

@@ -49,17 +49,6 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        signUpViewModel.getShowProgressBarLiveData().observe(this, Observer {
-            if(it) {
-                progressBarHolder.visibility = View.VISIBLE
-                progressBarHolder.animate().setDuration(200).alpha(1.0f).start()
-            } else {
-                progressBarHolder.animate().setDuration(200).alpha(0.0f).withEndAction {
-                    progressBarHolder.visibility = View.GONE
-                }.start()
-            }
-        })
-
         backImageButton.setOnClickListener {
             findNavController().popBackStack(R.id.welcomeScreenFragment, false)
         }
@@ -156,6 +145,7 @@ class SignUpFragment : Fragment() {
         when(authStatusCode) {
             StatusCode.SUCCESS -> {
                 mainActivityViewModel.disableBackNavigation(false)
+                findNavController().popBackStack(R.id.loadingFragment, false)
             }
             StatusCode.CANCELED -> {
                 return
@@ -189,7 +179,7 @@ class SignUpFragment : Fragment() {
 
     private fun showLoading(show: Boolean) {
         mainActivityViewModel.disableBackNavigation(show)
-        signUpViewModel.showProgressBar(show)
+        mainActivityViewModel.showProgressBar(show, false)
     }
 
     private fun hideKeyboard(view: View) {
