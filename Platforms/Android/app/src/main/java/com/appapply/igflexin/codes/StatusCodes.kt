@@ -32,3 +32,12 @@ open class BillingStatusCode(private val code: Int) : StatusCode(code) {
         val SERVICE_DISCONNECTED = StatusCode(205)
     }
 }
+
+open class AppStatusCode(private val code: Int) : StatusCode(code) {
+    companion object {
+        val NOTHING = StatusCode(300)
+        val SIGNED_IN = StatusCode(301)
+        val EMAIL_VERIFIED = StatusCode(302)
+        val SUBSCRIPTION_PURCHASED = StatusCode(303)
+    }
+}

@@ -18,6 +18,8 @@ import androidx.lifecycle.Transformations
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.*
+import com.appapply.igflexin.codes.AppStatusCode
+import com.appapply.igflexin.events.Event
 import com.appapply.igflexin.events.EventObserver
 import com.appapply.igflexin.pojo.OnActivityResultCall
 import com.google.android.material.navigation.NavigationView
@@ -34,6 +36,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val mainActivityViewModel: MainActivityViewModel by viewModel()
 
     private var backNavigationDisabled = false
+
+    private var navigateToRes = false
+    private var resIdToNavigate = R.id.loadingFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -63,7 +68,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             when (destination.id) {
                 R.id.loadingFragment -> {
-
+                    if (navigateToRes) {
+                        navigateToRes = false
+                        navController.navigate(resIdToNavigate)
+                    }
                 }
                 R.id.dashboardFragment -> {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -98,8 +106,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         mainActivityViewModel.getShowProgressBarLiveData().observe(this, Observer {
             if (it.first) {
-                progressBarHolder.visibility = View.VISIBLE
-                progressBarHolder.animate().setDuration(200).alpha(1.0f).start()
+                if (it.second) {
+                    progressBarHolder.alpha = 1.0f
+                    progressBarHolder.visibility = View.VISIBLE
+                } else {
+                    progressBarHolder.visibility = View.VISIBLE
+                    progressBarHolder.animate().setDuration(200).alpha(1.0f).start()
+                }
             } else {
                 if (it.second) {
                     progressBarHolder.alpha = 0.0f
@@ -112,6 +125,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         })
 
+        Transformations.map(mainActivityViewModel.getUserLiveData()) {
+            it -> Event(it)
+        }.observe(this, EventObserver {
+            if(it.uid != null && it.email != null && it.emailVerified != null && it.emailVerified) {
+                mainActivityViewModel.setSubsriptionInfoUserID(it.uid)
+            }
+        })
+
+        Transformations.map(mainActivityViewModel.getIGFlexinAppStatusLiveData()) {
+            it -> Event(it)
+        }.observe(this, EventObserver {
+            d("IGFlexin", "Redirecting")
+            //mainActivityViewModel.showProgressBar(false, false)
+            when (it) {
+                AppStatusCode.NOTHING -> navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_auth)
+                AppStatusCode.SIGNED_IN -> navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_email_verification)
+                AppStatusCode.EMAIL_VERIFIED -> navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_subscription)
+                AppStatusCode.SUBSCRIPTION_PURCHASED -> navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_app)
+            }
+        })
+
+        /*
         val transformation = Transformations.switchMap(mainActivityViewModel.getEmailVerifiedLiveData()) { emailVerified ->
             if (emailVerified) {
                 return@switchMap mainActivityViewModel.getSubscriptionPurchasedLiveData()
@@ -138,9 +173,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_app)
             } else {
                 d("IGFlexin", "going to subscription")
-                navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_subscription)
+                if (navController.currentDestination?.id != R.id.subscriptionSelectionDetailFragment)
+                    navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_subscription)
             }
-        })
+        })*/
     }
 
     private fun navigateFromLoading(@IdRes resId: Int) {
@@ -150,8 +186,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (navController.popBackStack(R.id.loadingFragment, false)) {
                 navController.navigate(resId)
             } else {
+                resIdToNavigate = resId
+                navigateToRes = true
                 navController.navigate(R.id.loadingFragment)
-                if (navController.currentDestination?.id == R.id.loadingFragment) navController.navigate(resId)
             }
         }
     }

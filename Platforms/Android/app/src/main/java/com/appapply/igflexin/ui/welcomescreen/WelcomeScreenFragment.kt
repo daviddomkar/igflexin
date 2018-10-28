@@ -51,11 +51,12 @@ class WelcomeScreenFragment : Fragment() {
             welcomeScreenViewModel.aquireActivityResult(onActivityResultCall)
         })
 
+        /*
         welcomeScreenViewModel.getSignedInLiveData().observe(this, Observer {
             if (it) {
                 findNavController().popBackStack(R.id.loadingFragment, false)
             }
-        })
+        })*/
 
         welcomeScreenViewModel.getAuthStatusLiveData().observe(this, EventObserver {
             d("IGFlexin", "Called")

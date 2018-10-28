@@ -55,7 +55,6 @@ class EmailVerificationFragment : Fragment() {
                     signInOrRetryButton.setOnClickListener {
                         mainActivityViewModel.disableBackNavigation(false)
                         emailVerificationViewModel.signOut()
-                        findNavController().popBackStack(R.id.dashboardFragment, false)
                     }
                     emailSent = true
                 }

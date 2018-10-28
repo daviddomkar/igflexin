@@ -8,7 +8,6 @@ import com.appapply.igflexin.livedata.firebase.FirebaseAuthLiveData
 import com.appapply.igflexin.repositories.*
 import com.appapply.igflexin.ui.dashboard.DashboardViewModel
 import com.appapply.igflexin.ui.emailverification.EmailVerificationViewModel
-import com.appapply.igflexin.ui.loading.LoadingViewModel
 import com.appapply.igflexin.ui.signin.SignInViewModel
 import com.appapply.igflexin.ui.signup.SignUpViewModel
 import com.appapply.igflexin.ui.subscriptionselection.SubscriptionSelectionViewModel
@@ -18,7 +17,6 @@ import com.facebook.CallbackManager
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.functions.FirebaseFunctions
@@ -34,16 +32,15 @@ val appModule = module {
 
     single<AuthRepository> { FirebaseAuthRepository(get(), get(), get()) }
     single<UserRepository> { FirebaseUserRepository(get(), get()) }
-    single<SubscriptionRepository> { SubscriptionRepositoryImpl(get(), get()) }
+    single<SubscriptionRepository> { SubscriptionRepositoryImpl(get(), get(), get()) }
 
-    viewModel { MainActivityViewModel(get()) }
-    viewModel { LoadingViewModel(get(), get(), get()) }
+    viewModel { MainActivityViewModel(get(), get()) }
     viewModel { WelcomeScreenViewModel(get(), get(), get(), get()) }
     viewModel { SignUpViewModel(get()) }
     viewModel { SignInViewModel(get(), get()) }
     viewModel { EmailVerificationViewModel(get(), get()) }
     viewModel { SubscriptionSelectionViewModel(get()) }
-    viewModel { SubscriptionSelectionDetailViewModel(get(), get()) }
+    viewModel { SubscriptionSelectionDetailViewModel(get()) }
 
     viewModel { DashboardViewModel(get(), get()) }
 }

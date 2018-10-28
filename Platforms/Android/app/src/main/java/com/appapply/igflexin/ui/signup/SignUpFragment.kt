@@ -145,7 +145,6 @@ class SignUpFragment : Fragment() {
         when(authStatusCode) {
             StatusCode.SUCCESS -> {
                 mainActivityViewModel.disableBackNavigation(false)
-                findNavController().popBackStack(R.id.loadingFragment, false)
             }
             StatusCode.CANCELED -> {
                 return

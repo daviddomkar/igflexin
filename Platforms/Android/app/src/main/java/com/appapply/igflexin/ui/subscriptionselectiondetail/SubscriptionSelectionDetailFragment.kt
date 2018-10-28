@@ -1,10 +1,12 @@
 package com.appapply.igflexin.ui.subscriptionselectiondetail
 
 import android.os.Bundle
+import android.util.Log.d
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
@@ -15,10 +17,10 @@ import com.appapply.igflexin.MainActivityViewModel
 
 import com.appapply.igflexin.R
 import com.appapply.igflexin.billing.Product
-import com.appapply.igflexin.events.Event
+import com.appapply.igflexin.codes.BillingStatusCode
+import com.appapply.igflexin.codes.StatusCode
 import com.appapply.igflexin.events.EventObserver
 import com.appapply.igflexin.pojo.Subscription
-import com.appapply.igflexin.pojo.User
 import kotlinx.android.synthetic.main.subscription_selection_detail_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -27,6 +29,8 @@ class SubscriptionSelectionDetailFragment : Fragment() {
 
     private val subscriptionSelectionDetailViewModel: SubscriptionSelectionDetailViewModel by viewModel()
     private val mainActivityViewModel: MainActivityViewModel by sharedViewModel()
+
+    private var loadedOnce = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.subscription_selection_detail_fragment, container, false)
@@ -40,7 +44,7 @@ class SubscriptionSelectionDetailFragment : Fragment() {
         val subscriptionID = SubscriptionSelectionDetailFragmentArgs.fromBundle(arguments).subscriptionID
 
         val viewManager = LinearLayoutManager(requireContext())
-        val viewAdapter = SubscriptionSelectionDetailAdapter(findNavController()) {
+        val viewAdapter = SubscriptionSelectionDetailAdapter {
             subscriptionSelectionDetailViewModel.initiateSubscriptionPurchaseFlow(requireActivity(), it)
         }
 
@@ -71,7 +75,14 @@ class SubscriptionSelectionDetailFragment : Fragment() {
             }
         }
 
-        subscriptionSelectionDetailViewModel.getSubscriptionDetailsLiveData(subscriptionList).observe(this, Observer { list ->
+        subscriptionSelectionDetailViewModel.setSubscriptionDetailsLiveDataInput(subscriptionList)
+
+        subscriptionSelectionDetailViewModel.getSubscriptionDetailsLiveData().observe(this, Observer { list ->
+            if (!loadedOnce) {
+                showLoading(false)
+                loadedOnce = true
+            }
+
             subscriptionDetailsProgressBar.visibility = View.GONE
 
             val sortedList = list.sortedWith(compareBy { getSubscriptionIndex(it.id ) })
@@ -86,25 +97,58 @@ class SubscriptionSelectionDetailFragment : Fragment() {
             viewAdapter.setList(sortedList)
         })
 
-        Transformations.switchMap(subscriptionSelectionDetailViewModel.getSubscriptionPurchases()) { list ->
-            return@switchMap Transformations.switchMap(subscriptionSelectionDetailViewModel.getUserLiveData()) { user ->
-                val liveData: MutableLiveData<Event<Pair<List<Purchase>?, User>>> = MutableLiveData()
-                liveData.value = Event(Pair(list.getContentIfNotHandled(), user))
-                return@switchMap liveData
-            }
 
-            // TODO Remove event, native observer is probably enough
-        }.observe(this, EventObserver { pair ->
-            pair.first?.let {
-                for (purchase in it) {
-                    subscriptionSelectionDetailViewModel.verifySubscriptionPurchase(pair.second.uid!!, purchase.orderId, purchase.purchaseToken)
+        subscriptionSelectionDetailViewModel.getSubscriptionPurchasesLiveData().observe(this, EventObserver { list ->
+            for (purchase in list) {
+                subscriptionSelectionDetailViewModel.verifySubscriptionPurchase(purchase.sku, purchase.purchaseToken)
+            }
+        })
+
+        subscriptionSelectionDetailViewModel.getSubscriptionVerifiedLiveData().observe(this, Observer {
+            when(it) {
+                StatusCode.PENDING -> {
+                    showLoading(true)
+                }
+                StatusCode.SUCCESS -> {
+                    d("IGFlexin", "Verified")
+                }
+                StatusCode.ERROR -> {
+                    showLoading(false)
+                    showErrorDialog("The server could not verify your purchase.")
                 }
             }
         })
 
-        subscriptionSelectionDetailViewModel.getSubscriptionPurchases().observe(this, Observer {
-
+        subscriptionSelectionDetailViewModel.getSubscriptionStatusLiveData().observe(this, Observer {
+            when(it) {
+                StatusCode.ERROR -> showErrorDialog("Error loading subscriptions.")
+                StatusCode.NETWORK_ERROR -> showErrorDialog("Error loading subscriptions, check your internet connection.")
+                BillingStatusCode.BILLING_UNAVAILABLE -> showErrorDialog("Service is unavailable.")
+                BillingStatusCode.FEATURE_NOT_SUPPORTED -> showErrorDialog("Feature is not supported.")
+                BillingStatusCode.SERVICE_DISCONNECTED -> showErrorDialog("Error loading subscriptions, service is disconnected.")
+                BillingStatusCode.ITEM_ALREADY_OWNED -> {
+                    // TODO Revalidate purchases
+                }
+            }
         })
+    }
+
+    private fun showErrorDialog(message: String) {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+
+        dialogBuilder.setTitle(getString(R.string.error))
+        dialogBuilder.setMessage(message)
+        dialogBuilder.setPositiveButton(getString(R.string.ok)) { dialogInterface, _ ->
+            dialogInterface.cancel()
+        }
+
+        val dialog = dialogBuilder.create()
+        dialog.show()
+    }
+
+    private fun showLoading(show: Boolean) {
+        mainActivityViewModel.showProgressBar(show, false)
+        mainActivityViewModel.disableBackNavigation(show)
     }
 
     private fun getSubscriptionIndex(id: String): Int {
