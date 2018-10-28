@@ -3,13 +3,12 @@ package com.appapply.igflexin.ui.subscriptionselectiondetail
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
 import com.appapply.igflexin.R
 import com.appapply.igflexin.pojo.Subscription
 import kotlinx.android.synthetic.main.item_subscription.view.*
 
-class SubscriptionSelectionDetailAdapter(private val navController: NavController, private val action: (id: String) -> Unit) : RecyclerView.Adapter<SubscriptionSelectionDetailAdapter.SubscriptionSelectionDetailViewHolder>() {
+class SubscriptionSelectionDetailAdapter(private val action: (id: String) -> Unit) : RecyclerView.Adapter<SubscriptionSelectionDetailAdapter.SubscriptionSelectionDetailViewHolder>() {
 
     private var list: List<Subscription> = ArrayList()
 
@@ -34,7 +33,6 @@ class SubscriptionSelectionDetailAdapter(private val navController: NavControlle
 
         holder.subscriptionView.titleTextView.text = list[position].title
         holder.subscriptionView.descriptionTextView.text = list[position].description
-
 
         holder.subscriptionView.selectButton.setOnClickListener {
             action(list[position].id)

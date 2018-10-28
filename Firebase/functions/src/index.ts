@@ -3,6 +3,8 @@ import * as admin from 'firebase-admin';
 
 import { androidpublisher_v3, google } from "googleapis";
 
+const settings = {timestampsInSnapshots: true};
+
 const IGFlexinServiceAccount = {
     type: "service_account",
     project_id: "api-6280027237522613823-699584",
@@ -17,6 +19,7 @@ const IGFlexinServiceAccount = {
 }
 
 admin.initializeApp();
+admin.firestore().settings(settings);
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -36,19 +39,40 @@ export const updateDisplayName = functions.https.onCall((data, context) => {
     });
 });
 
-export const verifyPurchase = functions.https.onCall((data, context) => {
-    if (!context.auth.uid || !data.subscriptionID || !data.token) return null;
+export const verifyGooglePlayPurchase = functions.https.onCall((data, context) => {
+    if (!context.auth.uid || !data.subscriptionID || !data.token) throw new functions.https.HttpsError('invalid-argument', 'Parameters are not supplied.');
 
-    return jwtClient.authorize().then((credentials) => {
-
-        if (data.subscriptionID.startsWith('GPA')) data.subscriptionID = 'quarterly_subscription';
-
-        return androidPublisher.purchases.subscriptions.get({
-            packageName: 'com.appapply.igflexin',
-            subscriptionId: data.subscriptionID,
-            token: data.token
-        }).then((resource) => {
-            return resource;
+    return androidPublisher.purchases.subscriptions.get({
+        packageName: 'com.appapply.igflexin',
+        subscriptionId: data.subscriptionID,
+        token: data.token
+    }).then((response) => {
+        console.log('Got response');
+        console.log(response.status);
+        console.log(data.subscriptionID);
+        console.log(context.auth.uid);
+        console.log(response.data.orderId);
+        console.log(data.token);
+        return admin.firestore().collection('payments').add({
+            type: 'GooglePlay',
+            subscriptionID: data.subscriptionID,
+            verified: true,
+            userID: context.auth.uid,
+            orderID: response.data.orderId,
+            purchaseToken: data.token
+        });
+    }).catch((reason) => {
+        console.log('Jejda jako ' + reason);
+        return admin.firestore().collection('payments').add({
+            type: 'GooglePlay',
+            subscriptionID: data.subscriptionID,
+            verified: false,
+            userID: context.auth.uid,
+            purchaseToken: data.token
+        }).then(() => {
+            throw new functions.https.HttpsError('not-found', 'Subscription is not verified.');
+        }).catch(() => {
+            throw new functions.https.HttpsError('not-found', 'Subscription is not verified.');
         })
     })
 });

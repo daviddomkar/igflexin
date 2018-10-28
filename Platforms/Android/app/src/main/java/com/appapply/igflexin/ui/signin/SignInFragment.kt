@@ -36,6 +36,7 @@ class SignInFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        //TODO Create pending state
         signInViewModel.getAuthStatusLiveData().observe(this, EventObserver {
             handleAuthStatus(it)
         })
@@ -104,7 +105,6 @@ class SignInFragment : Fragment() {
         when(authStatusCode) {
             StatusCode.SUCCESS -> {
                 mainActivityViewModel.disableBackNavigation(false)
-                findNavController().popBackStack(R.id.loadingFragment, false)
             }
             StatusCode.CANCELED -> {
                 return

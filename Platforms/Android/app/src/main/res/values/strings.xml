@@ -79,4 +79,7 @@ Vivamus sit amet ullamcorper neque, eu volutpat arcu. Nulla neque eros, sagittis
     <string name="up_to_three_ig_accs">Up to 3 Instagram accounts.</string>
     <string name="up_to_six_ig_accs">Up to 6 Instagram accounts.</string>
     <string name="unlimited_num_of_ig_accs">Unlimited number of Instagram accounts.</string>
+    <string name="error">Error</string>
+    <string name="retry">RETRY</string>
+    <string name="ok">OK</string>
 </resources>

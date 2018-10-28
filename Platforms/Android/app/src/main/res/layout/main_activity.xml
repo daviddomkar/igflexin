@@ -38,16 +38,6 @@
             app:menu="@menu/menu_bottom_nav"/>
     </LinearLayout>
 
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/navView"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:maxWidth="@dimen/navigation_drawer_max_width"
-        app:elevation="@dimen/elevation_nav_drawer"
-        app:headerLayout="@layout/dashboard_drawer_header"
-        app:menu="@menu/drawer" />
-
     <FrameLayout
         android:id="@+id/progressBarHolder"
         android:layout_width="0dp"
@@ -69,5 +59,15 @@
             android:layout_gravity="center"
             android:indeterminate="true" />
     </FrameLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:maxWidth="@dimen/navigation_drawer_max_width"
+        app:elevation="@dimen/elevation_nav_drawer"
+        app:headerLayout="@layout/dashboard_drawer_header"
+        app:menu="@menu/drawer" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
