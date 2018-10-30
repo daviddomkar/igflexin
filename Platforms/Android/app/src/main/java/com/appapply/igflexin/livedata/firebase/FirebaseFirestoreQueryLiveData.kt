@@ -6,10 +6,9 @@ import com.google.firebase.firestore.*
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
-typealias QuerySnapshotsOrException = DataOrException<QuerySnapshot?, FirebaseFirestoreException?>
+typealias QuerySnapshotOFirestoreException = DataOrException<QuerySnapshot?, FirebaseFirestoreException?>
 
-class FirebaseFirestoreQueryLiveData(private val query: Query) : LiveData<QuerySnapshotsOrException>(), EventListener<QuerySnapshot>, KoinComponent {
-    private val firebaseFirestore: FirebaseFirestore by inject()
+class FirebaseFirestoreQueryLiveData(private val query: Query) : LiveData<QuerySnapshotOFirestoreException>(), EventListener<QuerySnapshot>, KoinComponent {
 
     private var listenerRegistration: ListenerRegistration? = null
 
@@ -24,6 +23,6 @@ class FirebaseFirestoreQueryLiveData(private val query: Query) : LiveData<QueryS
     }
 
     override fun onEvent(querySnapshot: QuerySnapshot?, firestoreFirebaseException: FirebaseFirestoreException?) {
-        value = QuerySnapshotsOrException(querySnapshot, firestoreFirebaseException)
+        value = QuerySnapshotOFirestoreException(querySnapshot, firestoreFirebaseException)
     }
 }

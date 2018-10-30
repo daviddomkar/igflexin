@@ -99,6 +99,7 @@ class SubscriptionSelectionDetailFragment : Fragment() {
 
 
         subscriptionSelectionDetailViewModel.getSubscriptionPurchasesLiveData().observe(this, EventObserver { list ->
+            showLoading(true)
             for (purchase in list) {
                 subscriptionSelectionDetailViewModel.verifySubscriptionPurchase(purchase.sku, purchase.purchaseToken)
             }
@@ -127,6 +128,7 @@ class SubscriptionSelectionDetailFragment : Fragment() {
                 BillingStatusCode.FEATURE_NOT_SUPPORTED -> showErrorDialog("Feature is not supported.")
                 BillingStatusCode.SERVICE_DISCONNECTED -> showErrorDialog("Error loading subscriptions, service is disconnected.")
                 BillingStatusCode.ITEM_ALREADY_OWNED -> {
+                    showLoading(true)
                     // TODO Revalidate purchases
                 }
             }
@@ -147,7 +149,7 @@ class SubscriptionSelectionDetailFragment : Fragment() {
     }
 
     private fun showLoading(show: Boolean) {
-        mainActivityViewModel.showProgressBar(show, false)
+        mainActivityViewModel.showProgressBar(show, true)
         mainActivityViewModel.disableBackNavigation(show)
     }
 

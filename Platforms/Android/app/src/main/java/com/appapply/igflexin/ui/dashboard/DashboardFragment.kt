@@ -1,15 +1,10 @@
 package com.appapply.igflexin.ui.dashboard
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
-import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
-import androidx.navigation.fragment.findNavController
 import com.appapply.igflexin.MainActivityViewModel
 import com.appapply.igflexin.R
 import com.appapply.igflexin.events.EventObserver
@@ -28,14 +23,12 @@ class DashboardFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        mainActivityViewModel.showProgressBar(false, false)
+
         mainActivityViewModel.getDrawerItemSelectedLiveData().observe(this, EventObserver{
             if(it.itemId == R.id.signOutMenuItem) {
                 dashboardViewModel.signOut()
             }
         })
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
     }
 }

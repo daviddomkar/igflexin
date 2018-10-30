@@ -8,6 +8,7 @@ import com.appapply.igflexin.livedata.firebase.FirebaseAuthLiveData
 import com.appapply.igflexin.repositories.*
 import com.appapply.igflexin.ui.dashboard.DashboardViewModel
 import com.appapply.igflexin.ui.emailverification.EmailVerificationViewModel
+import com.appapply.igflexin.ui.loading.LoadingViewModel
 import com.appapply.igflexin.ui.signin.SignInViewModel
 import com.appapply.igflexin.ui.signup.SignUpViewModel
 import com.appapply.igflexin.ui.subscriptionselection.SubscriptionSelectionViewModel
@@ -31,10 +32,11 @@ val appModule = module {
     single { PurchaseVerifier(get()) }
 
     single<AuthRepository> { FirebaseAuthRepository(get(), get(), get()) }
-    single<UserRepository> { FirebaseUserRepository(get(), get()) }
+    single<UserRepository> { FirebaseUserRepository(get()) }
     single<SubscriptionRepository> { SubscriptionRepositoryImpl(get(), get(), get()) }
 
     viewModel { MainActivityViewModel(get(), get()) }
+    viewModel { LoadingViewModel(get(), get()) }
     viewModel { WelcomeScreenViewModel(get(), get(), get(), get()) }
     viewModel { SignUpViewModel(get()) }
     viewModel { SignInViewModel(get(), get()) }
@@ -42,7 +44,7 @@ val appModule = module {
     viewModel { SubscriptionSelectionViewModel(get()) }
     viewModel { SubscriptionSelectionDetailViewModel(get()) }
 
-    viewModel { DashboardViewModel(get(), get()) }
+    viewModel { DashboardViewModel(get()) }
 }
 
 val firebaseModule = module {

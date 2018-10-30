@@ -1,6 +1,7 @@
 package com.appapply.igflexin.repositories
 
 import android.content.Intent
+import android.util.Log.d
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.appapply.igflexin.codes.StatusCode

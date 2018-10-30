@@ -6,9 +6,7 @@ import androidx.lifecycle.*
 import com.appapply.igflexin.codes.AppStatusCode
 import com.appapply.igflexin.codes.StatusCode
 import com.appapply.igflexin.events.Event
-import com.appapply.igflexin.pojo.OnActivityResultCall
-import com.appapply.igflexin.pojo.StartActivityForResultCall
-import com.appapply.igflexin.pojo.User
+import com.appapply.igflexin.pojo.*
 import com.appapply.igflexin.repositories.SubscriptionRepository
 import com.appapply.igflexin.repositories.UserRepository
 
@@ -21,14 +19,16 @@ class MainActivityViewModel(private val userRepository: UserRepository, private 
     private val disableBackNavigationLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     private val userLiveData = userRepository.getUserLiveData()
-    private val signedInLiveData = Transformations.map(userRepository.getUserLiveData()) { user -> user.uid != null }
-    private val emailVerifiedLiveData = Transformations.map(userRepository.getUserLiveData()) { user -> user.email != null && user.emailVerified != null && user.emailVerified }
-    private val subscriptionPurchasedLiveData = MutableLiveData<Boolean>()
+    private val subscriptionInfoLiveData = subscriptionRepository.getSubscriptionInfoLiveData()
+
+    private val signedInLiveData = Transformations.map(userRepository.getUserLiveData()) { user -> Pair(user.status == StatusCode.SUCCESS && user.data != null, user.status == StatusCode.SUCCESS && user.data != null && user.data.emailVerified) }
+    private val subscriptionPurchasedLiveData = Transformations.map(subscriptionRepository.getSubscriptionInfoLiveData()) { resource -> resource.status == StatusCode.SUCCESS && resource.data != null && resource.data.verified }
+
+    private val subscriptionVerifiedLiveData = subscriptionRepository.getSubscriptionVerifiedLiveData()
 
     private val igflexinAppStatusLiveData = MediatorLiveData<StatusCode>().also { data ->
-        data.addSource(signedInLiveData) { data.value = verifyAppStatus(signedInLiveData, emailVerifiedLiveData, subscriptionPurchasedLiveData )}
-        data.addSource(emailVerifiedLiveData) { data.value = verifyAppStatus(signedInLiveData, emailVerifiedLiveData, subscriptionPurchasedLiveData )}
-        data.addSource(subscriptionPurchasedLiveData) { data.value = verifyAppStatus(signedInLiveData, emailVerifiedLiveData, subscriptionPurchasedLiveData )}
+        data.addSource(signedInLiveData) { data.value = verifyAppStatus(signedInLiveData, subscriptionPurchasedLiveData )}
+        data.addSource(subscriptionPurchasedLiveData) { data.value = verifyAppStatus(signedInLiveData, subscriptionPurchasedLiveData )}
     }
 
     fun showProgressBar(show: Boolean, explicit: Boolean) {
@@ -37,6 +37,14 @@ class MainActivityViewModel(private val userRepository: UserRepository, private 
 
     fun setSubsriptionInfoUserID(userID: String) {
         subscriptionRepository.setSubscriptionInfoUserID(userID)
+    }
+
+    fun verifySubscriptionPurchase(id: String, token: String) {
+        subscriptionRepository.verifyPurchase(id, token)
+    }
+
+    fun getSubscriptionVerifiedLiveData(): LiveData<StatusCode> {
+        return subscriptionVerifiedLiveData
     }
 
     fun getShowProgressBarLiveData() : LiveData<Pair<Boolean, Boolean>> {
@@ -85,20 +93,24 @@ class MainActivityViewModel(private val userRepository: UserRepository, private 
         return disableBackNavigationLiveData
     }
 
-    fun getUserLiveData(): LiveData<User> {
+    fun getUserLiveData(): LiveData<Resource<User>> {
         return userLiveData
     }
 
-    private fun verifyAppStatus(signedInResult: LiveData<Boolean>, emailVerifiedResult: LiveData<Boolean>, subscriptionPurchasedResult: LiveData<Boolean>) : StatusCode {
-        if (signedInResult.value == null || emailVerifiedResult.value == null) {
+    fun getSubscriptionInfoLiveData(): LiveData<Resource<SubscriptionInfo>> {
+        return subscriptionInfoLiveData
+    }
+
+    private fun verifyAppStatus(signedInResult: LiveData<Pair<Boolean, Boolean>>, subscriptionPurchasedResult: LiveData<Boolean>) : StatusCode {
+        if (signedInResult.value == null) {
             return StatusCode.PENDING
         }
 
         return when {
-            signedInResult.value == false -> AppStatusCode.NOTHING
-            emailVerifiedResult.value == false -> AppStatusCode.SIGNED_IN
-            subscriptionPurchasedResult.value == false -> AppStatusCode.EMAIL_VERIFIED
+            !signedInResult.value!!.first -> AppStatusCode.NOTHING
+            !signedInResult.value!!.second -> AppStatusCode.SIGNED_IN
             subscriptionPurchasedResult.value == null -> StatusCode.PENDING
+            subscriptionPurchasedResult.value == false -> AppStatusCode.EMAIL_VERIFIED
             else -> AppStatusCode.SUBSCRIPTION_PURCHASED
         }
     }

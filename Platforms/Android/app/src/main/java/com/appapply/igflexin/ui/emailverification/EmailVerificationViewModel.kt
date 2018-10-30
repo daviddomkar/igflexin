@@ -8,7 +8,7 @@ import com.appapply.igflexin.repositories.AuthRepository
 import com.appapply.igflexin.repositories.UserRepository
 
 class EmailVerificationViewModel(private val authRepository: AuthRepository, private val userRepository: UserRepository) : ViewModel() {
-    private val signedInLiveData = Transformations.map(userRepository.getUserLiveData()) { user -> user.uid != null}
+    private val signedInLiveData = Transformations.map(userRepository.getUserLiveData()) { user -> user.status == StatusCode.SUCCESS && user.data != null }
     private val verificationEmailStatusLiveData = authRepository.getVerificationEmailStatusLiveData()
 
     fun sendVerificationEmail() {

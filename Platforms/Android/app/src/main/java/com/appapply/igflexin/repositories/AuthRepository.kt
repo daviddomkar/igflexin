@@ -8,6 +8,7 @@ import com.appapply.igflexin.codes.StatusCode
 import com.appapply.igflexin.events.Event
 import com.appapply.igflexin.livedata.firebase.FirebaseAuthLiveData
 import com.google.android.gms.tasks.Task
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.*
 import com.google.firebase.functions.FirebaseFunctions
 import org.koin.standalone.inject
@@ -50,7 +51,6 @@ class FirebaseAuthRepository(private val firebaseAuth: FirebaseAuth, private val
     override fun signInWithCredential(credential: AuthCredential) {
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener {
             if (handleSignInTask(it)) {
-                d("IGFlexin", "haha byl jsi potrolen")
                 authStatusLiveData.value = Event(StatusCode.SUCCESS)
             }
         }
@@ -91,6 +91,8 @@ class FirebaseAuthRepository(private val firebaseAuth: FirebaseAuth, private val
                 task.exception is FirebaseAuthInvalidUserException -> {
                     val invalidUserException: FirebaseAuthInvalidUserException = task.exception as FirebaseAuthInvalidUserException
 
+                    d("IGFlexin", "jejda jako " + invalidUserException.errorCode)
+
                     when (invalidUserException.errorCode) {
                         "ERROR_USER_DISABLED" -> authStatusLiveData.value = Event(AuthStatusCode.USER_DISABLED)
                         "ERROR_USER_NOT_FOUND " -> authStatusLiveData.value = Event(AuthStatusCode.USER_NOT_FOUND)
@@ -103,6 +105,7 @@ class FirebaseAuthRepository(private val firebaseAuth: FirebaseAuth, private val
                 task.exception is FirebaseAuthInvalidCredentialsException -> authStatusLiveData.value = Event(AuthStatusCode.INVALID_CREDENTIALS)
                 task.exception is FirebaseAuthUserCollisionException -> authStatusLiveData.value = Event(AuthStatusCode.EMAIL_ALREADY_IN_USE)
                 task.exception is FirebaseAuthWeakPasswordException -> authStatusLiveData.value = Event(AuthStatusCode.WEAK_PASSWORD)
+                task.exception is FirebaseNetworkException -> authStatusLiveData.value = Event(StatusCode.NETWORK_ERROR)
                 else -> authStatusLiveData.value = Event(StatusCode.ERROR)
             }
         }

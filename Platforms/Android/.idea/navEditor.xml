@@ -30,6 +30,30 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
+                  <entry key="dashboardFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="-152" />
+                            <option name="y" value="90" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="instagramAccountManagementFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="114" />
+                            <option name="y" value="89" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="loadingFragment">
                     <value>
                       <LayoutPositions>
@@ -41,7 +65,7 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_loadingFragment_to_nav_graph_app">
+                            <entry key="action_loadingFragment_to_dashboardFragment">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -57,37 +81,6 @@
                               </value>
                             </entry>
                             <entry key="action_loadingFragment_to_nav_graph_subscription">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                          </map>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="nav_graph_app">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="113" />
-                            <option name="y" value="-15" />
-                          </Point>
-                        </option>
-                        <option name="myPositions">
-                          <map>
-                            <entry key="dashboardFragment">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                            <entry key="instagramAccountManagementFragment">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                            <entry key="subscriptionManagementFragment">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -246,6 +239,18 @@
                               </value>
                             </entry>
                           </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="subscriptionManagementFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="364" />
+                            <option name="y" value="86" />
+                          </Point>
                         </option>
                       </LayoutPositions>
                     </value>
