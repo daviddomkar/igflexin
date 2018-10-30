@@ -3,7 +3,6 @@ package com.appapply.igflexin.ui.welcomescreen
 import android.app.Activity
 import android.content.Intent
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.appapply.igflexin.codes.StatusCode
@@ -17,7 +16,7 @@ import com.google.firebase.auth.AuthCredential
 
 class WelcomeScreenViewModel(private val authRepository: AuthRepository, private val googleSignInRepository: GoogleSignInRepository, private val facebookRepository: FacebookRepository, private val userRepository: UserRepository) : ViewModel() {
     private val authStatusLiveData = authRepository.getAuthStatusLiveData()
-    private val signedInLiveData = Transformations.map(userRepository.getUserLiveData()) { user -> user.uid != null}
+    private val signedInLiveData = Transformations.map(userRepository.getUserLiveData()) { user -> user.status == StatusCode.SUCCESS && user.data != null }
 
     fun init() {
         facebookRepository.load()
@@ -25,10 +24,6 @@ class WelcomeScreenViewModel(private val authRepository: AuthRepository, private
 
     fun aquireActivityResult(onActivityResultCall: OnActivityResultCall) {
         facebookRepository.aquireActivityResult(onActivityResultCall)
-    }
-
-    fun getSignedInLiveData(): LiveData<Boolean> {
-        return signedInLiveData
     }
 
     fun getAuthStatusLiveData(): LiveData<Event<StatusCode>> {

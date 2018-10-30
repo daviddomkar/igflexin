@@ -508,7 +508,7 @@ public class NavigationUI {
             if (mDrawerLayout == null && isStartDestination) {
                 setNavigationIcon(null);
             } else {
-                setActionBarUpIndicator(mDrawerLayout != null && isStartDestination);
+                setActionBarUpIndicator(mDrawerLayout != null && (isStartDestination || destination.getId() == R.id.dashboardFragment));
             }
         }
 

@@ -41,3 +41,12 @@ open class AppStatusCode(private val code: Int) : StatusCode(code) {
         val SUBSCRIPTION_PURCHASED = StatusCode(303)
     }
 }
+
+open class SubscriptionStatusCode(private val code: Int) : StatusCode(code) {
+    companion object {
+        val NOT_FOUND = StatusCode(400)
+        val NOT_FOUND_IN_CACHE = StatusCode(401)
+        val NOT_FOUND_ON_SERVER = StatusCode(402)
+    }
+}
+

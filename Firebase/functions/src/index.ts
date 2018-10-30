@@ -47,22 +47,34 @@ export const verifyGooglePlayPurchase = functions.https.onCall((data, context) =
         subscriptionId: data.subscriptionID,
         token: data.token
     }).then((response) => {
-        console.log('Got response');
-        console.log(response.status);
-        console.log(data.subscriptionID);
-        console.log(context.auth.uid);
-        console.log(response.data.orderId);
-        console.log(data.token);
-        return admin.firestore().collection('payments').add({
-            type: 'GooglePlay',
-            subscriptionID: data.subscriptionID,
-            verified: true,
-            userID: context.auth.uid,
-            orderID: response.data.orderId,
-            purchaseToken: data.token
+        return admin.firestore().collection('payments').where('userID', '==', context.auth.uid).limit(1).get().then((value) => {
+           if (value.empty) {
+               return admin.firestore().collection('payments').add({
+                   type: 'GooglePlay',
+                   subscriptionID: data.subscriptionID,
+                   verified: true,
+                   userID: context.auth.uid,
+                   orderID: response.data.orderId,
+                   purchaseToken: data.token
+               }).then(() => {
+                    return 'SUCCESS'
+               });
+           } else {
+               return admin.firestore().collection('payments').doc(value.docs[0].id).update({
+                   type: 'GooglePlay',
+                   subscriptionID: data.subscriptionID,
+                   verified: true,
+                   userID: context.auth.uid,
+                   orderID: response.data.orderId,
+                   purchaseToken: data.token
+               }).then(() => {
+                   return 'SUCCESS'
+               });
+           }
         });
+
+
     }).catch((reason) => {
-        console.log('Jejda jako ' + reason);
         return admin.firestore().collection('payments').add({
             type: 'GooglePlay',
             subscriptionID: data.subscriptionID,

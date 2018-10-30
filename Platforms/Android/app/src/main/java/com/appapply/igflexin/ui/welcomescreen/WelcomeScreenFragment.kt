@@ -155,6 +155,9 @@ class WelcomeScreenFragment : Fragment() {
             StatusCode.ERROR -> {
                 mainActivityViewModel.snack(getString(R.string.error_occurred))
             }
+            StatusCode.NETWORK_ERROR -> {
+                mainActivityViewModel.snack(getString(R.string.error_check_your_connection))
+            }
             AuthStatusCode.USER_NOT_FOUND -> {
                 mainActivityViewModel.snack(getString(R.string.account_not_found))
             }

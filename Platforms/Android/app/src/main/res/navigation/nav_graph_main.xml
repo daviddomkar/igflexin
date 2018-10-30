@@ -13,7 +13,7 @@
         <action
             android:id="@+id/action_loadingFragment_to_nav_graph_auth"
             app:destination="@id/nav_graph_auth"
-            app:popUpTo="@+id/loadingFragment"
+            app:launchSingleTop="true"
             app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_loadingFragment_to_nav_graph_email_verification"
@@ -22,8 +22,10 @@
             android:id="@+id/action_loadingFragment_to_nav_graph_subscription"
             app:destination="@id/nav_graph_subscription" />
         <action
-            android:id="@+id/action_loadingFragment_to_nav_graph_app"
-            app:destination="@id/nav_graph_app" />
+            android:id="@+id/action_loadingFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@+id/dashboardFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <navigation
@@ -118,27 +120,28 @@
                 app:argType="string" />
         </fragment>
     </navigation>
-    <navigation
-        android:id="@+id/nav_graph_app"
-        app:startDestination="@id/dashboardFragment">
-        <fragment
-            android:id="@+id/dashboardFragment"
-            android:name="com.appapply.igflexin.ui.dashboard.DashboardFragment"
-            android:label="@string/dashboard"
-            tools:layout="@layout/dashboard_fragment">
-        </fragment>
-        <fragment
-            android:id="@+id/instagramAccountManagementFragment"
-            android:name="com.appapply.igflexin.ui.instagramaccountmanagement.InstagramAccountManagementFragment"
-            android:label="@string/accounts"
-            tools:layout="@layout/instagram_account_management_fragment">
-        </fragment>
 
-        <fragment
-            android:id="@+id/subscriptionManagementFragment"
-            android:name="com.appapply.igflexin.ui.subscriptionmanagement.SubscriptionManagementFragment"
-            android:label="@string/subscription"
-            tools:layout="@layout/subscription_management_fragment" />
-    </navigation>
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.appapply.igflexin.ui.dashboard.DashboardFragment"
+        android:label="@string/dashboard"
+        tools:layout="@layout/dashboard_fragment"/>
+    <fragment
+        android:id="@+id/instagramAccountManagementFragment"
+        android:name="com.appapply.igflexin.ui.instagramaccountmanagement.InstagramAccountManagementFragment"
+        android:label="@string/accounts"
+        tools:layout="@layout/instagram_account_management_fragment"/>
+
+    <fragment
+        android:id="@+id/subscriptionManagementFragment"
+        android:name="com.appapply.igflexin.ui.subscriptionmanagement.SubscriptionManagementFragment"
+        android:label="@string/subscription"
+        tools:layout="@layout/subscription_management_fragment" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.appapply.igflexin.ui.settings.SettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/settings_fragment" />
 
 </navigation>
