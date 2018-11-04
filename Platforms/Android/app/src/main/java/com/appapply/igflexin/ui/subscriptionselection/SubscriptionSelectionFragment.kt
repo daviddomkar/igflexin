@@ -68,6 +68,8 @@ class SubscriptionSelectionFragment : Fragment() {
             getSubscriptions()
         }
 
+        dialogBuilder.setCancelable(false)
+
         val dialog = dialogBuilder.create()
         dialog.show()
     }

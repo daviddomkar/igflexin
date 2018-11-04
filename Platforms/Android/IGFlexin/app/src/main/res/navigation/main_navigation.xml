@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/loaderFragment">
+
+    <fragment
+        android:id="@+id/appFragment"
+        android:name="com.appapply.igflexin.ui.app.AppFragment"
+        android:label="app_fragment"
+        tools:layout="@layout/app_fragment" />
+    <fragment
+        android:id="@+id/authFragment"
+        android:name="com.appapply.igflexin.ui.auth.AuthFragment"
+        android:label="auth_fragment"
+        tools:layout="@layout/auth_fragment" />
+    <fragment
+        android:id="@+id/loaderFragment"
+        android:name="com.appapply.igflexin.ui.loader.LoaderFragment"
+        android:label="loader_fragment"
+        tools:layout="@layout/loader_fragment" >
+        <action
+            android:id="@+id/action_loaderFragment_to_authFragment"
+            app:destination="@id/authFragment" />
+        <action
+            android:id="@+id/action_loaderFragment_to_subscriptionFragment"
+            app:destination="@id/subscriptionFragment" />
+        <action
+            android:id="@+id/action_loaderFragment_to_appFragment"
+            app:destination="@id/appFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/subscriptionFragment"
+        android:name="com.appapply.igflexin.ui.subscription.SubscriptionFragment"
+        android:label="subscription_fragment"
+        tools:layout="@layout/subscription_fragment" />
+</navigation>

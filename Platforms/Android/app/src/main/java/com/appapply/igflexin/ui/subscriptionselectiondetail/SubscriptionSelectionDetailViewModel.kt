@@ -35,6 +35,10 @@ class SubscriptionSelectionDetailViewModel(private val subscriptionRepository: S
         subscriptionRepository.verifyPurchase(id, token)
     }
 
+    fun validateSubscriptions() {
+        subscriptionRepository.validateGooglePlaySubscriptions()
+    }
+
     fun getSubscriptionDetailsLiveData(): LiveData<List<Subscription>> {
         return subscriptionDetailsLiveData
     }

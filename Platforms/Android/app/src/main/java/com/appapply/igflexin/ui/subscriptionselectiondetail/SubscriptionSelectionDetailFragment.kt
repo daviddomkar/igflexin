@@ -129,7 +129,7 @@ class SubscriptionSelectionDetailFragment : Fragment() {
                 BillingStatusCode.SERVICE_DISCONNECTED -> showErrorDialog("Error loading subscriptions, service is disconnected.")
                 BillingStatusCode.ITEM_ALREADY_OWNED -> {
                     showLoading(true)
-                    // TODO Revalidate purchases
+                    subscriptionSelectionDetailViewModel.validateSubscriptions()
                 }
             }
         })
@@ -143,6 +143,8 @@ class SubscriptionSelectionDetailFragment : Fragment() {
         dialogBuilder.setPositiveButton(getString(R.string.ok)) { dialogInterface, _ ->
             dialogInterface.cancel()
         }
+
+        dialogBuilder.setCancelable(false)
 
         val dialog = dialogBuilder.create()
         dialog.show()
