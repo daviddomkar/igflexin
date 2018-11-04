@@ -1,16 +1,16 @@
 package com.appapply.igflexin
 
-import android.util.Log.d
 import android.view.MenuItem
 import androidx.lifecycle.*
 import com.appapply.igflexin.codes.AppStatusCode
 import com.appapply.igflexin.codes.StatusCode
 import com.appapply.igflexin.events.Event
 import com.appapply.igflexin.pojo.*
+import com.appapply.igflexin.repositories.AuthRepository
 import com.appapply.igflexin.repositories.SubscriptionRepository
 import com.appapply.igflexin.repositories.UserRepository
 
-class MainActivityViewModel(private val userRepository: UserRepository, private val subscriptionRepository: SubscriptionRepository) : ViewModel() {
+class MainActivityViewModel(private val userRepository: UserRepository, private val subscriptionRepository: SubscriptionRepository, private val authRepository: AuthRepository) : ViewModel() {
     private val showProgressBarLiveData: MutableLiveData<Pair<Boolean, Boolean>> = MutableLiveData()
     private val startActivityForResultCallLiveData: MutableLiveData<Event<StartActivityForResultCall>> = MutableLiveData()
     private val onActivityResultCallLiveData: MutableLiveData<Event<OnActivityResultCall>> = MutableLiveData()
@@ -25,6 +25,7 @@ class MainActivityViewModel(private val userRepository: UserRepository, private 
     private val subscriptionPurchasedLiveData = Transformations.map(subscriptionRepository.getSubscriptionInfoLiveData()) { resource -> resource.status == StatusCode.SUCCESS && resource.data != null && resource.data.verified }
 
     private val subscriptionVerifiedLiveData = subscriptionRepository.getSubscriptionVerifiedLiveData()
+    private val subscriptionQueryLiveData = subscriptionRepository.getSubscriptionQueryLiveData()
 
     private val igflexinAppStatusLiveData = MediatorLiveData<StatusCode>().also { data ->
         data.addSource(signedInLiveData) { data.value = verifyAppStatus(signedInLiveData, subscriptionPurchasedLiveData )}
@@ -41,6 +42,10 @@ class MainActivityViewModel(private val userRepository: UserRepository, private 
 
     fun verifySubscriptionPurchase(id: String, token: String) {
         subscriptionRepository.verifyPurchase(id, token)
+    }
+
+    fun validateGooglePlaySubscriptions() {
+        subscriptionRepository.validateGooglePlaySubscriptions()
     }
 
     fun getSubscriptionVerifiedLiveData(): LiveData<StatusCode> {
@@ -99,6 +104,14 @@ class MainActivityViewModel(private val userRepository: UserRepository, private 
 
     fun getSubscriptionInfoLiveData(): LiveData<Resource<SubscriptionInfo>> {
         return subscriptionInfoLiveData
+    }
+
+    fun getSubscriptionQueryLiveData() : LiveData<Event<StatusCode>> {
+        return subscriptionQueryLiveData
+    }
+
+    fun signOut() {
+        authRepository.signOut()
     }
 
     private fun verifyAppStatus(signedInResult: LiveData<Pair<Boolean, Boolean>>, subscriptionPurchasedResult: LiveData<Boolean>) : StatusCode {

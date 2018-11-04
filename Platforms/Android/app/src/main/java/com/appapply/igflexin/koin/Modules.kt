@@ -33,9 +33,9 @@ val appModule = module {
 
     single<AuthRepository> { FirebaseAuthRepository(get(), get(), get()) }
     single<UserRepository> { FirebaseUserRepository(get()) }
-    single<SubscriptionRepository> { SubscriptionRepositoryImpl(get(), get(), get()) }
+    single<SubscriptionRepository> { SubscriptionRepositoryImpl(get(), get(), get(), get()) }
 
-    viewModel { MainActivityViewModel(get(), get()) }
+    viewModel { MainActivityViewModel(get(), get(), get()) }
     viewModel { LoadingViewModel(get(), get()) }
     viewModel { WelcomeScreenViewModel(get(), get(), get(), get()) }
     viewModel { SignUpViewModel(get()) }

@@ -10,6 +10,7 @@ import com.appapply.igflexin.billing.BillingManager
 import com.appapply.igflexin.billing.PurchaseVerifier
 import com.appapply.igflexin.codes.StatusCode
 import com.appapply.igflexin.codes.SubscriptionStatusCode
+import com.appapply.igflexin.events.Event
 import com.appapply.igflexin.livedata.billing.BillingManagerStatusLiveData
 import com.appapply.igflexin.livedata.billing.PurchasesUpdatedLiveData
 import com.appapply.igflexin.livedata.firebase.FirebaseFirestoreQueryLiveData
@@ -17,6 +18,7 @@ import com.appapply.igflexin.pojo.DataOrException
 import com.appapply.igflexin.pojo.Resource
 import com.appapply.igflexin.pojo.Subscription
 import com.appapply.igflexin.pojo.SubscriptionInfo
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
@@ -26,20 +28,23 @@ interface SubscriptionRepository {
     fun initiateSubscriptionPurchaseFlow(activity: Activity, subscriptionID: String)
     fun verifyPurchase(id: String, token: String)
     fun setSubscriptionInfoUserID(id: String)
+    fun validateGooglePlaySubscriptions()
 
     fun getSubscriptionStatusLiveData() : BillingManagerStatusLiveData
     fun getSubscriptionDetailsLiveData(subscriptionIDs: List<String>) : LiveData<List<Subscription>>
     fun getSubscriptionPurchasesLiveData() : PurchasesUpdatedLiveData
     fun getSubscriptionVerifiedLiveData() : LiveData<StatusCode>
     fun getSubscriptionInfoLiveData() : LiveData<Resource<SubscriptionInfo>>
+    fun getSubscriptionQueryLiveData() : LiveData<Event<StatusCode>>
 }
 
 typealias QuerySnapshotOrException = DataOrException<QuerySnapshot?, Exception?>
 
-class SubscriptionRepositoryImpl(private val billingManager: BillingManager, private val purchaseVerifier: PurchaseVerifier, private val firebaseFirestore: FirebaseFirestore) : SubscriptionRepository {
+class SubscriptionRepositoryImpl(private val billingManager: BillingManager, private val purchaseVerifier: PurchaseVerifier, private val firebaseFirestore: FirebaseFirestore, private val firebaseAuth: FirebaseAuth) : SubscriptionRepository {
     private val billingManagerStatusLiveData = BillingManagerStatusLiveData()
     private val purchasesUpdatedLiveData = PurchasesUpdatedLiveData()
     private val purchaseVerifiedLiveData = purchaseVerifier.getPurchaseVerifiedLiveData()
+    private val subscriptionQueryLiveData = MutableLiveData<Event<StatusCode>>()
 
     private val subscriptionInfoUserIdLiveData = MutableLiveData<String>()
 
@@ -136,6 +141,36 @@ class SubscriptionRepositoryImpl(private val billingManager: BillingManager, pri
         }
     }
 
+    override fun validateGooglePlaySubscriptions() {
+        val result = billingManager.queryPurchases(BillingClient.SkuType.SUBS)
+
+        if(result.responseCode != 0) {
+            if (result.purchasesList == null || result.purchasesList.isEmpty()) {
+                subscriptionQueryLiveData.value = Event(SubscriptionStatusCode.NOT_FOUND)
+            } else {
+                for (purchase in result.purchasesList) {
+                    firebaseFirestore.collection("payments").whereEqualTo("purchaseToken", purchase.purchaseToken).get(Source.SERVER).addOnCompleteListener {
+                        if (!it.isSuccessful) {
+                            subscriptionQueryLiveData.value = Event(SubscriptionStatusCode.NOT_FOUND)
+                        } else {
+                            if (it.result != null && !it.result!!.documents.isEmpty()) {
+                                if(it.result!!.documents.first() != null && firebaseAuth.currentUser != null && it.result!!.documents.first().getString("userID") != firebaseAuth.currentUser!!.uid) {
+                                    purchaseVerifier.verifyPurchase(purchase.sku, purchase.purchaseToken)
+                                } else {
+                                    subscriptionQueryLiveData.value = Event(SubscriptionStatusCode.BOUGHT_ON_ANOTHER_ACCOUNT)
+                                }
+                            } else {
+                                subscriptionQueryLiveData.value = Event(SubscriptionStatusCode.NOT_FOUND)
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            subscriptionQueryLiveData.value = Event(SubscriptionStatusCode.NOT_FOUND)
+        }
+    }
+
     override fun getSubscriptionStatusLiveData(): BillingManagerStatusLiveData {
         return billingManagerStatusLiveData
     }
@@ -169,5 +204,9 @@ class SubscriptionRepositoryImpl(private val billingManager: BillingManager, pri
 
     override fun getSubscriptionInfoLiveData(): LiveData<Resource<SubscriptionInfo>> {
         return subscriptionInfoLiveData
+    }
+
+    override fun getSubscriptionQueryLiveData(): LiveData<Event<StatusCode>> {
+        return subscriptionQueryLiveData
     }
 }

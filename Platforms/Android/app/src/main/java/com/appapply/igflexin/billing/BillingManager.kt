@@ -74,6 +74,10 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
         }
     }
 
+    fun queryPurchases(@BillingClient.SkuType skuType: String) : Purchase.PurchasesResult {
+        return billingClient.queryPurchases(skuType)
+    }
+
     fun addStatusListener(listener: BillingStatusListener) {
         statusListeners.add(listener)
     }

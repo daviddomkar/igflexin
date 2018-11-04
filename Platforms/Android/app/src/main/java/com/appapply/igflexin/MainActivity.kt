@@ -150,9 +150,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     mainActivityViewModel.showProgressBar(true, false)
                 }
                 StatusCode.SUCCESS -> {
+                    subscriptionNotFoundExecuting = false
                     d("IGFlexin", "Verified")
                 }
                 StatusCode.ERROR -> {
+                    subscriptionNotFoundExecuting = false
                     mainActivityViewModel.showProgressBar(false, false)
                     showErrorDialog("The server could not verify your purchase.") {
                         finish()
@@ -206,7 +208,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
 
         mainActivityViewModel.getIGFlexinAppStatusLiveData().observe(this, Observer {
-            //mainActivityViewModel.showProgressBar(false, false)
             when (it) {
                 AppStatusCode.NOTHING -> {
                     d("IGFlexin", "Redirecting auth")
@@ -221,7 +222,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     d("IGFlexin", "Redirecting subs")
                 }
                 AppStatusCode.SUBSCRIPTION_PURCHASED -> {
-                    //mainActivityViewModel.showProgressBar(false, false)
                     d("IGFlexin", "Redirecting app")
                     if (navController.currentDestination?.id != R.id.dashboardFragment && navController.currentDestination?.id != R.id.instagramAccountManagementFragment && navController.currentDestination?.id != R.id.subscriptionManagementFragment)
                         navigateFromLoading(R.id.action_loadingFragment_to_dashboardFragment)
@@ -229,37 +229,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         })
 
-        /*
-        val transformation = Transformations.switchMap(mainActivityViewModel.getEmailVerifiedLiveData()) { emailVerified ->
-            if (emailVerified) {
-                return@switchMap mainActivityViewModel.getSubscriptionPurchasedLiveData()
-            } else {
-                d("IGFlexin", "going to email")
-                navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_email_verification)
-                return@switchMap null
+        mainActivityViewModel.getSubscriptionQueryLiveData().observe(this, EventObserver {
+            mainActivityViewModel.showProgressBar(false, false)
+            when (it) {
+                SubscriptionStatusCode.NOT_FOUND ->  if (navController.currentDestination?.id != R.id.subscriptionSelectionDetailFragment && navController.currentDestination?.id != R.id.subscriptionSelectionFragment) navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_subscription)
+                SubscriptionStatusCode.BOUGHT_ON_ANOTHER_ACCOUNT -> showErrorDialog("Subscription was bought with another account, sign in with that account to access your content.") {
+                    mainActivityViewModel.signOut()
+                }
             }
-        }
 
-        val transformation2 = Transformations.switchMap(mainActivityViewModel.getSignedInLiveData()) { signedIn ->
-            if (signedIn) {
-                return@switchMap transformation
-            } else {
-                d("IGFlexin", "going to auth")
-                navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_auth)
-                return@switchMap null
-            }
-        }
-
-        transformation2.observe(this, Observer {
-            if (it) {
-                d("IGFlexin", "going to app")
-                navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_app)
-            } else {
-                d("IGFlexin", "going to subscription")
-                if (navController.currentDestination?.id != R.id.subscriptionSelectionDetailFragment)
-                    navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_subscription)
-            }
-        })*/
+            subscriptionNotFoundExecuting = false
+        })
     }
 
     private fun showErrorDialog(message: String, action: () -> Unit = {}) {
@@ -272,15 +252,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             dialogInterface.cancel()
         }
 
+        dialogBuilder.setCancelable(false)
+
         val dialog = dialogBuilder.create()
         dialog.show()
     }
 
     private fun subscriptionNotFound() {
         subscriptionNotFoundExecuting = true
-        // TODO search for purchases
-        navigateFromLoading(R.id.action_loadingFragment_to_nav_graph_subscription)
-        subscriptionNotFoundExecuting = false
+        mainActivityViewModel.validateGooglePlaySubscriptions()
     }
 
     private fun navigateFromLoading(@IdRes resId: Int) {

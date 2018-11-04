@@ -47,6 +47,7 @@ open class SubscriptionStatusCode(private val code: Int) : StatusCode(code) {
         val NOT_FOUND = StatusCode(400)
         val NOT_FOUND_IN_CACHE = StatusCode(401)
         val NOT_FOUND_ON_SERVER = StatusCode(402)
+        val BOUGHT_ON_ANOTHER_ACCOUNT = StatusCode(402)
     }
 }
 

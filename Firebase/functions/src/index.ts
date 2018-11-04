@@ -21,13 +21,6 @@ const IGFlexinServiceAccount = {
 admin.initializeApp();
 admin.firestore().settings(settings);
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
-
 const jwtClient = new google.auth.JWT(IGFlexinServiceAccount.client_email, null, IGFlexinServiceAccount.private_key, ['https://www.googleapis.com/auth/androidpublisher'], null);
 const androidPublisher = new androidpublisher_v3.Androidpublisher({ auth: jwtClient });
 
@@ -87,4 +80,11 @@ export const verifyGooglePlayPurchase = functions.https.onCall((data, context) =
             throw new functions.https.HttpsError('not-found', 'Subscription is not verified.');
         })
     })
+});
+
+export const playConsolePubSub = functions.pubsub.topic('PlayConsole').onPublish((message) => {
+    const messageBody = message.data ? Buffer.from(message.data, 'base64').toString() : null;
+    console.log(messageBody);
+
+    return null;
 });
