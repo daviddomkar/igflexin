@@ -3,4 +3,47 @@
 
     <string name="facebook_app_id" translatable="false">686772235042657</string>
     <string name="fb_login_protocol_scheme" translatable="false">fb686772235042657</string>
+
+    <string name="increase_your_ig_follower_count">Increase your IG follower count!</string>
+    <string name="log_in">Log in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="or">OR</string>
+    <string name="how_it_works_see_for_yourself">How it works? See for yourself!</string>
+    <string name="by_creating_an_account_i_accept_igflexin_s_terms_of_service">By creating an account, I accept IGFlexin\'s\nTerms of Service.</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="continue_with_facebook">Continue with Facebook</string>
+    <string name="error_check_your_connection">Error, check your connection!</string>
+    <string name="error_occurred">An error occurred!</string>
+    <string name="account_not_found">User with this email does not exist!</string>
+    <string name="account_disabled">Account with this email is disabled!</string>
+    <string name="account_already_exists">Account with this email already exists, sign in!</string>
+    <string name="account_exists_with_different_auth_method">This email is associated with another auth method!</string>
+    <string name="account_auth_credential_link_to_another_account">This credential is linked to another account!</string>
+    <string name="invalid_password">Invalid email and password combination!</string>
+    <string name="weak_password">Your password is too weak!</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="password_again">Password Again</string>
+    <string name="back">Back</string>
+    <string name="error_name">Name must be at least 3 characters long!</string>
+    <string name="error_email">Wrong email format!</string>
+    <string name="error_password">Password must have at least 8 characters, 1 capital letter and 1 number!</string>
+    <string name="error_password_again">Passwords are not same!</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="verification_link_has_been_sent_to_your_email_activate_your_account_and_go_back_to_the_app_to_sign_in">Verification link has been sent to your email. Activate your account and go back to the app to sign in!</string>
+    <string name="email_verification">Email verification</string>
+    <string name="try_again">Retry</string>
+    <string name="sending_verification_email_failed">Sending verification email failed!</string>
+    <string name="sending_verification_email_failed_no_connection">Sending verification email failed! Check your internet connection!</string>
+    <string name="weekly">WEEKLY</string>
+    <string name="monthly">MONTHLY</string>
+    <string name="quarterly">QUARTERLY</string>
+    <string name="unknown">UNKNOWN</string>
+    <string name="choose_your_subscription_period">Choose your subscription period</string>
+    <string name="select">Select</string>
+    <string name="fifty_percent_off_on_first_payment">50% off on first payment</string>
+    <string name="first_seven_days_for_free">First 7 days for free (cancel anytime)</string>
+    <string name="error">Error</string>
+    <string name="retry">RETRY</string>
 </resources>

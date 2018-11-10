@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/subscription_navigation"
+    app:startDestination="@id/periodFragment">
+
+    <fragment
+        android:id="@+id/periodFragment"
+        android:name="com.appapply.igflexin.ui.subscription.period.PeriodFragment"
+        android:label="period_fragment"
+        tools:layout="@layout/period_fragment" >
+        <action
+            android:id="@+id/action_periodFragment_to_bundleFragment"
+            app:destination="@id/bundleFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right">
+            <argument
+                android:name="period"
+                android:defaultValue="weekly_subscription" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/bundleFragment"
+        android:name="com.appapply.igflexin.ui.subscription.bundle.BundleFragment"
+        android:label="bundle_fragment"
+        tools:layout="@layout/bundle_fragment" >
+        <argument
+            android:name="period"
+            app:argType="string" />
+    </fragment>
+</navigation>

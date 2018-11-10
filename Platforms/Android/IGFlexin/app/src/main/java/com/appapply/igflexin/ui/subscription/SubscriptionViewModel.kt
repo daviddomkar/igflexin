@@ -1,7 +1,8 @@
 package com.appapply.igflexin.ui.subscription
 
-import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModel
+import com.appapply.igflexin.repository.SubscriptionRepository
 
-class SubscriptionViewModel : ViewModel() {
-    // TODO: Implement the ViewModel
+class SubscriptionViewModel(private val subscriptionRepository: SubscriptionRepository) : ViewModel() {
+    val subscriptionLiveData = subscriptionRepository.subscriptionLiveData
 }

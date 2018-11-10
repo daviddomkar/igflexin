@@ -22,13 +22,25 @@
         tools:layout="@layout/loader_fragment" >
         <action
             android:id="@+id/action_loaderFragment_to_authFragment"
-            app:destination="@id/authFragment" />
+            app:destination="@id/authFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out" />
         <action
             android:id="@+id/action_loaderFragment_to_subscriptionFragment"
-            app:destination="@id/subscriptionFragment" />
+            app:destination="@id/subscriptionFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out" />
         <action
             android:id="@+id/action_loaderFragment_to_appFragment"
-            app:destination="@id/appFragment" />
+            app:destination="@id/appFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out" />
     </fragment>
     <fragment
         android:id="@+id/subscriptionFragment"

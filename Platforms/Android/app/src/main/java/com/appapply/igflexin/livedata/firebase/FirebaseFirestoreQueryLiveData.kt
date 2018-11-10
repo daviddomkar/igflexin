@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import com.appapply.igflexin.pojo.DataOrException
 import com.google.firebase.firestore.*
 import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
 
 typealias QuerySnapshotOFirestoreException = DataOrException<QuerySnapshot?, FirebaseFirestoreException?>
 
