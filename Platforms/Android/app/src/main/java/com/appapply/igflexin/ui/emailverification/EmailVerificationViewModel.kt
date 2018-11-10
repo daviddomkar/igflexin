@@ -11,6 +11,13 @@ class EmailVerificationViewModel(private val authRepository: AuthRepository, pri
     private val signedInLiveData = Transformations.map(userRepository.getUserLiveData()) { user -> user.status == StatusCode.SUCCESS && user.data != null }
     private val verificationEmailStatusLiveData = authRepository.getVerificationEmailStatusLiveData()
 
+    var activationEmailSent = false
+
+    init {
+        activationEmailSent = true
+        authRepository.sendVerificationEmail()
+    }
+
     fun sendVerificationEmail() {
         authRepository.sendVerificationEmail()
     }

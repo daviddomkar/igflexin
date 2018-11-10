@@ -186,7 +186,14 @@
                           <map>
                             <entry key="emailVerificationFragment">
                               <value>
-                                <LayoutPositions />
+                                <LayoutPositions>
+                                  <option name="myPosition">
+                                    <Point>
+                                      <option name="x" value="12" />
+                                      <option name="y" value="12" />
+                                    </Point>
+                                  </option>
+                                </LayoutPositions>
                               </value>
                             </entry>
                           </map>
@@ -248,8 +255,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="12" />
+                            <option name="x" value="-338" />
+                            <option name="y" value="277" />
                           </Point>
                         </option>
                       </LayoutPositions>

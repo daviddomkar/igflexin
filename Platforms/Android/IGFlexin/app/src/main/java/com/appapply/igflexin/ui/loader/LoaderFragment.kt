@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 
 import com.appapply.igflexin.R
 import com.appapply.igflexin.common.StatusCode
+import com.appapply.igflexin.events.EventObserver
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoaderFragment : Fragment() {
@@ -24,18 +25,61 @@ class LoaderFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        Log.d("IGFlexin", "loader")
+        Log.d("IGFlexin_navigation", "LoaderFragment onActivityCreated")
 
-        viewModel.userLiveData.observe(this, Observer { resource ->
-            resource?.let { it ->
-                if (it.status == StatusCode.SUCCESS) {
-                    it.data?.let {
-                        Log.d("IGFlexin", it.uid)
-                        if (it.emailVerified) {
-                            viewModel.userLiveData.removeObservers(this)
-                            findNavController().navigate(R.id.action_loaderFragment_to_authFragment)
-                        }
+        viewModel.loggedInAndHasEmailVerifiedLiveData.observe(this, Observer {
+            if (it) {
+                Log.d("IGFlexin_flow", "Signed in")
+                if (!viewModel.subscriptionPurchasedCalled) {
+                    viewModel.subscriptionPurchasedCalled = true
+                    viewModel.checkIfUserHasPurchasedSubscription()
+                }
+            } else {
+                viewModel.subscriptionPurchasedCalled = false
+                Log.d("IGFlexin_navigation", "Navigating to AuthFragment")
+                viewModel.loggedInAndHasEmailVerifiedLiveData.removeObservers(this)
+                findNavController().navigate(R.id.action_loaderFragment_to_authFragment)
+            }
+        })
+
+        viewModel.subscriptionGetServerLiveData.observe(this, EventObserver {
+            Log.d("IGFlexin", "jejda server")
+            when (it.status) {
+                StatusCode.SUCCESS -> {
+                    viewModel.subscriptionPurchasedCalled = false
+
+                    if (it.data!!.verified) {
+                        findNavController().navigate(R.id.action_loaderFragment_to_appFragment)
+                    } else {
+                        findNavController().navigate(R.id.action_loaderFragment_to_subscriptionFragment)
                     }
+                }
+                StatusCode.NETWORK_ERROR -> {
+                    Log.d("IGFlexin", "Error retrieving subscription from server, trying to find it in local cache")
+                    viewModel.checkForPurchasedSubscriptionInCache()
+                }
+                StatusCode.ERROR -> {
+                    viewModel.subscriptionPurchasedCalled = false
+                    findNavController().navigate(R.id.action_loaderFragment_to_subscriptionFragment)
+                }
+            }
+        })
+
+        viewModel.subscriptionGetCacheLiveData.observe(this, EventObserver {
+            Log.d("IGFlexin", "jejda cache")
+            when (it.status) {
+                StatusCode.SUCCESS -> {
+                    viewModel.subscriptionPurchasedCalled = false
+
+                    if (it.data!!.verified) {
+                        findNavController().navigate(R.id.action_loaderFragment_to_appFragment)
+                    } else {
+                        findNavController().navigate(R.id.action_loaderFragment_to_subscriptionFragment)
+                    }
+                }
+                StatusCode.ERROR -> {
+                    viewModel.subscriptionPurchasedCalled = false
+                    findNavController().navigate(R.id.action_loaderFragment_to_subscriptionFragment)
                 }
             }
         })
