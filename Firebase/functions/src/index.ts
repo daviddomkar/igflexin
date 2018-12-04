@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 
 import { androidpublisher_v3, google } from "googleapis";
 
-const settings = {timestampsInSnapshots: true};
+const settings = { timestampsInSnapshots: true };
 
 const IGFlexinServiceAccount = {
     type: "service_account",
@@ -27,43 +27,58 @@ const androidPublisher = new androidpublisher_v3.Androidpublisher({ auth: jwtCli
 export const updateDisplayName = functions.https.onCall((data, context) => {
     if (!context.auth.uid || !data.displayName) return null;
 
-    return admin.auth().updateUser(context.auth.uid,{
+    return admin.auth().updateUser(context.auth.uid, {
         displayName: data.displayName
     });
 });
 
+const SUBSCRIPTION_RECOVERED = 1; // TODO
+const SUBSCRIPTION_RENEWED = 2;
+const SUBSCRIPTION_CANCELED = 3; // TODO
+const SUBSCRIPTION_PURCHASED = 4; // ! Handled in verifyGooglePlayPurchase function
+const SUBSCRIPTION_ON_HOLD = 5; // TODO
+const SUBSCRIPTION_IN_GRACE_PERIOD = 6; // TODO
+const SUBSCRIPTION_RESTARTED = 7;
+const SUBSCRIPTION_PRICE_CHANGE_CONFIRMED = 8;
+const SUBSCRIPTION_DEFERRED = 9;
+
+const PACKAGE_NAME = 'com.appapply.igflexin'
+
 export const verifyGooglePlayPurchase = functions.https.onCall((data, context) => {
     if (!context.auth.uid || !data.subscriptionID || !data.token) throw new functions.https.HttpsError('invalid-argument', 'Parameters are not supplied.');
 
+    return verifyGooglePlayPurchaseAsync(context.auth.uid, data.subscriptionID, data.token);
+
+    /*
     return androidPublisher.purchases.subscriptions.get({
         packageName: 'com.appapply.igflexin',
         subscriptionId: data.subscriptionID,
         token: data.token
     }).then((response) => {
         return admin.firestore().collection('payments').where('userID', '==', context.auth.uid).limit(1).get().then((value) => {
-           if (value.empty) {
-               return admin.firestore().collection('payments').add({
-                   type: 'GooglePlay',
-                   subscriptionID: data.subscriptionID,
-                   verified: true,
-                   userID: context.auth.uid,
-                   orderID: response.data.orderId,
-                   purchaseToken: data.token
-               }).then(() => {
+            if (value.empty) {
+                return admin.firestore().collection('payments').add({
+                    type: 'GooglePlay',
+                    subscriptionID: data.subscriptionID,
+                    verified: true,
+                    userID: context.auth.uid,
+                    orderID: response.data.orderId,
+                    purchaseToken: data.token
+                }).then(() => {
                     return 'SUCCESS'
-               });
-           } else {
-               return admin.firestore().collection('payments').doc(value.docs[0].id).update({
-                   type: 'GooglePlay',
-                   subscriptionID: data.subscriptionID,
-                   verified: true,
-                   userID: context.auth.uid,
-                   orderID: response.data.orderId,
-                   purchaseToken: data.token
-               }).then(() => {
-                   return 'SUCCESS'
-               });
-           }
+                });
+            } else {
+                return admin.firestore().collection('payments').doc(value.docs[0].id).update({
+                    type: 'GooglePlay',
+                    subscriptionID: data.subscriptionID,
+                    verified: true,
+                    userID: context.auth.uid,
+                    orderID: response.data.orderId,
+                    purchaseToken: data.token
+                }).then(() => {
+                    return 'SUCCESS'
+                });
+            }
         });
 
 
@@ -79,12 +94,161 @@ export const verifyGooglePlayPurchase = functions.https.onCall((data, context) =
         }).catch(() => {
             throw new functions.https.HttpsError('not-found', 'Subscription is not verified.');
         })
-    })
+    })*/
 });
 
-export const playConsolePubSub = functions.pubsub.topic('PlayConsole').onPublish((message) => {
-    const messageBody = message.data ? Buffer.from(message.data, 'base64').toString() : null;
-    console.log(messageBody);
+async function verifyGooglePlayPurchaseAsync(uid: string, subscriptionID: string, purchaseToken: string) {
+    console.log("Verifying subscription for user: " + uid + " purchaseToken: " + purchaseToken + " subscriptionId: " + subscriptionID);
+    try {
+        const subscription = await androidPublisher.purchases.subscriptions.get({
+            packageName: PACKAGE_NAME,
+            subscriptionId: subscriptionID,
+            token: purchaseToken
+        });
 
-    return null;
+        console.log(subscription.data);
+
+        const paymentDocument = await admin.firestore().collection('payments').where('userID', '==', uid).limit(1).get();
+
+        if (paymentDocument.empty) {
+            await admin.firestore().collection('payments').add({
+                type: 'GooglePlay',
+                subscriptionID: subscriptionID,
+                verified: true,
+                userID: uid,
+                orderID: subscription.data.orderId,
+                purchaseToken: purchaseToken,
+                autoRenewing: subscription.data.autoRenewing,
+                paymentState: subscription.data.paymentState
+            });
+        } else {
+            await admin.firestore().collection('payments').doc(paymentDocument.docs[0].id).update({
+                type: 'GooglePlay',
+                subscriptionID: subscriptionID,
+                verified: true,
+                userID: uid,
+                orderID: subscription.data.orderId,
+                purchaseToken: purchaseToken,
+                autoRenewing: subscription.data.autoRenewing,
+                paymentState: subscription.data.paymentState
+            });
+        }
+
+        console.log("Subscription verified for user: " + uid + " purchaseToken: " + purchaseToken + " subscriptionId: " + subscriptionID);
+
+        return 'SUCCESS';
+
+    } catch(e) {
+
+        try {
+            const paymentDocument = await admin.firestore().collection('payments').where('userID', '==', uid).limit(1).get();
+
+            if (paymentDocument.empty) {
+                await admin.firestore().collection('payments').add({
+                    type: 'GooglePlay',
+                    subscriptionID: subscriptionID,
+                    verified: false,
+                    userID: uid,
+                    purchaseToken: purchaseToken
+                });
+            } else {
+                await admin.firestore().collection('payments').doc(paymentDocument.docs[0].id).update({
+                    type: 'GooglePlay',
+                    subscriptionID: subscriptionID,
+                    verified: false,
+                    userID: uid,
+                    orderID: null,
+                    purchaseToken: purchaseToken,
+                    autoRenewing: null,
+                    paymentState: null
+                });
+            }
+        } catch(e) {
+            throw new functions.https.HttpsError('not-found', 'Subscription is not verified.');
+        }
+
+        throw new functions.https.HttpsError('not-found', 'Subscription is not verified.');
+    }
+}
+
+export const playConsolePubSub = functions.pubsub.topic('PlayConsole').onPublish((message) => {
+
+    const subscriptionNotification = message.json.subscriptionNotification;
+
+    switch (subscriptionNotification.notificationType) {
+        case SUBSCRIPTION_RECOVERED: {
+
+            console.log("SUBSCRIPTION_RECOVERED" +
+                " purchaseToken: " + subscriptionNotification.purchaseToken +
+                " subscriptionId: " + subscriptionNotification.subscriptionId);
+
+            break;
+        }
+        case SUBSCRIPTION_RENEWED: {
+
+            console.log("SUBSCRIPTION_RENEWED" +
+                " purchaseToken: " + subscriptionNotification.purchaseToken +
+                " subscriptionId: " + subscriptionNotification.subscriptionId);
+
+            break;
+        }
+        case SUBSCRIPTION_CANCELED: {
+
+            console.log("SUBSCRIPTION_CANCELED" +
+                " purchaseToken: " + subscriptionNotification.purchaseToken +
+                " subscriptionId: " + subscriptionNotification.subscriptionId);
+
+            break;
+        }
+        case SUBSCRIPTION_PURCHASED: {
+
+            console.log("SUBSCRIPTION_PURCHASED" +
+                " purchaseToken: " + subscriptionNotification.purchaseToken +
+                " subscriptionId: " + subscriptionNotification.subscriptionId);
+
+            // ! Should not be handled here. App is responsible for sending purchaseToken to verifyGooglePlayPurchase function
+
+            break;
+        }
+        case SUBSCRIPTION_ON_HOLD: {
+
+            console.log("SUBSCRIPTION_ON_HOLD" +
+                " purchaseToken: " + subscriptionNotification.purchaseToken +
+                " subscriptionId: " + subscriptionNotification.subscriptionId);
+
+            break;
+        }
+        case SUBSCRIPTION_IN_GRACE_PERIOD: {
+
+            console.log("SUBSCRIPTION_IN_GRACE_PERIOD" +
+                " purchaseToken: " + subscriptionNotification.purchaseToken +
+                " subscriptionId: " + subscriptionNotification.subscriptionId);
+
+            break;
+        }
+        case SUBSCRIPTION_RESTARTED: {
+
+            console.log("SUBSCRIPTION_RESTARTED" +
+                " purchaseToken: " + subscriptionNotification.purchaseToken +
+                " subscriptionId: " + subscriptionNotification.subscriptionId);
+
+            break;
+        }
+        case SUBSCRIPTION_PRICE_CHANGE_CONFIRMED: {
+
+            console.log("SUBSCRIPTION_PRICE_CHANGE_CONFIRMED" +
+                " purchaseToken: " + subscriptionNotification.purchaseToken +
+                " subscriptionId: " + subscriptionNotification.subscriptionId);
+
+            break;
+        }
+        case SUBSCRIPTION_DEFERRED: {
+
+            console.log("SUBSCRIPTION_DEFERRED" +
+                " purchaseToken: " + subscriptionNotification.purchaseToken +
+                " subscriptionId: " + subscriptionNotification.subscriptionId);
+
+            break;
+        }
+    }
 });

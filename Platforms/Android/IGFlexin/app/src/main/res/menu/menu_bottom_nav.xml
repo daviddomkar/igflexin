@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigationDashboard"
+        android:icon="@drawable/ic_dashboard_white_24dp"
+        android:title="@string/dashboard" />
+    <item
+        android:id="@+id/navigationInstagramAccounts"
+        android:icon="@drawable/ic_supervisor_account_white_24dp"
+        android:title="@string/accounts" />
+    <item
+        android:id="@+id/navigationSubscriptionManagement"
+        android:icon="@drawable/ic_attach_money_white_24dp"
+        android:title="@string/subscription" />
+</menu>

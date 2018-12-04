@@ -24,9 +24,6 @@ class AuthViewModel(private val authRepository: AuthRepository, private val user
     val showProgressBarLiveData: LiveData<Pair<Boolean, Boolean>> = showProgressBarMutableLiveData
     val snackLiveData: LiveData<Event<String>> = snackMutableLiveData
 
-    var navHostFragmentDisplayed = false
-    var verifyEmailFragmentDisplayed = false
-
     fun showProgressBar(show: Boolean, explicit: Boolean = false) {
         showProgressBarMutableLiveData.value = Pair(show, explicit)
         loading = show
