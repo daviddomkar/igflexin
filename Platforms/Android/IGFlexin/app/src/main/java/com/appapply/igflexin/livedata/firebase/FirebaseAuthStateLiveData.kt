@@ -9,7 +9,7 @@ class FirebaseAuthStateLiveData : LiveData<FirebaseAuth>(), KoinComponent {
     private val firebaseAuth: FirebaseAuth by inject()
 
     private val listener = FirebaseAuth.AuthStateListener {
-        postValue(it)
+        value = it
     }.also {
         firebaseAuth.addAuthStateListener(it)
     }

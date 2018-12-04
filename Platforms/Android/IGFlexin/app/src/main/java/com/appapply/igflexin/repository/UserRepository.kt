@@ -14,9 +14,7 @@ interface UserRepository {
     //fun changeUser(user: User)
 }
 
-class FirebaseUserRepository : UserRepository {
-
-    private val firebaseAuthStateLiveData = FirebaseAuthStateLiveData()
+class FirebaseUserRepository(private val firebaseAuthStateLiveData: FirebaseAuthStateLiveData) : UserRepository {
 
     override val userLiveData: LiveData<Resource<User>>
         get() = Transformations.map(firebaseAuthStateLiveData) {

@@ -38,6 +38,8 @@ class LoaderFragment : Fragment() {
                 viewModel.subscriptionPurchasedCalled = false
                 Log.d("IGFlexin_navigation", "Navigating to AuthFragment")
                 viewModel.loggedInAndHasEmailVerifiedLiveData.removeObservers(this)
+                viewModel.subscriptionGetCacheLiveData.removeObservers(this)
+                viewModel.subscriptionGetServerLiveData.removeObservers(this)
                 findNavController().navigate(R.id.action_loaderFragment_to_authFragment)
             }
         })
@@ -51,6 +53,9 @@ class LoaderFragment : Fragment() {
                     if (it.data!!.verified) {
                         findNavController().navigate(R.id.action_loaderFragment_to_appFragment)
                     } else {
+                        viewModel.loggedInAndHasEmailVerifiedLiveData.removeObservers(this)
+                        viewModel.subscriptionGetCacheLiveData.removeObservers(this)
+                        viewModel.subscriptionGetServerLiveData.removeObservers(this)
                         findNavController().navigate(R.id.action_loaderFragment_to_subscriptionFragment)
                     }
                 }
@@ -60,6 +65,9 @@ class LoaderFragment : Fragment() {
                 }
                 StatusCode.ERROR -> {
                     viewModel.subscriptionPurchasedCalled = false
+                    viewModel.loggedInAndHasEmailVerifiedLiveData.removeObservers(this)
+                    viewModel.subscriptionGetCacheLiveData.removeObservers(this)
+                    viewModel.subscriptionGetServerLiveData.removeObservers(this)
                     findNavController().navigate(R.id.action_loaderFragment_to_subscriptionFragment)
                 }
             }
@@ -74,11 +82,17 @@ class LoaderFragment : Fragment() {
                     if (it.data!!.verified) {
                         findNavController().navigate(R.id.action_loaderFragment_to_appFragment)
                     } else {
+                        viewModel.loggedInAndHasEmailVerifiedLiveData.removeObservers(this)
+                        viewModel.subscriptionGetCacheLiveData.removeObservers(this)
+                        viewModel.subscriptionGetServerLiveData.removeObservers(this)
                         findNavController().navigate(R.id.action_loaderFragment_to_subscriptionFragment)
                     }
                 }
                 StatusCode.ERROR -> {
                     viewModel.subscriptionPurchasedCalled = false
+                    viewModel.loggedInAndHasEmailVerifiedLiveData.removeObservers(this)
+                    viewModel.subscriptionGetCacheLiveData.removeObservers(this)
+                    viewModel.subscriptionGetServerLiveData.removeObservers(this)
                     findNavController().navigate(R.id.action_loaderFragment_to_subscriptionFragment)
                 }
             }

@@ -3,8 +3,11 @@ package com.appapply.igflexin.koin
 import com.appapply.igflexin.MainViewModel
 import com.appapply.igflexin.R
 import com.appapply.igflexin.billing.BillingManager
+import com.appapply.igflexin.livedata.firebase.FirebaseAuthStateLiveData
 import com.appapply.igflexin.repository.*
 import com.appapply.igflexin.ui.app.AppViewModel
+import com.appapply.igflexin.ui.app.subscriptionmanagement.SubscriptionManagementViewModel
+import com.appapply.igflexin.ui.app.subscriptionmanagement.subscriptiontab.SubscriptionTabViewModel
 import com.appapply.igflexin.ui.auth.AuthViewModel
 import com.appapply.igflexin.ui.auth.login.LogInViewModel
 import com.appapply.igflexin.ui.auth.signup.SignUpViewModel
@@ -32,8 +35,8 @@ val appModule = module {
     single { BillingManager(androidContext()) }
 
     single<AuthRepository> { FirebaseAuthRepository(get(), get()) }
-    single<UserRepository> { FirebaseUserRepository() }
-    single<SubscriptionRepository> { FirebaseSubscriptionRepository(get(), get(), get()) }
+    single<UserRepository> { FirebaseUserRepository(get()) }
+    single<SubscriptionRepository> { FirebaseSubscriptionRepository(get(), get(), get(), get()) }
 
     viewModel { MainViewModel() }
 
@@ -45,11 +48,14 @@ val appModule = module {
     viewModel { SignUpViewModel(get()) }
     viewModel { VerifyEmailViewModel(get()) }
 
-    viewModel { SubscriptionViewModel(get()) }
+    viewModel { SubscriptionViewModel(get(), get()) }
     viewModel { PeriodViewModel(get()) }
-    viewModel { BundleViewModel() }
+    viewModel { BundleViewModel(get()) }
 
-    viewModel { AppViewModel(get()) }
+    viewModel { AppViewModel(get(), get(), get()) }
+
+    viewModel { SubscriptionManagementViewModel() }
+    viewModel { SubscriptionTabViewModel() }
 }
 
 val firebaseModule = module {
@@ -59,6 +65,8 @@ val firebaseModule = module {
     single { FirebaseAuth.getInstance() }
 
     single { FirebaseFirestore.getInstance() }
+
+    single { FirebaseAuthStateLiveData() }
 }
 
 val googleModule = module {

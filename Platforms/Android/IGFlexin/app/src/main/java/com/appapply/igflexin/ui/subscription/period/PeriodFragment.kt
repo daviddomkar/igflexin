@@ -47,6 +47,10 @@ class PeriodFragment : Fragment() {
 
         viewModel.subscriptionPeriodsLiveData.observe(this, Observer {
             when (it.status) {
+                StatusCode.PENDING -> {
+                    viewAdapter.setList(listOf())
+                    progressBar.visibility = View.VISIBLE
+                }
                 StatusCode.SUCCESS -> {
                     val rawList = it.data!!
 
@@ -60,7 +64,6 @@ class PeriodFragment : Fragment() {
 
                     progressBar.visibility = View.GONE
                 }
-
                 // TODO Extract string resource
 
                 StatusCode.ERROR -> showErrorDialog("Error loading subscriptions.")
@@ -87,5 +90,4 @@ class PeriodFragment : Fragment() {
         val dialog = dialogBuilder.create()
         dialog.show()
     }
-
 }

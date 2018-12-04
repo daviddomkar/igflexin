@@ -40,16 +40,15 @@ class AuthFragment : Fragment(), OnBackPressedFinishListener {
 
                 // Check if user has verified his email and popBack else show email verificationFragment
                 if (it.data != null && !it.data.emailVerified) {
-                    if (!viewModel.verifyEmailFragmentDisplayed) {
-                        Log.d("IGFlexin_auth", "Showing VerifyEmailFragment")
-                        val verifyEmailFragment = VerifyEmailFragment()
-                        if (viewModel.navHostFragmentDisplayed) {
+                    if (childFragmentManager.fragments.size > 0) {
+                        if (childFragmentManager.fragments[0] is NavHostFragment) {
+                            val verifyEmailFragment = VerifyEmailFragment()
                             childFragmentManager.beginTransaction().replace(R.id.authFrameLayout, verifyEmailFragment).commit()
-                            viewModel.navHostFragmentDisplayed = false
-                        } else {
-                            childFragmentManager.beginTransaction().add(R.id.authFrameLayout, verifyEmailFragment).commit()
                         }
-                        viewModel.verifyEmailFragmentDisplayed = true
+                    } else {
+                        viewModel.showProgressBar(false)
+                        val verifyEmailFragment = VerifyEmailFragment()
+                        childFragmentManager.beginTransaction().add(R.id.authFrameLayout, verifyEmailFragment).commit()
                     }
                 } else {
                     Log.d("IGFlexin_auth", "Navigating back to LoaderFragment")
@@ -57,17 +56,17 @@ class AuthFragment : Fragment(), OnBackPressedFinishListener {
                     findNavController().popBackStack()
                 }
             } else {
-                if (!viewModel.navHostFragmentDisplayed) {
-                    Log.d("IGFlexin_auth", "Showing NavHostFragment")
-                    val navHostFragment = NavHostFragment.create(R.navigation.auth_navigation)
-                    if (viewModel.verifyEmailFragmentDisplayed) {
+                if (childFragmentManager.fragments.size > 0) {
+                    if (childFragmentManager.fragments[0] is VerifyEmailFragment) {
+                        viewModel.showProgressBar(false)
                         viewModel.displayLogin = true
+                        val navHostFragment = NavHostFragment.create(R.navigation.auth_navigation)
                         childFragmentManager.beginTransaction().setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out).replace(R.id.authFrameLayout, navHostFragment).commit()
-                        viewModel.verifyEmailFragmentDisplayed = false
-                    } else {
-                        childFragmentManager.beginTransaction().add(R.id.authFrameLayout, navHostFragment).commit()
                     }
-                    viewModel.navHostFragmentDisplayed = true
+                } else {
+                    viewModel.showProgressBar(false)
+                    val navHostFragment = NavHostFragment.create(R.navigation.auth_navigation)
+                    childFragmentManager.beginTransaction().add(R.id.authFrameLayout, navHostFragment).commit()
                 }
             }
         })
@@ -103,7 +102,7 @@ class AuthFragment : Fragment(), OnBackPressedFinishListener {
                 }
             }
 
-            viewModel.showProgressBar(false)
+            viewModel.showProgressBar(false, true)
         })
 
         viewModel.showProgressBarLiveData.observe(this, Observer {

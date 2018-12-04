@@ -1,5 +1,6 @@
 package com.appapply.igflexin.billing
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import com.android.billingclient.api.*
@@ -11,6 +12,8 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
     private val billingClient: BillingClient = BillingClient.newBuilder(context).setListener(this).build()
 
     private var serviceConnected = false
+
+    private val purchasesUpdatedListeners: ArrayList<PurchasesUpdatedListener> = ArrayList()
 
     private fun startServiceConnection(action: () -> Unit, onError: (responseCode: Int) -> Unit) {
         billingClient.startConnection(object : BillingClientStateListener {
@@ -50,8 +53,32 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
         }
     }
 
+    fun initiatePurchaseFlow(activity: Activity, skuID: String, @BillingClient.SkuType skuType: String, onError: (responseCode: Int) -> Unit) {
+        executeServiceRequest(onError) {
+            val params = BillingFlowParams.newBuilder()
+            params.setSku(skuID).setType(skuType)
+            val responseCode = billingClient.launchBillingFlow(activity, params.build())
+            if (responseCode != BillingClient.BillingResponse.OK) {
+                onError(responseCode)
+            }
+            Log.d("IGFlexin_billing", responseCode.toString())
+        }
+    }
+
     override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
-        Log.d("IGFlexin_billing", "onPurchasesUpdated")
+        Log.d("IGFlexin_billing", "onPurchasesUpdated $responseCode, purchases: " + purchases?.size)
+
+        for (purchasesUpdatedListener in purchasesUpdatedListeners) {
+            purchasesUpdatedListener.onPurchasesUpdated(responseCode, purchases)
+        }
+    }
+
+    fun addPurchasesUpdatedListener(listener: PurchasesUpdatedListener) {
+        purchasesUpdatedListeners.add(listener)
+    }
+
+    fun removePurchasesUpdatedListener(listener: PurchasesUpdatedListener) {
+        purchasesUpdatedListeners.remove(listener)
     }
 
     fun getStatusCodeFromResponseCode(@BillingClient.BillingResponse responseCode: Int): StatusCode {
