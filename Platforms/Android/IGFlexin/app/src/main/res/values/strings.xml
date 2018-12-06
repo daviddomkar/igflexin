@@ -55,11 +55,11 @@
     <string name="business">BUSINESS</string>
     <string name="business_pro">BUSINESS PRO</string>
     <string name="no_ig_account_restrictions">No IG account restrictions</string>
-    <string name="must_have_100_follows_and_15_posts_restriction">Each of your IG accounts must have at least 100 follows and 15 posts.</string>
-    <string name="limited_to_one_ig_acc">Limited to 1 Instagram account.</string>
-    <string name="up_to_three_ig_accs">Up to 3 Instagram accounts.</string>
-    <string name="up_to_six_ig_accs">Up to 6 Instagram accounts.</string>
-    <string name="unlimited_num_of_ig_accs">Unlimited number of Instagram accounts.</string>
+    <string name="must_have_100_follows_and_15_posts_restriction">Each of your IG accounts must have at least 100 follows and 15 posts</string>
+    <string name="limited_to_one_ig_acc">Limited to 1 Instagram account</string>
+    <string name="up_to_three_ig_accs">Up to 3 Instagram accounts</string>
+    <string name="up_to_five_ig_accs">Up to 5 Instagram accounts</string>
+    <string name="up_to_ten_ig_accs">Up to 10 Instagram accounts</string>
     <string name="error_loading_subscriptions">Error loading subscriptions.</string>
     <string name="error_loading_subscriptions_check_your_internet_connection">Error loading subscriptions, check your internet connection.</string>
     <string name="service_unavailable">Service is unavailable.</string>

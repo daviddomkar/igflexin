@@ -17,6 +17,7 @@ import androidx.viewpager.widget.ViewPager
 import com.appapply.igflexin.R
 import com.appapply.igflexin.common.OnBackPressedFinishListener
 import com.appapply.igflexin.common.OnBackPressedListener
+import com.appapply.igflexin.common.OnSelectedListener
 import com.appapply.igflexin.common.StatusCode
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.app_fragment.*
@@ -35,7 +36,7 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
 
         (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
 
-        val adapter = AppViewPagerAdapter(childFragmentManager)
+        val adapter = AppViewPagerAdapter(requireContext(), childFragmentManager)
 
         viewPager.adapter = adapter
         viewPager.offscreenPageLimit = adapter.count - 1
@@ -45,7 +46,8 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
         bottomNavView.setOnNavigationItemSelectedListener(this)
 
         bindNavigationDrawer()
-        initTitle()
+
+        toolbar.post { toolbar.title = adapter.getPageTitle(viewPager.currentItem) }
 
         viewModel.subscriptionLiveData.observe(this, Observer {
             when (it.status) {
@@ -55,7 +57,7 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
                     }
                 }
                 StatusCode.ERROR -> {
-
+                    findNavController().popBackStack()
                 }
             }
         })
@@ -120,10 +122,6 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
         onPageSelected(viewPager.currentItem)
     }
 
-    private fun initTitle() {
-        toolbar.post { toolbar.title = bottomNavView.menu.getItem(0).title }
-    }
-
     override fun onPageScrollStateChanged(state: Int) {
 
     }
@@ -152,6 +150,12 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
                 navView.setCheckedItem(R.id.navigationSubscriptionManagement)
                 bottomNavView.selectedItemId = R.id.navigationSubscriptionManagement
             }
+        }
+
+        val currentFragment = childFragmentManager.fragments[viewPager.currentItem]
+
+        if (currentFragment is OnSelectedListener) {
+            currentFragment.onSelected()
         }
     }
 
