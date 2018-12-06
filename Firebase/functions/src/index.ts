@@ -48,53 +48,6 @@ export const verifyGooglePlayPurchase = functions.https.onCall((data, context) =
     if (!context.auth.uid || !data.subscriptionID || !data.token) throw new functions.https.HttpsError('invalid-argument', 'Parameters are not supplied.');
 
     return verifyGooglePlayPurchaseAsync(context.auth.uid, data.subscriptionID, data.token);
-
-    /*
-    return androidPublisher.purchases.subscriptions.get({
-        packageName: 'com.appapply.igflexin',
-        subscriptionId: data.subscriptionID,
-        token: data.token
-    }).then((response) => {
-        return admin.firestore().collection('payments').where('userID', '==', context.auth.uid).limit(1).get().then((value) => {
-            if (value.empty) {
-                return admin.firestore().collection('payments').add({
-                    type: 'GooglePlay',
-                    subscriptionID: data.subscriptionID,
-                    verified: true,
-                    userID: context.auth.uid,
-                    orderID: response.data.orderId,
-                    purchaseToken: data.token
-                }).then(() => {
-                    return 'SUCCESS'
-                });
-            } else {
-                return admin.firestore().collection('payments').doc(value.docs[0].id).update({
-                    type: 'GooglePlay',
-                    subscriptionID: data.subscriptionID,
-                    verified: true,
-                    userID: context.auth.uid,
-                    orderID: response.data.orderId,
-                    purchaseToken: data.token
-                }).then(() => {
-                    return 'SUCCESS'
-                });
-            }
-        });
-
-
-    }).catch((reason) => {
-        return admin.firestore().collection('payments').add({
-            type: 'GooglePlay',
-            subscriptionID: data.subscriptionID,
-            verified: false,
-            userID: context.auth.uid,
-            purchaseToken: data.token
-        }).then(() => {
-            throw new functions.https.HttpsError('not-found', 'Subscription is not verified.');
-        }).catch(() => {
-            throw new functions.https.HttpsError('not-found', 'Subscription is not verified.');
-        })
-    })*/
 });
 
 async function verifyGooglePlayPurchaseAsync(uid: string, subscriptionID: string, purchaseToken: string) {

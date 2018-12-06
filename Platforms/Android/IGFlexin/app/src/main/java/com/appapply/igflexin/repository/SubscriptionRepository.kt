@@ -297,10 +297,10 @@ class FirebaseSubscriptionRepository(private val firebaseAuth: FirebaseAuth, pri
             Product.QUARTERLY_STANDARD_SUBSCRIPTION     -> return R.string.up_to_three_ig_accs
             Product.WEEKLY_BUSINESS_SUBSCRIPTION,
             Product.MONTHLY_BUSINESS_SUBSCRIPTION,
-            Product.QUARTERLY_BUSINESS_SUBSCRIPTION     -> return R.string.up_to_six_ig_accs
+            Product.QUARTERLY_BUSINESS_SUBSCRIPTION     -> return R.string.up_to_five_ig_accs
             Product.WEEKLY_BUSINESS_PRO_SUBSCRIPTION,
             Product.MONTHLY_BUSINESS_PRO_SUBSCRIPTION,
-            Product.QUARTERLY_BUSINESS_PRO_SUBSCRIPTION -> return R.string.unlimited_num_of_ig_accs
+            Product.QUARTERLY_BUSINESS_PRO_SUBSCRIPTION -> return R.string.up_to_ten_ig_accs
         }
 
         return R.string.unknown

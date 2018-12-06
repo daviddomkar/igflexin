@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-
 import com.appapply.igflexin.R
 import com.appapply.igflexin.billing.Product
 import com.appapply.igflexin.common.BillingStatusCode

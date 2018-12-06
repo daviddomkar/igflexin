@@ -54,8 +54,8 @@ val appModule = module {
 
     viewModel { AppViewModel(get(), get(), get()) }
 
-    viewModel { SubscriptionManagementViewModel() }
-    viewModel { SubscriptionTabViewModel() }
+    viewModel { SubscriptionManagementViewModel(get()) }
+    viewModel { SubscriptionTabViewModel(get()) }
 }
 
 val firebaseModule = module {
