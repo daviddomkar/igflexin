@@ -16,7 +16,9 @@ import com.appapply.igflexin.common.BillingStatusCode
 import com.appapply.igflexin.common.OnBackPressedFinishListener
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.events.EventObserver
+import com.appapply.igflexin.ui.app.AppViewModel
 import kotlinx.android.synthetic.main.auth_fragment.*
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SubscriptionFragment : Fragment(), OnBackPressedFinishListener {
@@ -36,13 +38,22 @@ class SubscriptionFragment : Fragment(), OnBackPressedFinishListener {
         viewModel.subscriptionLiveData.observe(this, Observer { resource ->
             when (resource.status) {
                 StatusCode.SUCCESS -> {
-                    if (resource.data!!.verified) {
-                        viewModel.subscriptionPurchaseLiveData.removeObservers(this)
-                        viewModel.resetPurchaseLiveData()
+                    val data = resource.data!!
 
-                        verifyDialog?.dismiss()
+                    if (data.verified) {
+                        if (data.autoRenewing != null && data.autoRenewing) {
+                            viewModel.subscriptionPurchaseLiveData.removeObservers(this)
+                            viewModel.subscriptionLiveData.removeObservers(this)
+                            viewModel.subscriptionPurchaseResultLiveData.removeObservers(this)
+                            viewModel.subscriptionVerifiedLiveData.removeObservers(this)
+                            viewModel.resetPurchaseLiveData()
 
-                        findNavController().popBackStack()
+                            verifyDialog?.dismiss()
+
+                            findNavController().popBackStack()
+                        } else {
+                            viewModel.showProgressBar(false)
+                        }
                     } else {
                         viewModel.showProgressBar(false)
                         if (!viewModel.dialogCanceled) {
@@ -97,7 +108,9 @@ class SubscriptionFragment : Fragment(), OnBackPressedFinishListener {
                     progressBarHolder.visibility = View.GONE
                 } else {
                     progressBarHolder.animate().setDuration(200).alpha(0.0f).withEndAction {
-                        progressBarHolder.visibility = View.GONE
+                        try {
+                            progressBarHolder.visibility = View.GONE
+                        } catch (e: Exception) { }
                     }.start()
                 }
             }
@@ -143,8 +156,8 @@ class SubscriptionFragment : Fragment(), OnBackPressedFinishListener {
         val dialogBuilder = AlertDialog.Builder(requireContext())
 
         dialogBuilder.setTitle(getString(R.string.error))
-        dialogBuilder.setMessage("This subscription is already purchased for another IGFlexin account. If it´s not restart the app and try it again later.")
-        dialogBuilder.setPositiveButton("Log out") { dialogInterface, _ ->
+        dialogBuilder.setMessage(getString(R.string.subscription_is_already_purchased_for_another_acc))
+        dialogBuilder.setPositiveButton(getString(R.string.log_out)) { dialogInterface, _ ->
             dialogInterface.cancel()
             viewModel.logOut()
             viewModel.subscriptionPurchaseLiveData.removeObservers(this)

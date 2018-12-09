@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
 import { androidpublisher_v3, google } from "googleapis";
+import { resolve } from 'path';
 
 const settings = { timestampsInSnapshots: true };
 
@@ -32,15 +33,15 @@ export const updateDisplayName = functions.https.onCall((data, context) => {
     });
 });
 
-const SUBSCRIPTION_RECOVERED = 1; // TODO
+const SUBSCRIPTION_RECOVERED = 1; // ! Not necessary because it would be used only if we had account on hold enabled which we have not.
 const SUBSCRIPTION_RENEWED = 2;
-const SUBSCRIPTION_CANCELED = 3; // TODO
+const SUBSCRIPTION_CANCELED = 3; // TODO Delete subscription or mark as canceled - remove user entitlement, user can always restore it before it completely ends
 const SUBSCRIPTION_PURCHASED = 4; // ! Handled in verifyGooglePlayPurchase function
-const SUBSCRIPTION_ON_HOLD = 5; // TODO
-const SUBSCRIPTION_IN_GRACE_PERIOD = 6; // TODO
-const SUBSCRIPTION_RESTARTED = 7;
-const SUBSCRIPTION_PRICE_CHANGE_CONFIRMED = 8;
-const SUBSCRIPTION_DEFERRED = 9;
+const SUBSCRIPTION_ON_HOLD = 5; // ! Not enabled in Google Play Console
+const SUBSCRIPTION_IN_GRACE_PERIOD = 6; // TODO Mark subscription is in grace period - warning will be displayed in app
+const SUBSCRIPTION_RESTARTED = 7; // TODO Grant user entitlement - restarted after canceled
+const SUBSCRIPTION_PRICE_CHANGE_CONFIRMED = 8; // * Not necessary until we want to change subscription prices
+const SUBSCRIPTION_DEFERRED = 9; // * Not necessary - subscription will not trigger any other events if it is is deffered
 
 const PACKAGE_NAME = 'com.appapply.igflexin'
 
@@ -61,6 +62,16 @@ async function verifyGooglePlayPurchaseAsync(uid: string, subscriptionID: string
 
         console.log(subscription.data);
 
+        // TODO probably convert it to update somehow to prevent deleting
+        if (subscription.data.linkedPurchaseToken) {
+            try {
+                const oldSubscription =  await admin.firestore().collection('payments').where('purchaseToken', '==', subscription.data.linkedPurchaseToken).limit(1).get();
+                await admin.firestore().collection('payments').doc(oldSubscription.docs[0].id).delete();
+            } catch(e) {
+                console.log('ERROR DELETING OLD SUBSCRIPTION ' + subscription.data.linkedPurchaseToken);
+            } 
+        }
+
         const paymentDocument = await admin.firestore().collection('payments').where('userID', '==', uid).limit(1).get();
 
         if (paymentDocument.empty) {
@@ -72,7 +83,9 @@ async function verifyGooglePlayPurchaseAsync(uid: string, subscriptionID: string
                 orderID: subscription.data.orderId,
                 purchaseToken: purchaseToken,
                 autoRenewing: subscription.data.autoRenewing,
-                paymentState: subscription.data.paymentState
+                paymentState: subscription.data.paymentState,
+                lastTimeRenewed: Date.now(),
+                inGracePeriod: false,
             });
         } else {
             await admin.firestore().collection('payments').doc(paymentDocument.docs[0].id).update({
@@ -83,7 +96,9 @@ async function verifyGooglePlayPurchaseAsync(uid: string, subscriptionID: string
                 orderID: subscription.data.orderId,
                 purchaseToken: purchaseToken,
                 autoRenewing: subscription.data.autoRenewing,
-                paymentState: subscription.data.paymentState
+                paymentState: subscription.data.paymentState,
+                lastTimeRenewed: Date.now(),
+                inGracePeriod: false
             });
         }
 
@@ -102,7 +117,11 @@ async function verifyGooglePlayPurchaseAsync(uid: string, subscriptionID: string
                     subscriptionID: subscriptionID,
                     verified: false,
                     userID: uid,
-                    purchaseToken: purchaseToken
+                    purchaseToken: purchaseToken,
+                    autoRenewing: null,
+                    paymentState: null,
+                    lastTimeRenewed: null,
+                    inGracePeriod: null
                 });
             } else {
                 await admin.firestore().collection('payments').doc(paymentDocument.docs[0].id).update({
@@ -113,7 +132,9 @@ async function verifyGooglePlayPurchaseAsync(uid: string, subscriptionID: string
                     orderID: null,
                     purchaseToken: purchaseToken,
                     autoRenewing: null,
-                    paymentState: null
+                    paymentState: null,
+                    lastTimeRenewed: null,
+                    inGracePeriod: null
                 });
             }
         } catch(e) {
@@ -129,21 +150,13 @@ export const playConsolePubSub = functions.pubsub.topic('PlayConsole').onPublish
     const subscriptionNotification = message.json.subscriptionNotification;
 
     switch (subscriptionNotification.notificationType) {
-        case SUBSCRIPTION_RECOVERED: {
-
-            console.log("SUBSCRIPTION_RECOVERED" +
-                " purchaseToken: " + subscriptionNotification.purchaseToken +
-                " subscriptionId: " + subscriptionNotification.subscriptionId);
-
-            break;
-        }
         case SUBSCRIPTION_RENEWED: {
 
             console.log("SUBSCRIPTION_RENEWED" +
                 " purchaseToken: " + subscriptionNotification.purchaseToken +
                 " subscriptionId: " + subscriptionNotification.subscriptionId);
 
-            break;
+            return onSubscriptionRenewed(subscriptionNotification.purchaseToken, subscriptionNotification.subscriptionId);
         }
         case SUBSCRIPTION_CANCELED: {
 
@@ -151,25 +164,7 @@ export const playConsolePubSub = functions.pubsub.topic('PlayConsole').onPublish
                 " purchaseToken: " + subscriptionNotification.purchaseToken +
                 " subscriptionId: " + subscriptionNotification.subscriptionId);
 
-            break;
-        }
-        case SUBSCRIPTION_PURCHASED: {
-
-            console.log("SUBSCRIPTION_PURCHASED" +
-                " purchaseToken: " + subscriptionNotification.purchaseToken +
-                " subscriptionId: " + subscriptionNotification.subscriptionId);
-
-            // ! Should not be handled here. App is responsible for sending purchaseToken to verifyGooglePlayPurchase function
-
-            break;
-        }
-        case SUBSCRIPTION_ON_HOLD: {
-
-            console.log("SUBSCRIPTION_ON_HOLD" +
-                " purchaseToken: " + subscriptionNotification.purchaseToken +
-                " subscriptionId: " + subscriptionNotification.subscriptionId);
-
-            break;
+            return onSubscriptionCanceled(subscriptionNotification.purchaseToken, subscriptionNotification.subscriptionId);
         }
         case SUBSCRIPTION_IN_GRACE_PERIOD: {
 
@@ -177,7 +172,7 @@ export const playConsolePubSub = functions.pubsub.topic('PlayConsole').onPublish
                 " purchaseToken: " + subscriptionNotification.purchaseToken +
                 " subscriptionId: " + subscriptionNotification.subscriptionId);
 
-            break;
+            return onSubscriptionInGracePeriod(subscriptionNotification.purchaseToken, subscriptionNotification.subscriptionId);
         }
         case SUBSCRIPTION_RESTARTED: {
 
@@ -185,23 +180,84 @@ export const playConsolePubSub = functions.pubsub.topic('PlayConsole').onPublish
                 " purchaseToken: " + subscriptionNotification.purchaseToken +
                 " subscriptionId: " + subscriptionNotification.subscriptionId);
 
-            break;
+                return onSubscriptionRestarted(subscriptionNotification.purchaseToken, subscriptionNotification.subscriptionId);
         }
-        case SUBSCRIPTION_PRICE_CHANGE_CONFIRMED: {
-
-            console.log("SUBSCRIPTION_PRICE_CHANGE_CONFIRMED" +
-                " purchaseToken: " + subscriptionNotification.purchaseToken +
-                " subscriptionId: " + subscriptionNotification.subscriptionId);
-
-            break;
-        }
-        case SUBSCRIPTION_DEFERRED: {
-
-            console.log("SUBSCRIPTION_DEFERRED" +
-                " purchaseToken: " + subscriptionNotification.purchaseToken +
-                " subscriptionId: " + subscriptionNotification.subscriptionId);
-
-            break;
+        default: {
+            return null;
         }
     }
 });
+
+async function onSubscriptionRenewed(purchaseToken: string, subscriptionId: string) {
+    const payment = await admin.firestore().collection('payments').where('purchaseToken', '==', purchaseToken).limit(1).get();
+
+    const subscription = await androidPublisher.purchases.subscriptions.get({
+        packageName: PACKAGE_NAME,
+        subscriptionId: subscriptionId,
+        token: purchaseToken
+    });
+
+    console.log(subscription.data);
+
+    await admin.firestore().collection('payments').doc(payment.docs[0].id).update({
+        inGracePeriod: false,
+        orderID: subscription.data.orderId,
+        purchaseToken: purchaseToken,
+        lastTimeRenewed: Date.now()
+    });
+}
+
+async function onSubscriptionCanceled(purchaseToken: string, subscriptionId: string) {
+    const payment = await admin.firestore().collection('payments').where('purchaseToken', '==', purchaseToken).limit(1).get();
+
+    try {
+        const subscription = await androidPublisher.purchases.subscriptions.get({
+            packageName: PACKAGE_NAME,
+            subscriptionId: subscriptionId,
+            token: purchaseToken
+        });
+
+        console.log(subscription.data);
+
+        try {
+            await admin.firestore().collection('payments').doc(payment.docs[0].id).update({
+                autoRenewing: subscription.data.autoRenewing,
+                paymentState: subscription.data.paymentState,
+                purchaseToken: purchaseToken,
+                inGracePeriod: false
+            });
+        } catch(e) {
+            return null;
+        }
+    } catch(e) {
+        await admin.firestore().collection('payments').doc(payment.docs[0].id).delete();
+    }
+}
+
+async function onSubscriptionInGracePeriod(purchaseToken: string, subscriptionId: string) {
+    const payment = await admin.firestore().collection('payments').where('purchaseToken', '==', purchaseToken).limit(1).get();
+
+    await admin.firestore().collection('payments').doc(payment.docs[0].id).update({
+        purchaseToken: purchaseToken,
+        inGracePeriod: true
+    });
+}
+
+async function onSubscriptionRestarted(purchaseToken: string, subscriptionId: string) {
+    const payment = await admin.firestore().collection('payments').where('purchaseToken', '==', purchaseToken).limit(1).get();
+
+    const subscription = await androidPublisher.purchases.subscriptions.get({
+        packageName: PACKAGE_NAME,
+        subscriptionId: subscriptionId,
+        token: purchaseToken
+    });
+
+    console.log(subscription.data);
+
+    await admin.firestore().collection('payments').doc(payment.docs[0].id).update({
+        autoRenewing: subscription.data.autoRenewing,
+        paymentState: subscription.data.paymentState,
+        purchaseToken: purchaseToken,
+        inGracePeriod: false
+    });
+}

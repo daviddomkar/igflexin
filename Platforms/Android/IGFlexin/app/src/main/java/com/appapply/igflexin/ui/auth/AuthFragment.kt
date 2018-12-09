@@ -19,6 +19,7 @@ import com.appapply.igflexin.ui.auth.verifyemail.VerifyEmailFragment
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.auth_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import java.lang.Exception
 
 class AuthFragment : Fragment(), OnBackPressedFinishListener {
 
@@ -120,7 +121,9 @@ class AuthFragment : Fragment(), OnBackPressedFinishListener {
                     progressBarHolder.visibility = View.GONE
                 } else {
                     progressBarHolder.animate().setDuration(200).alpha(0.0f).withEndAction {
-                        progressBarHolder.visibility = View.GONE
+                        try {
+                            progressBarHolder.visibility = View.GONE
+                        } catch (e: Exception) { }
                     }.start()
                 }
             }

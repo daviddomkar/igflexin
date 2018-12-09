@@ -65,6 +65,19 @@ class BillingManager(context: Context) : PurchasesUpdatedListener {
         }
     }
 
+    fun initiateUpgradeDowngradePurchaseFlow(activity: Activity, oldSkuID: String,  skuID: String, @BillingClient.SkuType skuType: String, onError: (responseCode: Int) -> Unit) {
+        val params = BillingFlowParams.newBuilder()
+        params.setSku(skuID)
+        params.setType(skuType)
+        params.setOldSku(oldSkuID)
+        params.setReplaceSkusProrationMode(BillingFlowParams.ProrationMode.IMMEDIATE_WITH_TIME_PRORATION)
+        val responseCode = billingClient.launchBillingFlow(activity, params.build())
+        if (responseCode != BillingClient.BillingResponse.OK) {
+            onError(responseCode)
+        }
+        Log.d("IGFlexin_billing", responseCode.toString())
+    }
+
     override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
         Log.d("IGFlexin_billing", "onPurchasesUpdated $responseCode, purchases: " + purchases?.size)
 

@@ -33,13 +33,13 @@
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/title_size"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/subTitletextView"
+                app:layout_constraintBottom_toTopOf="@+id/subTitleTextView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/subTitletextView"
+                android:id="@+id/subTitleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="32dp"
@@ -67,7 +67,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/signUpButton"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/subTitletextView" />
+                app:layout_constraintTop_toBottomOf="@+id/subTitleTextView" />
 
             <Button
                 android:id="@+id/signUpButton"
@@ -82,7 +82,7 @@
                 android:theme="@style/PrimaryButton"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/logInButton"
-                app:layout_constraintTop_toBottomOf="@+id/subTitletextView" />
+                app:layout_constraintTop_toBottomOf="@+id/subTitleTextView" />
 
             <TextView
                 android:id="@+id/orTextView"

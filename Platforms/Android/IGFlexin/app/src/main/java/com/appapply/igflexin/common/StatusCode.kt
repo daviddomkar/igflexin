@@ -33,3 +33,27 @@ open class BillingStatusCode(private val code: Int) : StatusCode(code) {
         val SERVICE_DISCONNECTED = StatusCode(205)
     }
 }
+
+fun getStringStatusCode(code: StatusCode): String {
+    return when (code) {
+        StatusCode.SUCCESS -> "StatusCode.SUCCESS"
+        StatusCode.CANCELED -> "StatusCode.CANCELED"
+        StatusCode.NETWORK_ERROR -> "StatusCode.NETWORK_ERROR"
+        StatusCode.ERROR -> "StatusCode.ERROR"
+        StatusCode.PENDING -> "StatusCode.PENDING"
+        AuthStatusCode.USER_NOT_FOUND -> "AuthStatusCode.USER_NOT_FOUND"
+        AuthStatusCode.USER_DISABLED -> "AuthStatusCode.USER_DISABLED"
+        AuthStatusCode.EMAIL_ALREADY_IN_USE -> "AuthStatusCode.EMAIL_ALREADY_IN_USE"
+        AuthStatusCode.EXISTS_WITH_DIFFERENT_CREDENTIAL -> "AuthStatusCode.EXISTS_WITH_DIFFERENT_CREDENTIAL"
+        AuthStatusCode.CREDENTIAL_ALREADY_IN_USE -> "AuthStatusCode.CREDENTIAL_ALREADY_IN_USE"
+        AuthStatusCode.INVALID_CREDENTIALS -> "AuthStatusCode.INVALID_CREDENTIALS"
+        AuthStatusCode.WEAK_PASSWORD -> "AuthStatusCode.WEAK_PASSWORD"
+        BillingStatusCode.BILLING_UNAVAILABLE -> "BillingStatusCode.BILLING_UNAVAILABLE"
+        BillingStatusCode.FEATURE_NOT_SUPPORTED  -> "BillingStatusCode.FEATURE_NOT_SUPPORTED"
+        BillingStatusCode.ITEM_ALREADY_OWNED  -> "BillingStatusCode.ITEM_ALREADY_OWNED"
+        BillingStatusCode.ITEM_NOT_OWNED  -> "BillingStatusCode.ITEM_NOT_OWNED"
+        BillingStatusCode.ITEM_UNAVAILABLE  -> "BillingStatusCode.ITEM_UNAVAILABLE"
+        BillingStatusCode.SERVICE_DISCONNECTED  -> "BillingStatusCode.SERVICE_DISCONNECTED"
+        else -> "StatusCode.UNKNOWN"
+    }
+}

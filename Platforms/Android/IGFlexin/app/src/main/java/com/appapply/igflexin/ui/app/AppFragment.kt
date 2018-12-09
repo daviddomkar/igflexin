@@ -1,5 +1,7 @@
 package com.appapply.igflexin.ui.app
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,6 +12,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager.widget.ViewPager
@@ -21,11 +24,11 @@ import com.appapply.igflexin.common.OnSelectedListener
 import com.appapply.igflexin.common.StatusCode
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.app_fragment.*
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationView.OnNavigationItemSelectedListener, ViewPager.OnPageChangeListener {
 
-    private val viewModel: AppViewModel by viewModel()
+    private val viewModel: AppViewModel by sharedViewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.app_fragment, container, false)
@@ -47,16 +50,39 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
 
         bindNavigationDrawer()
 
-        toolbar.post { toolbar.title = adapter.getPageTitle(viewPager.currentItem) }
+        toolbar.post {
+            try {
+                toolbar.title = adapter.getPageTitle(viewPager.currentItem)
+            } catch (e: java.lang.Exception) { }
+        }
 
         viewModel.subscriptionLiveData.observe(this, Observer {
             when (it.status) {
                 StatusCode.SUCCESS -> {
-                    if (!it.data!!.verified) {
+                    if (!it.data!!.verified || (it.data.autoRenewing != null && !it.data.autoRenewing)) {
+                        viewModel.userLiveData.removeObservers(this)
+                        viewModel.subscriptionLiveData.removeObservers(this)
                         findNavController().popBackStack()
+                        return@Observer
+                    }
+
+                    if (it.data.inGracePeriod != null && it.data.inGracePeriod) {
+                        warningText.text = getString(R.string.problem_with_payment_method)
+                        warningButton.text = getString(R.string.fix)
+                        warning.visibility = View.VISIBLE
+                        warningButton.setOnClickListener { view ->
+                            val url = "https://play.google.com/store/account/subscriptions?sku=" + it.data.subscriptionID + "&package=com.appapply.igflexin"
+                            val i = Intent(Intent.ACTION_VIEW)
+                            i.data = Uri.parse(url)
+                            startActivity(i)
+                        }
+                    } else {
+                        warning.visibility = View.GONE
                     }
                 }
                 StatusCode.ERROR -> {
+                    viewModel.userLiveData.removeObservers(this)
+                    viewModel.subscriptionLiveData.removeObservers(this)
                     findNavController().popBackStack()
                 }
             }
@@ -64,7 +90,34 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
 
         viewModel.userLiveData.observe(this, Observer {
             if (it.status == StatusCode.ERROR) {
+                viewModel.userLiveData.removeObservers(this)
+                viewModel.subscriptionLiveData.removeObservers(this)
                 findNavController().popBackStack()
+            }
+        })
+
+        viewModel.showProgressBarLiveData.observe(this, Observer {
+            if (it.first) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                if (it.second) {
+                    progressBarHolder.alpha = 1.0f
+                    progressBarHolder.visibility = View.VISIBLE
+                } else {
+                    progressBarHolder.visibility = View.VISIBLE
+                    progressBarHolder.animate().setDuration(200).alpha(1.0f).start()
+                }
+            } else {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                if (it.second) {
+                    progressBarHolder.alpha = 0.0f
+                    progressBarHolder.visibility = View.GONE
+                } else {
+                    progressBarHolder.animate().setDuration(200).alpha(0.0f).withEndAction {
+                        try {
+                            progressBarHolder.visibility = View.GONE
+                        } catch (e: Exception) { }
+                    }.start()
+                }
             }
         })
     }
@@ -160,6 +213,9 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
     }
 
     override fun onBackPressed(): Boolean {
+
+        if (viewModel.loading)
+            return true
 
         val currentFragment = childFragmentManager.fragments[viewPager.currentItem]
 

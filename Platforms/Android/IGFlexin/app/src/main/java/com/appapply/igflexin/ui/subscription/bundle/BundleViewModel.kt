@@ -7,6 +7,7 @@ import com.appapply.igflexin.repository.SubscriptionRepository
 
 class BundleViewModel(private val subscriptionRepository: SubscriptionRepository) : ViewModel() {
     val subscriptionBundlesLiveData = subscriptionRepository.subscriptionBundlesLiveData
+    val subscriptionLiveData = subscriptionRepository.subscriptionLiveData
 
     private var period = "none"
 

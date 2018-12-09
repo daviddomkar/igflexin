@@ -1,5 +1,6 @@
 package com.appapply.igflexin.ui.subscription.bundle
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,12 +9,19 @@ import com.appapply.igflexin.R
 import com.appapply.igflexin.model.SubscriptionBundle
 import kotlinx.android.synthetic.main.model_subscription_bundle.view.*
 
-class BundleAdapter(private val action: (id: String) -> Unit) : RecyclerView.Adapter<BundleAdapter.BundleViewHolder>() {
+class BundleAdapter(private val context: Context, private val action: (id: String) -> Unit) : RecyclerView.Adapter<BundleAdapter.BundleViewHolder>() {
 
     private var list: List<SubscriptionBundle> = ArrayList()
 
+    private var id: String = ""
+
     fun setList(list: List<SubscriptionBundle>) {
         this.list = list
+        notifyDataSetChanged()
+    }
+
+    fun setID(id: String) {
+        this.id = id
         notifyDataSetChanged()
     }
 
@@ -31,7 +39,13 @@ class BundleAdapter(private val action: (id: String) -> Unit) : RecyclerView.Ada
         holder.bundleView.titleTextView.text = list[position].title
         holder.bundleView.descriptionTextView.text = list[position].description
         holder.bundleView.restrictionTextView.text = list[position].restriction
-        holder.bundleView.selectButton.text = list[position].price
+
+        if (list[position].id == this.id) {
+            holder.bundleView.selectButton.text = context.getString(R.string.restore)
+        } else {
+            holder.bundleView.selectButton.text = list[position].price
+        }
+        
         holder.bundleView.selectButton.setOnClickListener {
             action(list[position].id)
         }

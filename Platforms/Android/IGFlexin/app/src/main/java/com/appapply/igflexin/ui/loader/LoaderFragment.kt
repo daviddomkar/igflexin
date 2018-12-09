@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.IdRes
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 
@@ -50,7 +51,7 @@ class LoaderFragment : Fragment() {
                 StatusCode.SUCCESS -> {
                     viewModel.subscriptionPurchasedCalled = false
 
-                    if (it.data!!.verified) {
+                    if (it.data!!.verified && it.data.autoRenewing != null && it.data.autoRenewing) {
                         findNavController().navigate(R.id.action_loaderFragment_to_appFragment)
                     } else {
                         viewModel.loggedInAndHasEmailVerifiedLiveData.removeObservers(this)
@@ -79,7 +80,7 @@ class LoaderFragment : Fragment() {
                 StatusCode.SUCCESS -> {
                     viewModel.subscriptionPurchasedCalled = false
 
-                    if (it.data!!.verified) {
+                    if (it.data!!.verified && it.data.autoRenewing != null && it.data.autoRenewing) {
                         findNavController().navigate(R.id.action_loaderFragment_to_appFragment)
                     } else {
                         viewModel.loggedInAndHasEmailVerifiedLiveData.removeObservers(this)
@@ -97,5 +98,11 @@ class LoaderFragment : Fragment() {
                 }
             }
         })
+    }
+
+    private fun navigate(destination: Int) {
+        try {
+            findNavController().navigate(destination)
+        } catch (e: Exception) { }
     }
 }
