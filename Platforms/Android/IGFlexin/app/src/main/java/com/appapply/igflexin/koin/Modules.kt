@@ -6,6 +6,7 @@ import com.appapply.igflexin.billing.BillingManager
 import com.appapply.igflexin.livedata.firebase.FirebaseAuthStateLiveData
 import com.appapply.igflexin.repository.*
 import com.appapply.igflexin.ui.app.AppViewModel
+import com.appapply.igflexin.ui.app.instagramaccounts.InstagramAccountsViewModel
 import com.appapply.igflexin.ui.app.subscriptionmanagement.SubscriptionManagementViewModel
 import com.appapply.igflexin.ui.app.subscriptionmanagement.subscriptiontab.SubscriptionTabViewModel
 import com.appapply.igflexin.ui.auth.AuthViewModel
@@ -37,6 +38,7 @@ val appModule = module {
     single<AuthRepository> { FirebaseAuthRepository(get(), get()) }
     single<UserRepository> { FirebaseUserRepository(get()) }
     single<SubscriptionRepository> { FirebaseSubscriptionRepository(get(), get(), get(), get()) }
+    single<InstagramRepository> { InstagramRepositoryImpl() }
 
     viewModel { MainViewModel() }
 
@@ -56,6 +58,8 @@ val appModule = module {
 
     viewModel { SubscriptionManagementViewModel(get()) }
     viewModel { SubscriptionTabViewModel(get()) }
+
+    viewModel { InstagramAccountsViewModel(get()) }
 }
 
 val firebaseModule = module {

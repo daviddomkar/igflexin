@@ -70,7 +70,7 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
                         warningText.text = getString(R.string.problem_with_payment_method)
                         warningButton.text = getString(R.string.fix)
                         warning.visibility = View.VISIBLE
-                        warningButton.setOnClickListener { view ->
+                        warningButton.setOnClickListener { _ ->
                             val url = "https://play.google.com/store/account/subscriptions?sku=" + it.data.subscriptionID + "&package=com.appapply.igflexin"
                             val i = Intent(Intent.ACTION_VIEW)
                             i.data = Uri.parse(url)

@@ -46,7 +46,6 @@ class SubscriptionFragment : Fragment(), OnBackPressedFinishListener {
                             viewModel.subscriptionLiveData.removeObservers(this)
                             viewModel.subscriptionPurchaseResultLiveData.removeObservers(this)
                             viewModel.subscriptionVerifiedLiveData.removeObservers(this)
-                            viewModel.resetPurchaseLiveData()
 
                             verifyDialog?.dismiss()
 
@@ -161,7 +160,6 @@ class SubscriptionFragment : Fragment(), OnBackPressedFinishListener {
             dialogInterface.cancel()
             viewModel.logOut()
             viewModel.subscriptionPurchaseLiveData.removeObservers(this)
-            viewModel.resetPurchaseLiveData()
             findNavController().popBackStack()
         }
 
@@ -207,7 +205,6 @@ class SubscriptionFragment : Fragment(), OnBackPressedFinishListener {
         } else {
             verifyDialog?.dismiss()
             viewModel.subscriptionPurchaseLiveData.removeObservers(this)
-            viewModel.resetPurchaseLiveData()
             false
         }
     }
