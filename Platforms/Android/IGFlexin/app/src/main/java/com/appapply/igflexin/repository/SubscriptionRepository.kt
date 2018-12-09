@@ -30,6 +30,7 @@ interface SubscriptionRepository {
     val subscriptionGetCacheLiveData: LiveData<Event<Resource<Subscription>>>
     val subscriptionLiveData: LiveData<Resource<Subscription>>
     val subscriptionPurchaseLiveData: LiveData<StatusCode>
+    val subscriptionUpgradeDowngradeLiveData: LiveData<StatusCode>
     val subscriptionVerifiedLiveData: LiveData<StatusCode>
     val subscriptionPurchaseResultLiveData: LiveData<Event<Resource<List<Purchase>>>>
     val subscriptionPeriodsLiveData: LiveData<Resource<List<RawSubscriptionPeriod>>>
@@ -39,6 +40,7 @@ interface SubscriptionRepository {
     fun checkForSubscriptionInCache()
 
     fun purchaseSubscription(activity: Activity, ID: String)
+    fun upgradeDowngradeSubscription(activity: Activity, oldID: String, ID: String)
 
     fun getSubscriptionPeriods()
     fun getSubscriptionBundles(IDs: List<String>)
@@ -49,11 +51,12 @@ interface SubscriptionRepository {
 }
 
 class FirebaseSubscriptionRepository(private val firebaseAuth: FirebaseAuth, private val firebaseFirestore: FirebaseFirestore, private val firebaseFunctions: FirebaseFunctions, private val billingManager: BillingManager) : SubscriptionRepository {
-    private val subscriptionGetServerMutableLiveData = FirebaseFirestoreGetEventLiveData(Source.SERVER, firebaseFirestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1))
-    private val subscriptionGetCacheMutableLiveData = FirebaseFirestoreGetEventLiveData(Source.CACHE, firebaseFirestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1))
-    private val subscriptionMutableLiveData = FirebaseFirestoreQueryLiveData(MetadataChanges.INCLUDE, firebaseFirestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1))
+    private var subscriptionGetServerMutableLiveData = FirebaseFirestoreGetEventLiveData(Source.SERVER, firebaseFirestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1))
+    private var subscriptionGetCacheMutableLiveData = FirebaseFirestoreGetEventLiveData(Source.CACHE, firebaseFirestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1))
+    private var subscriptionMutableLiveData = FirebaseFirestoreQueryLiveData(MetadataChanges.INCLUDE, firebaseFirestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1))
 
     private val subscriptionPurchaseMutableLiveData: MutableLiveData<StatusCode> = MutableLiveData()
+    private val subscriptionUpgradeDowngradeMutableLiveData: MutableLiveData<StatusCode> = MutableLiveData()
     private val subscriptionVerifiedMutableLiveData: MutableLiveData<StatusCode> = MutableLiveData()
 
     private val subscriptionPeriodsMutableLiveData: MutableLiveData<Resource<List<RawSubscriptionPeriod>>> = MutableLiveData()
@@ -73,7 +76,7 @@ class FirebaseSubscriptionRepository(private val firebaseAuth: FirebaseAuth, pri
                     if (!content.data.isEmpty) {
                         Log.d("IGFlexin_subscription", "Data: " + content.data.first().getString("purchaseToken"))
                         try {
-                            subscription = Subscription(content.data.first().id, content.data.first().getString("orderID"), content.data.first().getString("purchaseToken")!!, content.data.first().getString("subscriptionID")!!, content.data.first().getString("userID")!!, content.data.first().getBoolean("verified")!!, false)
+                            subscription = Subscription(content.data.first().id, content.data.first().getString("orderID"), content.data.first().getString("purchaseToken")!!, content.data.first().getString("subscriptionID")!!, content.data.first().getString("userID")!!, content.data.first().getBoolean("verified")!!, content.data.first().getBoolean("autoRenewing"), content.data.first().getBoolean("inGracePeriod"), false)
                             statusCode = StatusCode.SUCCESS
                         } catch (e: Exception) {
                             Log.d("IGFlexin_subscription", "Exception data: " + content.exception.toString())
@@ -107,7 +110,7 @@ class FirebaseSubscriptionRepository(private val firebaseAuth: FirebaseAuth, pri
                     if (!content.data.isEmpty) {
                         Log.d("IGFlexin_subscription", "Data: " + content.data.first().getString("purchaseToken"))
                         try {
-                            subscription = Subscription(content.data.first().id, content.data.first().getString("orderID"), content.data.first().getString("purchaseToken")!!, content.data.first().getString("subscriptionID")!!, content.data.first().getString("userID")!!, content.data.first().getBoolean("verified")!!, true)
+                            subscription = Subscription(content.data.first().id, content.data.first().getString("orderID"), content.data.first().getString("purchaseToken")!!, content.data.first().getString("subscriptionID")!!, content.data.first().getString("userID")!!, content.data.first().getBoolean("verified")!!, content.data.first().getBoolean("autoRenewing"), content.data.first().getBoolean("inGracePeriod"), false)
                             statusCode = StatusCode.SUCCESS
                         } catch (e: Exception) {
                             Log.d("IGFlexin_subscription", "Exception data: " + content.exception.toString())
@@ -130,7 +133,7 @@ class FirebaseSubscriptionRepository(private val firebaseAuth: FirebaseAuth, pri
                 if (!it.data.isEmpty) {
                     Log.d("IGFlexin_subscription", "Data: " + it.data.first().getString("purchaseToken"))
                     try {
-                        subscription = Subscription(it.data.first().id, it.data.first().getString("orderID"), it.data.first().getString("purchaseToken")!!, it.data.first().getString("subscriptionID")!!, it.data.first().getString("userID")!!, it.data.first().getBoolean("verified")!!, it.data.first().metadata.isFromCache)
+                        subscription = Subscription(it.data.first().id, it.data.first().getString("orderID"), it.data.first().getString("purchaseToken")!!, it.data.first().getString("subscriptionID")!!, it.data.first().getString("userID")!!, it.data.first().getBoolean("verified")!!, it.data.first().getBoolean("autoRenewing"), it.data.first().getBoolean("inGracePeriod"), false)
                         statusCode = StatusCode.SUCCESS
                     } catch (e: Exception) {
                         Log.d("IGFlexin_subscription", "Exception data: " + it.exception.toString())
@@ -150,6 +153,9 @@ class FirebaseSubscriptionRepository(private val firebaseAuth: FirebaseAuth, pri
     override val subscriptionPurchaseLiveData: LiveData<StatusCode>
         get() = subscriptionPurchaseMutableLiveData
 
+    override val subscriptionUpgradeDowngradeLiveData: LiveData<StatusCode>
+        get() = subscriptionUpgradeDowngradeMutableLiveData
+
     override val subscriptionVerifiedLiveData: LiveData<StatusCode>
         get() = subscriptionVerifiedMutableLiveData
 
@@ -157,11 +163,13 @@ class FirebaseSubscriptionRepository(private val firebaseAuth: FirebaseAuth, pri
         get() = subscriptionPurchaseResultMutableLiveData
 
     override fun checkForSubscription() {
+        subscriptionMutableLiveData.setQuery(firebaseFirestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1))
         subscriptionGetServerMutableLiveData.setQuery(firebaseFirestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1))
         subscriptionGetServerMutableLiveData.query()
     }
 
     override fun checkForSubscriptionInCache() {
+        subscriptionMutableLiveData.setQuery(firebaseFirestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1))
         subscriptionGetCacheMutableLiveData.setQuery(firebaseFirestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1))
         subscriptionGetCacheMutableLiveData.query()
     }
@@ -170,6 +178,13 @@ class FirebaseSubscriptionRepository(private val firebaseAuth: FirebaseAuth, pri
         subscriptionPurchaseMutableLiveData.value = StatusCode.PENDING
         billingManager.initiatePurchaseFlow(activity, ID, BillingClient.SkuType.SUBS) {
             subscriptionPurchaseMutableLiveData.value = billingManager.getStatusCodeFromResponseCode(it)
+        }
+    }
+
+    override fun upgradeDowngradeSubscription(activity: Activity, oldID: String, ID: String) {
+        subscriptionUpgradeDowngradeMutableLiveData.value = StatusCode.PENDING
+        billingManager.initiateUpgradeDowngradePurchaseFlow(activity, oldID, ID, BillingClient.SkuType.SUBS) {
+            subscriptionUpgradeDowngradeMutableLiveData.value = billingManager.getStatusCodeFromResponseCode(it)
         }
     }
 
@@ -212,7 +227,7 @@ class FirebaseSubscriptionRepository(private val firebaseAuth: FirebaseAuth, pri
 
         }, { responseCode ->
             Log.d("IGFlexin_subscription", "Jako jejda subscription bundles")
-            subscriptionPeriodsMutableLiveData.value = Resource(billingManager.getStatusCodeFromResponseCode(responseCode), null)
+            subscriptionBundlesMutableLiveData.value = Resource(billingManager.getStatusCodeFromResponseCode(responseCode), null)
         })
     }
 
@@ -236,6 +251,7 @@ class FirebaseSubscriptionRepository(private val firebaseAuth: FirebaseAuth, pri
 
     override fun resetPurchaseLiveData() {
         subscriptionPurchaseMutableLiveData.value = null
+        subscriptionUpgradeDowngradeMutableLiveData.value = null
         subscriptionVerifiedMutableLiveData.value = null
     }
 

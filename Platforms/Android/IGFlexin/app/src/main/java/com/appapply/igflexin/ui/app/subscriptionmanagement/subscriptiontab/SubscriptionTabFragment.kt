@@ -7,18 +7,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.appapply.igflexin.R
 import com.appapply.igflexin.billing.Product
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.model.SubscriptionBundle
+import com.appapply.igflexin.ui.app.subscriptionmanagement.SubscriptionManagementViewModel
 import kotlinx.android.synthetic.main.period_fragment.*
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SubscriptionTabFragment : Fragment() {
 
     private val viewModel: SubscriptionTabViewModel by viewModel()
+    private val subscriptionManagementViewModel: SubscriptionManagementViewModel by sharedViewModel()
+    private lateinit var viewAdapter: SubscriptionTabAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.subscription_tab_fragment, container, false)
@@ -31,9 +36,12 @@ class SubscriptionTabFragment : Fragment() {
 
         val viewManager = LinearLayoutManager(requireContext())
 
-        val viewAdapter = SubscriptionTabAdapter {
-            Log.d("IGFlexin_subscription", "Ready to purchase $it")
-            // viewModel.purchaseSubscription(requireActivity(), it)
+        viewAdapter = SubscriptionTabAdapter(requireContext()) {
+            Log.d("IGFlexin_subscription", "Ready to upgrade/downgrade to $it")
+            viewModel.subscriptionLiveData.value?.data?.subscriptionID?.let { oldSKU ->
+                subscriptionManagementViewModel.lastSubscription = oldSKU
+                viewModel.upgradeDowngradeSubscription(requireActivity(), oldSKU, it)
+            }
         }
 
         subscriptionsRecyclerView.setHasFixedSize(true)
@@ -44,7 +52,14 @@ class SubscriptionTabFragment : Fragment() {
             adapter = viewAdapter
         }
 
-        viewModel.subscriptionBundlesLiveData.observe(this, Observer {
+        Transformations.switchMap(viewModel.subscriptionLiveData) {
+            if (it.status == StatusCode.SUCCESS) {
+                val data = it.data!!
+
+                viewAdapter.setID(data.subscriptionID)
+            }
+            viewModel.subscriptionBundlesLiveData
+        }.observe(this, Observer {
             when (it.status) {
                 StatusCode.PENDING -> {
                     viewAdapter.setList(listOf())

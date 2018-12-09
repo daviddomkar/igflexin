@@ -1,17 +1,44 @@
 package com.appapply.igflexin.ui.app.subscriptionmanagement
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel;
 import com.appapply.igflexin.billing.Product
 import com.appapply.igflexin.repository.SubscriptionRepository
 
 class SubscriptionManagementViewModel(private val subscriptionRepository: SubscriptionRepository) : ViewModel() {
+    private val showErrorLayoutMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
+
+    val showErrorLayoutLiveData: LiveData<Boolean> = showErrorLayoutMutableLiveData
     val subscriptionBundlesLiveData = subscriptionRepository.subscriptionBundlesLiveData
+    val subscriptionUpgradeDowngradeLiveData = subscriptionRepository.subscriptionUpgradeDowngradeLiveData
+    val subscriptionPurchaseResultLiveData = subscriptionRepository.subscriptionPurchaseResultLiveData
+    val subscriptionVerifiedLiveData = subscriptionRepository.subscriptionVerifiedLiveData
+    val subscriptionLiveData = subscriptionRepository.subscriptionLiveData
+
+    // var error = false
+    // var errorMessage: Int = 0
+
+    var lastSubscription = "none"
 
     var error = false
-    var errorMessage: Int = 0
+        private set
 
     init {
         getSubscriptionBundles()
+    }
+
+    fun showErrorLayout(show: Boolean) {
+        showErrorLayoutMutableLiveData.value = show
+        error = show
+    }
+
+    fun resetPurchaseLiveData() {
+        subscriptionRepository.resetPurchaseLiveData()
+    }
+
+    fun verifySubscription(id: String, token: String) {
+        subscriptionRepository.verifySubscription(id, token)
     }
 
     fun getSubscriptionBundles() {
@@ -29,5 +56,10 @@ class SubscriptionManagementViewModel(private val subscriptionRepository: Subscr
             Product.QUARTERLY_BUSINESS_SUBSCRIPTION,
             Product.QUARTERLY_BUSINESS_PRO_SUBSCRIPTION
         ))
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        resetPurchaseLiveData()
     }
 }

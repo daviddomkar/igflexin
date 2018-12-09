@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.appapply.igflexin.R
 import com.appapply.igflexin.billing.Product
@@ -20,6 +21,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class BundleFragment : Fragment() {
 
     private val viewModel: BundleViewModel by viewModel()
+    private lateinit var viewAdapter: BundleAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.bundle_fragment, container, false)
@@ -42,7 +44,7 @@ class BundleFragment : Fragment() {
             }
         }
 
-        val viewAdapter = BundleAdapter {
+        viewAdapter = BundleAdapter(requireContext()) {
             Log.d("IGFlexin_subscription", "Ready to purchase $it")
             viewModel.purchaseSubscription(requireActivity(), it)
         }
@@ -55,7 +57,14 @@ class BundleFragment : Fragment() {
             adapter = viewAdapter
         }
 
-        viewModel.subscriptionBundlesLiveData.observe(this, Observer {
+        Transformations.switchMap(viewModel.subscriptionLiveData) {
+            if (it.status == StatusCode.SUCCESS) {
+                val data = it.data!!
+
+                viewAdapter.setID(data.subscriptionID)
+            }
+            viewModel.subscriptionBundlesLiveData
+        }.observe(this, Observer {
             when (it.status) {
                 StatusCode.PENDING -> {
                     viewAdapter.setList(listOf())
