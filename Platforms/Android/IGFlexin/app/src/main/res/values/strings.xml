@@ -83,4 +83,5 @@
     <string name="restore">RESTORE</string>
     <string name="problem_with_payment_method">There is a problem with your payment method. Fix it or you will lose your subscription.</string>
     <string name="fix">FIX</string>
+    <string name="add">ADD</string>
 </resources>

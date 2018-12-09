@@ -34,6 +34,14 @@ open class BillingStatusCode(private val code: Int) : StatusCode(code) {
     }
 }
 
+open class InstagramStatusCode(private val code: Int) : StatusCode(code) {
+    companion object {
+        val BAD_PASSWORD = StatusCode(300)
+        val ACCOUNT_DOES_NOT_MEET_REQUIREMENTS = StatusCode(301) //Your account does not meet the specified requirements
+
+    }
+}
+
 fun getStringStatusCode(code: StatusCode): String {
     return when (code) {
         StatusCode.SUCCESS -> "StatusCode.SUCCESS"
@@ -54,6 +62,7 @@ fun getStringStatusCode(code: StatusCode): String {
         BillingStatusCode.ITEM_NOT_OWNED  -> "BillingStatusCode.ITEM_NOT_OWNED"
         BillingStatusCode.ITEM_UNAVAILABLE  -> "BillingStatusCode.ITEM_UNAVAILABLE"
         BillingStatusCode.SERVICE_DISCONNECTED  -> "BillingStatusCode.SERVICE_DISCONNECTED"
+        InstagramStatusCode.BAD_PASSWORD -> "InstagramStatusCode.BAD_PASSWORD"
         else -> "StatusCode.UNKNOWN"
     }
 }

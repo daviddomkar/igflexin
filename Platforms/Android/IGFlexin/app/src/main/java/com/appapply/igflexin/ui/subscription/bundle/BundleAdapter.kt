@@ -1,6 +1,8 @@
 package com.appapply.igflexin.ui.subscription.bundle
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,12 +44,17 @@ class BundleAdapter(private val context: Context, private val action: (id: Strin
 
         if (list[position].id == this.id) {
             holder.bundleView.selectButton.text = context.getString(R.string.restore)
+            holder.bundleView.selectButton.setOnClickListener {
+                val url = "https://play.google.com/store/account/subscriptions?sku=" + this.id + "&package=com.appapply.igflexin"
+                val i = Intent(Intent.ACTION_VIEW)
+                i.data = Uri.parse(url)
+                context.startActivity(i)
+            }
         } else {
             holder.bundleView.selectButton.text = list[position].price
-        }
-        
-        holder.bundleView.selectButton.setOnClickListener {
-            action(list[position].id)
+            holder.bundleView.selectButton.setOnClickListener {
+                action(list[position].id)
+            }
         }
     }
 }

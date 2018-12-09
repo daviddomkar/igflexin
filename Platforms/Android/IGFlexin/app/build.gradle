@@ -10,7 +10,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.appapply.igflexin"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 28
         versionCode 5
         versionName "0.0.5"
@@ -54,6 +54,10 @@ dependencies {
     implementation 'org.koin:koin-androidx-viewmodel:1.0.1'
     implementation 'com.android.billingclient:billing:1.2'
     implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.firebaseui:firebase-ui-firestore:4.2.1'
+    implementation 'com.github.charlieAndroidDev:Instagram4Android:0.2.7'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.1"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'

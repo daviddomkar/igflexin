@@ -199,10 +199,18 @@ async function onSubscriptionRenewed(purchaseToken: string, subscriptionId: stri
 
     console.log(subscription.data);
 
+    if (purchaseToken !== subscription.data.linkedPurchaseToken) {
+        try {
+            const oldPayment = await admin.firestore().collection('payments').where('purchaseToken', '==', subscription.data.linkedPurchaseToken).limit(1).get();
+            await admin.firestore().collection('payments').doc(oldPayment.docs[0].id).delete();
+        } catch(e) {
+
+        }
+    }
+
     await admin.firestore().collection('payments').doc(payment.docs[0].id).update({
         inGracePeriod: false,
         orderID: subscription.data.orderId,
-        purchaseToken: purchaseToken,
         lastTimeRenewed: Date.now()
     });
 }
@@ -219,26 +227,46 @@ async function onSubscriptionCanceled(purchaseToken: string, subscriptionId: str
 
         console.log(subscription.data);
 
+        if (purchaseToken !== subscription.data.linkedPurchaseToken) {
+            try {
+                const oldPayment = await admin.firestore().collection('payments').where('purchaseToken', '==', subscription.data.linkedPurchaseToken).limit(1).get();
+                await admin.firestore().collection('payments').doc(oldPayment.docs[0].id).delete();
+            } catch(e) {
+
+            }
+        }
+
+        console.log('TRYING TO DO SOMETHING');
+
         try {
-            await admin.firestore().collection('payments').doc(payment.docs[0].id).update({
-                autoRenewing: subscription.data.autoRenewing,
-                paymentState: subscription.data.paymentState,
-                purchaseToken: purchaseToken,
-                inGracePeriod: false
-            });
+            if (subscription.data.autoRenewing === false && !subscription.data.paymentState) {
+                console.log('DELETED ABOVE');
+
+                await admin.firestore().collection('payments').doc(payment.docs[0].id).delete();
+            } else {
+                console.log('UPDATED');
+                await admin.firestore().collection('payments').doc(payment.docs[0].id).update({
+                    autoRenewing: subscription.data.autoRenewing,
+                    paymentState: subscription.data.paymentState,
+                    inGracePeriod: false
+                });
+            }       
         } catch(e) {
+            console.log('NULL');
             return null;
         }
     } catch(e) {
+        console.log('DELETED FINAL');
         await admin.firestore().collection('payments').doc(payment.docs[0].id).delete();
     }
+
+    console.log('FUNCTION END');
 }
 
 async function onSubscriptionInGracePeriod(purchaseToken: string, subscriptionId: string) {
     const payment = await admin.firestore().collection('payments').where('purchaseToken', '==', purchaseToken).limit(1).get();
 
     await admin.firestore().collection('payments').doc(payment.docs[0].id).update({
-        purchaseToken: purchaseToken,
         inGracePeriod: true
     });
 }
@@ -254,10 +282,18 @@ async function onSubscriptionRestarted(purchaseToken: string, subscriptionId: st
 
     console.log(subscription.data);
 
+    if (purchaseToken !== subscription.data.linkedPurchaseToken) {
+        try {
+            const oldPayment = await admin.firestore().collection('payments').where('purchaseToken', '==', subscription.data.linkedPurchaseToken).limit(1).get();
+            await admin.firestore().collection('payments').doc(oldPayment.docs[0].id).delete();
+        } catch(e) {
+
+        }
+    }
+
     await admin.firestore().collection('payments').doc(payment.docs[0].id).update({
         autoRenewing: subscription.data.autoRenewing,
         paymentState: subscription.data.paymentState,
-        purchaseToken: purchaseToken,
         inGracePeriod: false
     });
 }
