@@ -29,7 +29,7 @@ class PeriodAdapter(private val navController: NavController) : RecyclerView.Ada
     }
 
     override fun onBindViewHolder(holder: PeriodViewHolder, position: Int) {
-        holder.periodView.titleTextView.text = list[position].title
+        holder.periodView.usernameTextView.text = list[position].title
         holder.periodView.descriptionTextView.text = list[position].description
         holder.periodView.selectButton.setOnClickListener {
             val action = PeriodFragmentDirections.actionPeriodFragmentToBundleFragment()

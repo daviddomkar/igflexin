@@ -35,7 +35,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/titleTextView"
+                android:id="@+id/usernameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -65,7 +65,7 @@
                 android:textColorHint="@color/colorWhiteHint"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/titleTextView">
+                app:layout_constraintTop_toBottomOf="@+id/usernameTextView">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/emailInputEditText"

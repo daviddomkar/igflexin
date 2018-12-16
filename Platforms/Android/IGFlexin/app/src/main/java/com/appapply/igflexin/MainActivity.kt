@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class MainActivity : AppCompatActivity(), NavController.OnNavigatedListener {
+class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
 
     val viewModel: MainViewModel by viewModel()
 
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity(), NavController.OnNavigatedListener {
         val host: NavHostFragment = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
         navController = host.navController
 
-        navController.addOnNavigatedListener(this)
+        navController.addOnDestinationChangedListener(this)
 
         viewModel.startActivityForResultObjectLiveData.observe(this, EventObserver {
             startActivityForResult(it.intent, it.requestCode)
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity(), NavController.OnNavigatedListener {
         viewModel.onActivityResult(OnActivityResultObject(requestCode, resultCode, data))
     }
 
-    override fun onNavigated(controller: NavController, destination: NavDestination) {
+    override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
 
     }
 

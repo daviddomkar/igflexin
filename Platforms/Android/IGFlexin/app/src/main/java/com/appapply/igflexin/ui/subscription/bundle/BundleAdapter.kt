@@ -38,7 +38,7 @@ class BundleAdapter(private val context: Context, private val action: (id: Strin
     }
 
     override fun onBindViewHolder(holder: BundleViewHolder, position: Int) {
-        holder.bundleView.titleTextView.text = list[position].title
+        holder.bundleView.usernameTextView.text = list[position].title
         holder.bundleView.descriptionTextView.text = list[position].description
         holder.bundleView.restrictionTextView.text = list[position].restriction
 

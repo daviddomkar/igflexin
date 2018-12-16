@@ -50,6 +50,8 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
 
         bindNavigationDrawer()
 
+        // Log.d("IGFlexin_test", AESProcessor.decrypt("QxoerjP+iwHjA7kMfqYqxw==", "CiQA3TCgqs6Kcy7htMC0hkCvyp7lxSA5RojDwL1/oidnK0dGQmkSqgEAdJi+MMOznvp3eDc2W9lVw+sUhmfeS2fOKM4VihbGHRdoYXEV2VKheCdT3u1q+kxTcINVGyJMcO8lVCeJhOd9vs2nH55m89eNec6ZzUlk57HwaLrn8nAum8Up1omk+StISaqY0W7mgPkV8p+N1KX568Yj64wiYa8JhU5XKQymNw4FaaltCrzv7NW+bwZ+RVhwMoDJi6qz9ba5Rahq5B0WB9Jnnodt4hHtsw=="))
+
         toolbar.post {
             try {
                 toolbar.title = adapter.getPageTitle(viewPager.currentItem)
