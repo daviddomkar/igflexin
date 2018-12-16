@@ -33,9 +33,9 @@ class BundleFragment : Fragment() {
         viewModel.setPeriod(BundleFragmentArgs.fromBundle(arguments).period)
 
         when (BundleFragmentArgs.fromBundle(arguments).period) {
-            Product.WEEKLY_BASIC_SUBSCRIPTION -> titleTextView.text = getString(R.string.choose_your_weekly_bundle)
-            Product.MONTHLY_BASIC_SUBSCRIPTION -> titleTextView.text = getString(R.string.choose_your_monthly_bundle)
-            Product.QUARTERLY_BASIC_SUBSCRIPTION -> titleTextView.text = getString(R.string.choose_your_quarterly_bundle)
+            Product.WEEKLY_BASIC_SUBSCRIPTION -> usernameTextView.text = getString(R.string.choose_your_weekly_bundle)
+            Product.MONTHLY_BASIC_SUBSCRIPTION -> usernameTextView.text = getString(R.string.choose_your_monthly_bundle)
+            Product.QUARTERLY_BASIC_SUBSCRIPTION -> usernameTextView.text = getString(R.string.choose_your_quarterly_bundle)
         }
 
         val viewManager = object : LinearLayoutManager(requireContext()) {

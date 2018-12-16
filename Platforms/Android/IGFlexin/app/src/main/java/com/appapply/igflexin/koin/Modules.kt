@@ -5,6 +5,7 @@ import com.appapply.igflexin.R
 import com.appapply.igflexin.billing.BillingManager
 import com.appapply.igflexin.livedata.firebase.FirebaseAuthStateLiveData
 import com.appapply.igflexin.repository.*
+import com.appapply.igflexin.security.UserKeyManager
 import com.appapply.igflexin.ui.app.AppViewModel
 import com.appapply.igflexin.ui.app.instagramaccounts.InstagramAccountsViewModel
 import com.appapply.igflexin.ui.app.subscriptionmanagement.SubscriptionManagementViewModel
@@ -34,11 +35,12 @@ import org.koin.dsl.module.module
 val appModule = module {
 
     single { BillingManager(androidContext()) }
+    single { UserKeyManager(androidContext()) }
 
     single<AuthRepository> { FirebaseAuthRepository(get(), get()) }
     single<UserRepository> { FirebaseUserRepository(get()) }
     single<SubscriptionRepository> { FirebaseSubscriptionRepository(get(), get(), get(), get()) }
-    single<InstagramRepository> { InstagramRepositoryImpl() }
+    single<InstagramRepository> { InstagramRepositoryImpl(get(), get(), get(), get()) }
 
     viewModel { MainViewModel() }
 

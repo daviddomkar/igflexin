@@ -7,12 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.appapply.igflexin.R
 import com.appapply.igflexin.common.InstagramStatusCode
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.events.EventObserver
 import com.appapply.igflexin.ui.app.AppViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.dialog_add_ig_account.view.*
 import kotlinx.android.synthetic.main.instagram_accounts_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -30,10 +32,21 @@ class InstagramAccountsFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        Log.d("IGFlexin_instagram", "HEH")
-
         fab.setOnClickListener {
             addInstagramAccount()
+        }
+
+        val viewManager = LinearLayoutManager(requireContext())
+        val viewAdapter = InstagramAccountsAdapter(this, FirebaseAuth.getInstance().currentUser!!.uid, {
+
+        }, {
+
+        })
+
+        instagramAccountsRecyclerView.isNestedScrollingEnabled = false
+        instagramAccountsRecyclerView.apply {
+            layoutManager = viewManager
+            adapter = viewAdapter
         }
 
         viewModel.addInstagramAccountStatusLiveData.observe(this, EventObserver {
@@ -43,6 +56,10 @@ class InstagramAccountsFragment : Fragment() {
                 StatusCode.NETWORK_ERROR -> showErrorDialog("Error occurred while adding instagram account. Check your internet connection.")
                 InstagramStatusCode.BAD_PASSWORD -> showErrorDialog("Bad username and password combination.")
                 InstagramStatusCode.ACCOUNT_DOES_NOT_MEET_REQUIREMENTS -> showErrorDialog("Your account does not meet the specified requirements. Consider upgrading your subscription.")
+                InstagramStatusCode.ACCOUNT_ALREADY_ADDED -> showErrorDialog("This account is already added to IGFlexin.")
+                else -> {
+                    appViewModel.showProgressBar(false)
+                }
             }
         })
     }

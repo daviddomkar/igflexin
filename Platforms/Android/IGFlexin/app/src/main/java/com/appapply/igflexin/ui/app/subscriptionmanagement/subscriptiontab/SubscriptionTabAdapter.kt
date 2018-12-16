@@ -37,7 +37,7 @@ class SubscriptionTabAdapter(private val context: Context, private val action: (
     }
 
     override fun onBindViewHolder(holder: SubscriptionTabHolder, position: Int) {
-        holder.bundleView.titleTextView.text = list[position].title
+        holder.bundleView.usernameTextView.text = list[position].title
         holder.bundleView.descriptionTextView.text = list[position].description
         holder.bundleView.restrictionTextView.text = list[position].restriction
 

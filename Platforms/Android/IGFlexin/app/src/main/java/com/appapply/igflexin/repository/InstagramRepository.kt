@@ -7,6 +7,13 @@ import com.appapply.igflexin.billing.Product
 import com.appapply.igflexin.common.InstagramStatusCode
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.events.Event
+import com.appapply.igflexin.model.InstagramAccount
+import com.appapply.igflexin.security.UserKeyManager
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.Source
+import com.google.firebase.functions.FirebaseFunctions
 import dev.niekirk.com.instagram4android.Instagram4Android
 import dev.niekirk.com.instagram4android.requests.*
 import kotlinx.coroutines.*
@@ -20,7 +27,7 @@ interface InstagramRepository {
     fun reset()
 }
 
-class InstagramRepositoryImpl : InstagramRepository {
+class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, private val firebaseAuth: FirebaseAuth, private val firestore: FirebaseFirestore, private val functions: FirebaseFunctions) : InstagramRepository {
     private val addInstagramAccountStatusMutableLiveData: MutableLiveData<Event<StatusCode>> = MutableLiveData()
 
     override val addInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
@@ -53,9 +60,91 @@ class InstagramRepositoryImpl : InstagramRepository {
                     }
                 }
 
-                // TODO Encrypt password and write into database
+                if (firebaseAuth.currentUser != null) {
 
+                    val uid = firebaseAuth.currentUser!!.uid
 
+                    val key = userKeyManager.retrieveKey(uid)
+
+                    if (key != "none") {
+                        Log.d("IGFlexin_instagram", "Have key")
+                        addInstagramAccountToDatabase(uid, nick, encryptInstagramAccountPassword(key, password))
+                    } else {
+                        Log.d("IGFlexin_instagram", "Key is missing")
+
+                        firestore.collection("keys").document(uid).get(Source.CACHE).addOnCompleteListener { cacheTask ->
+
+                            if (cacheTask.isSuccessful && cacheTask.result != null && cacheTask.result!!.exists()) {
+                                val keyFromDB = cacheTask.result!!.getString("key")!!
+
+                                val data = HashMap<String, String>()
+                                data["key"] = keyFromDB
+
+                                functions.getHttpsCallable("decryptUserKey").call(data).addOnCompleteListener { result ->
+                                    if (result.isSuccessful && result.result != null && result.result!!.data != null) {
+                                        val data = result.result!!.data as String
+
+                                        userKeyManager.saveKey(uid, data)
+                                        addInstagramAccountToDatabase(uid, nick, encryptInstagramAccountPassword(data, password))
+                                    } else {
+                                        addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+                                    }
+                                }
+                            } else {
+                                firestore.collection("keys").document(uid).get(Source.SERVER).addOnCompleteListener { serverTask ->
+
+                                    if (serverTask.isSuccessful && serverTask.result != null && serverTask.result!!.exists()) {
+                                        val keyFromDB = serverTask.result!!.getString("key")!!
+
+                                        val data = HashMap<String, String>()
+                                        data["key"] = keyFromDB
+
+                                        functions.getHttpsCallable("decryptUserKey").call(data).addOnCompleteListener { result ->
+                                            if (result.isSuccessful && result.result != null && result.result!!.data != null) {
+                                                val data = result.result!!.data as String
+
+                                                userKeyManager.saveKey(uid, data)
+                                                addInstagramAccountToDatabase(uid, nick, encryptInstagramAccountPassword(data, password))
+                                            } else {
+                                                addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+                                            }
+                                        }
+                                    } else {
+                                        if (serverTask.exception != null && serverTask.exception!!.message != null && serverTask.exception!!.message!!.contains("Failed to get documents from server")) {
+                                            addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.NETWORK_ERROR))
+                                        } else {
+                                            Log.d("IGFlexin_instagram", "We need to create key hehehe")
+
+                                            functions.getHttpsCallable("createUserKey").call().addOnCompleteListener {
+                                                if (it.isSuccessful && it.result != null && it.result!!.data != null) {
+                                                    val data = HashMap<String, String>()
+                                                    data["key"] = it.result!!.data as String
+
+                                                    functions.getHttpsCallable("decryptUserKey").call(data).addOnCompleteListener { result ->
+                                                        if (result.isSuccessful && result.result != null && result.result!!.data != null) {
+                                                            val data = result.result!!.data as String
+
+                                                            userKeyManager.saveKey(uid, result.result!!.data!! as String)
+                                                            addInstagramAccountToDatabase(uid, nick, encryptInstagramAccountPassword(data, password))
+                                                        } else {
+                                                            addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+                                                        }
+                                                    }
+                                                } else {
+                                                    addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                } else {
+                    addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+                    return@launch
+                }
 
             } catch (e: Exception) {
                 Log.d("IGFlexin_instagram", "Exception: " + e.message)
@@ -67,6 +156,24 @@ class InstagramRepositoryImpl : InstagramRepository {
                 }
 
                 return@launch
+            }
+        }
+    }
+
+    private fun encryptInstagramAccountPassword(key: String, password: String): String {
+        return AESProcessor.encrypt(password, key)
+    }
+
+    private fun addInstagramAccountToDatabase(userID: String, username: String, encryptedPassword: String) {
+        firestore.collection("accounts").document(username).set(InstagramAccount(username, encryptedPassword, userID)).addOnCompleteListener {
+            if (it.isSuccessful) {
+                addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.SUCCESS))
+            } else {
+                if (it.exception != null && it.exception is FirebaseFirestoreException && (it.exception as FirebaseFirestoreException).code == FirebaseFirestoreException.Code.PERMISSION_DENIED) {
+                    addInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ACCOUNT_ALREADY_ADDED))
+                } else {
+                    addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+                }
             }
         }
     }
