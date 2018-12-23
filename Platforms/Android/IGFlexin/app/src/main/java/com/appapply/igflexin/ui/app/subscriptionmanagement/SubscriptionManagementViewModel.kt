@@ -4,9 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel;
 import com.appapply.igflexin.billing.Product
+import com.appapply.igflexin.repository.InstagramRepository
 import com.appapply.igflexin.repository.SubscriptionRepository
 
-class SubscriptionManagementViewModel(private val subscriptionRepository: SubscriptionRepository) : ViewModel() {
+class SubscriptionManagementViewModel(private val subscriptionRepository: SubscriptionRepository, instagramRepository: InstagramRepository) : ViewModel() {
     private val showErrorLayoutMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
     val showErrorLayoutLiveData: LiveData<Boolean> = showErrorLayoutMutableLiveData
@@ -15,14 +16,12 @@ class SubscriptionManagementViewModel(private val subscriptionRepository: Subscr
     val subscriptionPurchaseResultLiveData = subscriptionRepository.subscriptionPurchaseResultLiveData
     val subscriptionVerifiedLiveData = subscriptionRepository.subscriptionVerifiedLiveData
     val subscriptionLiveData = subscriptionRepository.subscriptionLiveData
+    val addInstagramAccountStatusLiveData = instagramRepository.addInstagramAccountStatusLiveData
 
     // var error = false
     // var errorMessage: Int = 0
 
     var lastSubscription = "none"
-
-    var error = false
-        private set
 
     init {
         getSubscriptionBundles()
@@ -30,7 +29,6 @@ class SubscriptionManagementViewModel(private val subscriptionRepository: Subscr
 
     fun showErrorLayout(show: Boolean) {
         showErrorLayoutMutableLiveData.value = show
-        error = show
     }
 
     fun resetPurchaseLiveData() {

@@ -39,6 +39,7 @@ open class InstagramStatusCode(private val code: Int) : StatusCode(code) {
         val BAD_PASSWORD = StatusCode(300)
         val ACCOUNT_DOES_NOT_MEET_REQUIREMENTS = StatusCode(301)
         val ACCOUNT_ALREADY_ADDED = StatusCode(302)
+        val RESTRICTED_BY_SUBSCRIPTION_PLAN = StatusCode(303)
     }
 }
 
@@ -64,6 +65,8 @@ fun getStringStatusCode(code: StatusCode): String {
         BillingStatusCode.SERVICE_DISCONNECTED  -> "BillingStatusCode.SERVICE_DISCONNECTED"
         InstagramStatusCode.BAD_PASSWORD -> "InstagramStatusCode.BAD_PASSWORD"
         InstagramStatusCode.ACCOUNT_DOES_NOT_MEET_REQUIREMENTS -> "InstagramStatusCode.ACCOUNT_DOES_NOT_MEET_REQUIREMENTS"
+        InstagramStatusCode.ACCOUNT_ALREADY_ADDED -> "InstagramStatusCode.ACCOUNT_ALREADY_ADDED"
+        InstagramStatusCode.RESTRICTED_BY_SUBSCRIPTION_PLAN -> "InstagramStatusCode.RESTRICTED_BY_SUBSCRIPTION_PLAN"
         else -> "StatusCode.UNKNOWN"
     }
 }
