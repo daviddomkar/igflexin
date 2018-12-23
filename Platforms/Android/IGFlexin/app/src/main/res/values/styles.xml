@@ -14,6 +14,10 @@
         <item name="colorButtonNormal">@color/colorAccent</item>
     </style>
 
+    <style name="DangerButton" parent="Theme.AppCompat">
+        <item name="colorButtonNormal">@android:color/holo_red_light</item>
+    </style>
+
     <style name="GoogleButton">
         <item name="drawableStartCompat">@drawable/ic_google_color</item>
         <item name="android:background">@drawable/idp_button_background_google</item>

@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
+import androidx.lifecycle.Transformations
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager.widget.ViewPager
 
@@ -22,9 +23,15 @@ import com.appapply.igflexin.common.OnBackPressedFinishListener
 import com.appapply.igflexin.common.OnBackPressedListener
 import com.appapply.igflexin.common.OnSelectedListener
 import com.appapply.igflexin.common.StatusCode
+import com.appapply.igflexin.events.EventObserver
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.app_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import android.content.Context.CONNECTIVITY_SERVICE
+import androidx.core.content.ContextCompat.getSystemService
+import android.net.ConnectivityManager
+import android.content.Context
+
 
 class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationView.OnNavigationItemSelectedListener, ViewPager.OnPageChangeListener {
 
@@ -52,40 +59,50 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
 
         // Log.d("IGFlexin_test", AESProcessor.decrypt("QxoerjP+iwHjA7kMfqYqxw==", "CiQA3TCgqs6Kcy7htMC0hkCvyp7lxSA5RojDwL1/oidnK0dGQmkSqgEAdJi+MMOznvp3eDc2W9lVw+sUhmfeS2fOKM4VihbGHRdoYXEV2VKheCdT3u1q+kxTcINVGyJMcO8lVCeJhOd9vs2nH55m89eNec6ZzUlk57HwaLrn8nAum8Up1omk+StISaqY0W7mgPkV8p+N1KX568Yj64wiYa8JhU5XKQymNw4FaaltCrzv7NW+bwZ+RVhwMoDJi6qz9ba5Rahq5B0WB9Jnnodt4hHtsw=="))
 
-        toolbar.post {
-            try {
-                toolbar.title = adapter.getPageTitle(viewPager.currentItem)
-            } catch (e: java.lang.Exception) { }
-        }
-
         viewModel.subscriptionLiveData.observe(this, Observer {
             when (it.status) {
                 StatusCode.SUCCESS -> {
                     if (!it.data!!.verified || (it.data.autoRenewing != null && !it.data.autoRenewing)) {
                         viewModel.userLiveData.removeObservers(this)
                         viewModel.subscriptionLiveData.removeObservers(this)
+                        viewModel.connectionLiveData.removeObservers(this)
                         findNavController().popBackStack()
                         return@Observer
-                    }
-
-                    if (it.data.inGracePeriod != null && it.data.inGracePeriod) {
-                        warningText.text = getString(R.string.problem_with_payment_method)
-                        warningButton.text = getString(R.string.fix)
-                        warning.visibility = View.VISIBLE
-                        warningButton.setOnClickListener { _ ->
-                            val url = "https://play.google.com/store/account/subscriptions?sku=" + it.data.subscriptionID + "&package=com.appapply.igflexin"
-                            val i = Intent(Intent.ACTION_VIEW)
-                            i.data = Uri.parse(url)
-                            startActivity(i)
-                        }
                     } else {
-                        warning.visibility = View.GONE
+                        if (it.data.inGracePeriod != null && it.data.inGracePeriod) {
+                            warningText.text = getString(R.string.problem_with_payment_method)
+                            warningButton.text = getString(R.string.fix)
+                            warningButton.visibility = View.VISIBLE
+                            warning.visibility = View.VISIBLE
+                            warningButton.setOnClickListener { _ ->
+                                val url = "https://play.google.com/store/account/subscriptions?sku=" + it.data.subscriptionID + "&package=com.appapply.igflexin"
+                                val i = Intent(Intent.ACTION_VIEW)
+                                i.data = Uri.parse(url)
+                                startActivity(i)
+                            }
+                        } else {
+                            warning.visibility = View.GONE
+                        }
                     }
                 }
                 StatusCode.ERROR -> {
                     viewModel.userLiveData.removeObservers(this)
                     viewModel.subscriptionLiveData.removeObservers(this)
+                    viewModel.connectionLiveData.removeObservers(this)
                     findNavController().popBackStack()
+                    return@Observer
+                }
+            }
+        })
+
+        viewModel.connectionLiveData.observe(this, Observer {
+            if (it) {
+                warning.visibility = View.GONE
+            } else {
+                if(!isNetworkConnected()) {
+                    warningText.text = getString(R.string.not_connected_content_unavailable)
+                    warningButton.visibility = View.GONE
+                    warning.visibility = View.VISIBLE
                 }
             }
         })
@@ -231,5 +248,11 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
                 false
             }
         }
+    }
+
+    private fun isNetworkConnected(): Boolean {
+        val cm = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        return cm.activeNetworkInfo != null
     }
 }

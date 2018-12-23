@@ -4,6 +4,7 @@ import com.appapply.igflexin.MainViewModel
 import com.appapply.igflexin.R
 import com.appapply.igflexin.billing.BillingManager
 import com.appapply.igflexin.livedata.firebase.FirebaseAuthStateLiveData
+import com.appapply.igflexin.livedata.firebase.FirebaseConnectionLiveData
 import com.appapply.igflexin.repository.*
 import com.appapply.igflexin.security.UserKeyManager
 import com.appapply.igflexin.ui.app.AppViewModel
@@ -26,6 +27,7 @@ import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.functions.FirebaseFunctions
 import org.koin.android.ext.koin.androidContext
@@ -37,6 +39,7 @@ val appModule = module {
     single { BillingManager(androidContext()) }
     single { UserKeyManager(androidContext()) }
 
+    single<ConnectionRepository> { FirebaseConnectionRepository(get()) }
     single<AuthRepository> { FirebaseAuthRepository(get(), get()) }
     single<UserRepository> { FirebaseUserRepository(get()) }
     single<SubscriptionRepository> { FirebaseSubscriptionRepository(get(), get(), get(), get()) }
@@ -56,12 +59,12 @@ val appModule = module {
     viewModel { PeriodViewModel(get()) }
     viewModel { BundleViewModel(get()) }
 
-    viewModel { AppViewModel(get(), get(), get()) }
+    viewModel { AppViewModel(get(), get(), get(), get()) }
 
-    viewModel { SubscriptionManagementViewModel(get()) }
+    viewModel { SubscriptionManagementViewModel(get(), get()) }
     viewModel { SubscriptionTabViewModel(get()) }
 
-    viewModel { InstagramAccountsViewModel(get()) }
+    viewModel { InstagramAccountsViewModel(get(), get()) }
 }
 
 val firebaseModule = module {
@@ -72,7 +75,11 @@ val firebaseModule = module {
 
     single { FirebaseFirestore.getInstance() }
 
+    single { FirebaseDatabase.getInstance() }
+
     single { FirebaseAuthStateLiveData() }
+
+    single { FirebaseConnectionLiveData() }
 }
 
 val googleModule = module {

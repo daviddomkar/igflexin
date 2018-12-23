@@ -6,7 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
 
-class FirebaseAuthStateLiveData() : LiveData<FirebaseAuth>(), KoinComponent {
+class FirebaseAuthStateLiveData : LiveData<FirebaseAuth>(), KoinComponent {
     private val firebaseAuth: FirebaseAuth by inject()
 
     private val listener = FirebaseAuth.AuthStateListener {

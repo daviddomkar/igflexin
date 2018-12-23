@@ -52,7 +52,9 @@ class SubscriptionManagementFragment : Fragment(), OnBackPressedListener {
 
                 if (data.subscriptionID != viewModel.lastSubscription) {
                     viewModel.lastSubscription = "none"
-                    appViewModel.showProgressBar(false)
+                    if (viewModel.addInstagramAccountStatusLiveData.value == null || (viewModel.addInstagramAccountStatusLiveData.value != null&& viewModel.addInstagramAccountStatusLiveData.value!!.peekContent() != StatusCode.PENDING)) {
+                        appViewModel.showProgressBar(false)
+                    }
                 }
             }
         })
@@ -128,7 +130,9 @@ class SubscriptionManagementFragment : Fragment(), OnBackPressedListener {
                     appViewModel.showProgressBar(true)
                 }
                 StatusCode.ERROR -> {
-                    appViewModel.showProgressBar(false)
+                    if (viewModel.addInstagramAccountStatusLiveData.value == null || (viewModel.addInstagramAccountStatusLiveData.value != null&& viewModel.addInstagramAccountStatusLiveData.value!!.peekContent() != StatusCode.PENDING)) {
+                        appViewModel.showProgressBar(false)
+                    }
                 }
             }
         })

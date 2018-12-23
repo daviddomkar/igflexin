@@ -84,4 +84,24 @@
     <string name="problem_with_payment_method">There is a problem with your payment method. Fix it or you will lose your subscription.</string>
     <string name="fix">FIX</string>
     <string name="add">ADD</string>
+    <string name="no_accounts_found">No accounts found</string>
+    <string name="add_your_first_account">Add your first account</string>
+    <string name="error_occured_while_loading_your_accounts">Error occurred while loading your accounts</string>
+    <string name="profile_picture">Profile picture</string>
+    <string name="username">Username</string>
+    <string name="new_password">New password</string>
+    <string name="edit">Edit</string>
+    <string name="not_connected_content_unavailable">You are not connected to the internet. Some content might be unavailable!</string>
+    <string name="loading_more_info">Loading more info...</string>
+    <string name="error_loading_more_info">Error loading more info</string>
+    <string name="pause">Pause</string>
+    <string name="delete">Delete</string>
+    <string name="waiting_for_service">Waiting for service</string>
+    <string name="status">STATUS:</string>
+    <string name="foreground_notification_channel_id" translatable="false">foreground_notification_channel</string>
+    <string name="foreground_notification_channel">Foreground</string>
+    <string name="foreground_notification_channel_description">Foreground notification that is displayed all the time.</string>
+    <string name="is_now_running"> is now running</string>
+    <string name="getting_you_more_followers">Getting you more followers!</string>
+    <string name="no_internet_connection">No internet connection!</string>
 </resources>
