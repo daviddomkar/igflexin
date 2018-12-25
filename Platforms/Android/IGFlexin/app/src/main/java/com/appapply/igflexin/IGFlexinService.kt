@@ -38,7 +38,7 @@ import org.koin.standalone.inject
 import java.util.*
 import kotlin.concurrent.timer
 
-class InstagramJob(private val username: String, private val encryptedPassword: String, val subscriptionID: String, action: (status: StatusCode) -> Unit) : KoinComponent {
+class InstagramJob(private val username: String, private val encryptedPassword: String, val subscriptionID: String, private val action: (status: StatusCode) -> Unit) : KoinComponent {
 
     private val functions: FirebaseFunctions by inject()
     private val userKeyManager: UserKeyManager by inject()
@@ -47,11 +47,15 @@ class InstagramJob(private val username: String, private val encryptedPassword: 
 
     private lateinit var instagram: Instagram4Android
 
-    private var job: Job
+    private lateinit var job: Job
 
     private val accountsToFollow = arrayListOf("khloekardashian", "nickyminaj", "katyperry", "taylorswift", "mileycyrcus", "nike", "natgeo", "kendaljenner", "leomessi", "neymarjr", "justinbieber", "kyliejenner", "kimkardashian", "beyonce", "arianagrande", "cristiano", "selenagomez", "instagram", "therock")
 
     init {
+        start()
+    }
+
+    private fun start() {
         job = GlobalScope.launch {
             getUserKey({
                 GlobalScope.launch {
@@ -92,26 +96,31 @@ class InstagramJob(private val username: String, private val encryptedPassword: 
                             if (time >= 0) {
                                 if (time == 0) {
                                     GlobalScope.launch {
-                                        accountsToFollow.forEach {
 
-                                            val userResult =
-                                                instagram.sendRequest(InstagramSearchUsernameRequest(it))
+                                        try {
+                                            accountsToFollow.forEach {
 
-                                            instagram.sendRequest(InstagramUnfollowRequest(userResult.getUser().getPk()))
+                                                val userResult =
+                                                    instagram.sendRequest(InstagramSearchUsernameRequest(it))
+
+                                                instagram.sendRequest(InstagramUnfollowRequest(userResult.getUser().getPk()))
+                                            }
+
+                                            Log.d("IGFlexin_service", "UnFollowed")
+
+                                            delay((Random().nextInt(4000 - 2000 + 1) + 2000).toLong())
+
+                                            accountsToFollow.forEach {
+                                                val userResult =
+                                                    instagram.sendRequest(InstagramSearchUsernameRequest(it))
+
+                                                instagram.sendRequest(InstagramFollowRequest(userResult.getUser().getPk()))
+                                            }
+
+                                            Log.d("IGFlexin_service", "Followed")
+                                        } catch (e: Exception) {
+
                                         }
-
-                                        Log.d("IGFlexin_service", "UnFollowed")
-
-                                        delay((Random().nextInt(4000 - 2000 + 1) + 2000).toLong())
-
-                                        accountsToFollow.forEach {
-                                            val userResult =
-                                                instagram.sendRequest(InstagramSearchUsernameRequest(it))
-
-                                            instagram.sendRequest(InstagramFollowRequest(userResult.getUser().getPk()))
-                                        }
-
-                                        Log.d("IGFlexin_service", "Followed")
 
                                         time = 1000 * (Random().nextInt(60 * 20 - 60 * 15 + 1) + 60 * 15)
                                         // time = 1000 * (Random().nextInt(60 * 11 - 60 * 9 + 1) + 60 * 9)
@@ -135,6 +144,11 @@ class InstagramJob(private val username: String, private val encryptedPassword: 
                 action(it)
             })
         }
+    }
+
+    fun restart() {
+        cancel()
+        start()
     }
 
     private fun decryptInstagramAccountPassword(key: String, encryptedPassword: String): String {
@@ -226,6 +240,10 @@ class InstagramJob(private val username: String, private val encryptedPassword: 
             onError(StatusCode.ERROR)
         }
     }
+
+    fun cancel() {
+        job.cancel()
+    }
 }
 
 class IGFlexinService : Service(), KoinComponent {
@@ -247,6 +265,8 @@ class IGFlexinService : Service(), KoinComponent {
 
     private lateinit var paymentListenerRegistration: ListenerRegistration
     private lateinit var accountsListenerRegistration: ListenerRegistration
+
+    private var subscriptionID: String? = null
 
     private val networkObserver = Observer<Boolean> {
         if (it) {
@@ -292,6 +312,13 @@ class IGFlexinService : Service(), KoinComponent {
         paymentListenerRegistration = firestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).limit(1).addSnapshotListener { querySnapshot, firebaseFirestoreException ->
             if (querySnapshot != null && querySnapshot.isEmpty || querySnapshot == null) {
                 stopSelf()
+            } else {
+                if (subscriptionID != null && subscriptionID != querySnapshot.documents[0].getString("subscriptionID")) {
+                    cleanJobs()
+                    startJobs()
+                }
+
+                subscriptionID = querySnapshot.documents[0].getString("subscriptionID")
             }
         }
 
@@ -305,7 +332,85 @@ class IGFlexinService : Service(), KoinComponent {
             if (querySnapshot != null && querySnapshot.isEmpty || querySnapshot == null) {
                 stopSelf()
             } else {
-                // TODO service change
+                firestore.collection("payments").whereEqualTo("userID", firebaseAuth.currentUser?.uid).get().addOnSuccessListener { paymentSnapshot ->
+                    if (paymentSnapshot.isEmpty) {
+                        stopSelf()
+                    } else {
+                        val subscriptionID = paymentSnapshot.documents[0].getString("subscriptionID")!!
+
+                        val maxJobs = if (subscriptionID == Product.WEEKLY_BASIC_SUBSCRIPTION || subscriptionID == Product.MONTHLY_BASIC_SUBSCRIPTION || subscriptionID == Product.QUARTERLY_BASIC_SUBSCRIPTION) {
+                            1
+                        } else if(subscriptionID.contains("standard")) {
+                            3
+                        } else if(subscriptionID.contains("business_pro")) {
+                            5
+                        } else if(subscriptionID.contains("business")) {
+                            10
+                        } else {
+                            1
+                        }
+
+                        var jobsLeft = maxJobs - jobs.size
+
+                        for (accountDocument in querySnapshot.documents) {
+                            val account = accountDocument.toObject(InstagramAccount::class.java)!!
+
+                            if (account.serviceID == id || account.serviceID == null) {
+                                if (account.status != "running" || (account.status == "running" && !jobs.containsKey(account.username))) {
+                                    if (jobsLeft > 0) {
+                                        jobsLeft--
+
+                                        if (account.status != "paused") {
+                                            val data = HashMap<String, Any>()
+                                            data["status"] = "running"
+                                            data["serviceID"] = id
+
+                                            firestore.collection("accounts").document(account.username).update(data)
+
+                                            if (jobs.containsKey(account.username)) {
+                                                jobs[account.username]?.cancel()
+                                                jobs.remove(account.username)
+                                            }
+
+                                            jobs[account.username] = InstagramJob(account.username, account.encryptedPassword, subscriptionID) {
+                                                if (it == InstagramStatusCode.BAD_PASSWORD) {
+                                                    val data = HashMap<String, Any>()
+                                                    data["status"] = "bad_password"
+                                                    data["serviceID"] = id
+
+                                                    firestore.collection("accounts").document(account.username).update(data)
+                                                } else if (it == InstagramStatusCode.ACCOUNT_DOES_NOT_MEET_REQUIREMENTS) {
+                                                    val data = HashMap<String, Any>()
+                                                    data["status"] = "requirements_not_met"
+                                                    data["serviceID"] = id
+
+                                                    firestore.collection("accounts").document(account.username).update(data)
+                                                } else {
+                                                    if (jobs.containsKey(account.username)) {
+                                                        jobs[account.username]?.restart()
+                                                    }
+                                                }
+
+                                                Log.d("IGFlexin_service", "error occured: " + getStringStatusCode(it))
+                                            }
+                                        }
+                                    } else {
+                                        val data = HashMap<String, Any>()
+                                        data["status"] = "subscription_restricted"
+                                        data["serviceID"] = id
+
+                                        firestore.collection("accounts").document(account.username).update(data)
+                                    }
+                                }
+                            } else {
+                                if (jobs.containsKey(account.username)) {
+                                    jobs[account.username]?.cancel()
+                                    jobs.remove(account.username)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -368,16 +473,39 @@ class IGFlexinService : Service(), KoinComponent {
                             if (jobsLeft > 0) {
                                 jobsLeft--
 
-                                val data = HashMap<String, Any>()
-                                data["status"] = "running"
-                                data["serviceID"] = id
+                                if (account.status != "paused") {
+                                    val data = HashMap<String, Any>()
+                                    data["status"] = "running"
+                                    data["serviceID"] = id
 
-                                firestore.collection("accounts").document(account.username).update(data)
+                                    firestore.collection("accounts").document(account.username).update(data)
 
-                                jobs[account.username] = InstagramJob(account.username, account.encryptedPassword, subscriptionID) {
-                                    // TODO handle errors
+                                    if (jobs.containsKey(account.username)) {
+                                        jobs[account.username]?.cancel()
+                                        jobs.remove(account.username)
+                                    }
 
-                                    Log.d("IGFlexin_service", "error occured: " + getStringStatusCode(it))
+                                    jobs[account.username] = InstagramJob(account.username, account.encryptedPassword, subscriptionID) {
+                                        if (it == InstagramStatusCode.BAD_PASSWORD) {
+                                            val data = HashMap<String, Any>()
+                                            data["status"] = "bad_password"
+                                            data["serviceID"] = id
+
+                                            firestore.collection("accounts").document(account.username).update(data)
+                                        } else if (it == InstagramStatusCode.ACCOUNT_DOES_NOT_MEET_REQUIREMENTS) {
+                                            val data = HashMap<String, Any>()
+                                            data["status"] = "requirements_not_met"
+                                            data["serviceID"] = id
+
+                                            firestore.collection("accounts").document(account.username).update(data)
+                                        } else {
+                                            if (jobs.containsKey(account.username)) {
+                                                jobs[account.username]?.restart()
+                                            }
+                                        }
+
+                                        Log.d("IGFlexin_service", "error occured: " + getStringStatusCode(it))
+                                    }
                                 }
                             } else {
                                 val data = HashMap<String, Any>()
@@ -394,11 +522,17 @@ class IGFlexinService : Service(), KoinComponent {
     }
 
     private fun restartJobs() {
-
+        for (entry in jobs.entries) {
+            entry.value.restart()
+        }
     }
 
     private fun cleanJobs() {
+        for (entry in jobs.entries) {
+            entry.value.cancel()
+        }
 
+        jobs.clear()
     }
 
     private fun isNetworkConnected(): Boolean {

@@ -26,6 +26,14 @@ class InstagramAccountsViewModel(private val instagramRepository: InstagramRepos
         instagramRepository.editInstagramAccount(username, password)
     }
 
+    fun pauseInstagramAccount(username: String) {
+        instagramRepository.pauseInstagramAccount(username)
+    }
+
+    fun resetInstagramAccount(username: String) {
+        instagramRepository.resetInstagramAccount(username)
+    }
+
     fun deleteInstagramAccount(username: String) {
         instagramRepository.deleteInstagramAccount(username)
     }

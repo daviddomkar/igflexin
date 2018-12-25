@@ -73,6 +73,10 @@ class InstagramAccountsFragment : Fragment() {
             editInstagramAccount(it)
         }, {
             showDeleteDialog(it)
+        }, {
+            viewModel.pauseInstagramAccount(it)
+        }, {
+            viewModel.resetInstagramAccount(it)
         })
 
         instagramAccountsRecyclerView.isNestedScrollingEnabled = false

@@ -27,6 +27,9 @@ interface InstagramRepository {
     fun editInstagramAccount(username: String, password: String)
     fun deleteInstagramAccount(username: String)
 
+    fun pauseInstagramAccount(username: String)
+    fun resetInstagramAccount(username: String)
+
     fun getInstagramAccountInfo(username: String, encryptedPassword: String, onSuccess: (info: InstagramAccountInfo) -> Unit, onError: () -> Unit)
 
     fun reset()
@@ -236,6 +239,20 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
             } else {
                 onError(StatusCode.ERROR)
             }
+    }
+
+    override fun pauseInstagramAccount(username: String) {
+        val data = HashMap<String, Any>()
+        data["status"] = "paused"
+
+        firestore.collection("accounts").document(username).update(data)
+    }
+
+    override fun resetInstagramAccount(username: String) {
+        val data = HashMap<String, Any?>()
+        data["status"] = null
+
+        firestore.collection("accounts").document(username).update(data)
     }
 
     override fun getInstagramAccountInfo(username: String, encryptedPassword: String, onSuccess: (info: InstagramAccountInfo) -> Unit, onError: () -> Unit) {
