@@ -10,8 +10,6 @@ import com.appapply.igflexin.model.User
 
 interface UserRepository {
     val userLiveData: LiveData<Resource<User>>
-
-    //fun changeUser(user: User)
 }
 
 class FirebaseUserRepository(private val firebaseAuthStateLiveData: FirebaseAuthStateLiveData) : UserRepository {
@@ -34,9 +32,4 @@ class TestUserRepository : UserRepository {
 
     override val userLiveData: LiveData<Resource<User>>
         get() = userMutableLiveData
-
-    /*
-    override fun changeUser(user: User) {
-        userMutableLiveData.value = Resource(StatusCode.SUCCESS, user)
-    }*/
 }

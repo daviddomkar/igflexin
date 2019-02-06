@@ -3,13 +3,14 @@ package com.appapply.igflexin.repository
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.work.*
 import com.appapply.igflexin.billing.Product
 import com.appapply.igflexin.common.InstagramStatusCode
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.events.Event
 import com.appapply.igflexin.model.InstagramAccount
-import com.appapply.igflexin.model.InstagramAccountInfo
 import com.appapply.igflexin.security.UserKeyManager
+import com.appapply.igflexin.workers.InstagramWorker
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -19,29 +20,37 @@ import dev.niekirk.com.instagram4android.Instagram4Android
 import dev.niekirk.com.instagram4android.requests.*
 import kotlinx.coroutines.*
 import java.lang.Exception
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 interface InstagramRepository {
     val addInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
+    val editInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
 
-    fun addInstagramAccount(nick: String, password: String, subscriptionID: String)
-    fun editInstagramAccount(username: String, password: String)
-    fun deleteInstagramAccount(username: String)
+    fun addInstagramAccount(username: String, password: String, subscriptionID: String)
+    fun editInstagramUsername(id: Long, newUsername: String)
+    fun editInstagramPassword(id: Long, newPassword: String)
+    fun deleteInstagramAccount(id: Long)
 
-    fun pauseInstagramAccount(username: String)
-    fun resetInstagramAccount(username: String)
+    fun pauseInstagramAccount(id: Long)
+    fun resetInstagramAccount(id: Long)
 
-    fun getInstagramAccountInfo(username: String, encryptedPassword: String, onSuccess: (info: InstagramAccountInfo) -> Unit, onError: () -> Unit)
+    fun updateAccountWorkers(accounts: Iterable<InstagramAccount>)
 
     fun reset()
 }
 
 class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, private val firebaseAuth: FirebaseAuth, private val firestore: FirebaseFirestore, private val functions: FirebaseFunctions) : InstagramRepository {
     private val addInstagramAccountStatusMutableLiveData: MutableLiveData<Event<StatusCode>> = MutableLiveData()
+    private val editInstagramAccountStatusMutableLiveData: MutableLiveData<Event<StatusCode>> = MutableLiveData()
 
     override val addInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
         get() = addInstagramAccountStatusMutableLiveData
 
-    override fun addInstagramAccount(nick: String, password: String, subscriptionID: String) {
+    override val editInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
+        get() = editInstagramAccountStatusMutableLiveData
+
+    override fun addInstagramAccount(username: String, password: String, subscriptionID: String) {
         addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.PENDING))
 
         if (firebaseAuth.currentUser != null) {
@@ -71,7 +80,7 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                     }
 
                     GlobalScope.launch {
-                        val instagram = Instagram4Android.builder().username(nick).password(password).build()
+                        val instagram = Instagram4Android.builder().username(username).password(password).build()
                         instagram.setup()
 
                         try {
@@ -83,10 +92,11 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                                 return@launch
                             }
 
+                            val queryUser = instagram.sendRequest(InstagramSearchUsernameRequest(instagram.username))
+
                             if (subscriptionID == Product.WEEKLY_BASIC_SUBSCRIPTION || subscriptionID == Product.MONTHLY_BASIC_SUBSCRIPTION || subscriptionID == Product.QUARTERLY_BASIC_SUBSCRIPTION || subscriptionID.contains("standard")) {
 
                                 val queryFollowers = instagram.sendRequest(InstagramGetUserFollowersRequest(instagram.userId))
-                                val queryUser = instagram.sendRequest(InstagramSearchUsernameRequest(instagram.username))
 
                                 if (queryFollowers.users.count() < 100 || queryUser.user.media_count < 15) {
                                     addInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ACCOUNT_DOES_NOT_MEET_REQUIREMENTS))
@@ -95,7 +105,7 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                             }
 
                             getUserKey({
-                                addInstagramAccountToDatabase(firebaseAuth.currentUser!!.uid, nick, encryptInstagramAccountPassword(it, password))
+                                addInstagramAccountToDatabase(firebaseAuth.currentUser!!.uid, queryUser.user.pk, username, queryUser.user.full_name, encryptInstagramAccountPassword(it, password), queryUser.user.profile_pic_url)
                             }, {
                                 addInstagramAccountStatusMutableLiveData.postValue(Event(it))
                             })
@@ -106,7 +116,7 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                             if (e.message == "Unable to resolve host \"i.instagram.com\": No address associated with hostname") {
                                 addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.NETWORK_ERROR))
                             } else {
-                                addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+                                addInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ERROR))
                             }
 
                             return@launch
@@ -122,23 +132,179 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
         }
     }
 
-    override fun editInstagramAccount(username: String, password: String) {
+    override fun editInstagramUsername(id: Long, newUsername: String) {
+        editInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.PENDING))
 
-        getUserKey({
-            firestore.collection("accounts").document(username).update("encryptedPassword", encryptInstagramAccountPassword(it, password))
-        }, {})
+        // 1. Get Instagram account from Firebase
+        // 2. Get his password
+        // 3. Decrypt the password
+        // 4. Try logging him to Instagram
+        // 5. If successful, Check if IDs are matching
+        // 6. If successful, update data in Firebase
+
+        if (firebaseAuth.currentUser != null) {
+
+            getUserKey({key ->
+
+                firestore.collection("accounts").document(id.toString()).get().addOnCompleteListener {
+                    if (it.isSuccessful) {
+
+                        val encryptedPassword = it.result!!.getString("encryptedPassword")!!
+                        val status = it.result!!.getString("status")!!
+
+                        GlobalScope.launch {
+                            val instagram = Instagram4Android.builder().username(newUsername).password(decryptInstagramAccountPassword(key, encryptedPassword)).build()
+                            instagram.setup()
+
+                            try {
+                                val loginResult = instagram.login()
+
+                                if (loginResult.error_type != null) {
+                                    editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.BAD_PASSWORD))
+                                    Log.d("IGFlexin_instagram", "Error type: " + loginResult.error_type)
+                                    return@launch
+                                }
+
+                                val queryUser = instagram.sendRequest(InstagramSearchUsernameRequest(instagram.username))
+
+                                // 4. Try logging him to Instagram .. done
+                                // 5. If successful, Check if IDs are matching
+                                // 6. If successful, update data in Firebase
+
+                                if (queryUser.user.pk == id) {
+                                    val data = HashMap<String, Any>()
+                                    data["username"] = newUsername
+                                    data["status"] = "running"
+
+                                    firestore.collection("accounts").document(id.toString()).update(data).addOnCompleteListener {task ->
+                                        if (task.isSuccessful) {
+                                            editInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.SUCCESS))
+                                        } else {
+                                            editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ERROR))
+                                        }
+                                    }
+                                } else {
+                                    editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ID_NOT_MATCHING))
+                                }
+
+                            } catch (e: Exception) {
+                                Log.d("IGFlexin_instagram", "Exception: " + e.message)
+
+                                if (e.message == "Unable to resolve host \"i.instagram.com\": No address associated with hostname") {
+                                    editInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.NETWORK_ERROR))
+                                } else {
+                                    editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ERROR))
+                                }
+
+                                return@launch
+                            }
+                        }
+                    } else {
+                        editInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+                    }
+                }
+            }, {
+                editInstagramAccountStatusMutableLiveData.postValue(Event(it))
+            })
+
+        } else {
+            editInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+        }
     }
 
-    override fun deleteInstagramAccount(username: String) {
-        firestore.collection("accounts").document(username).delete()
+    override fun editInstagramPassword(id: Long, newPassword: String) {
+        editInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.PENDING))
+
+        // 1. Get Instagram account from Firebase
+        // 2. Get his username
+        // 4. Try logging him to Instagram
+        // 5. If successful, Check if IDs are matching
+        // 6. If successful, update data in Firebase (encrypt new password)
+
+        if (firebaseAuth.currentUser != null) {
+
+            getUserKey({key ->
+
+                firestore.collection("accounts").document(id.toString()).get().addOnCompleteListener {
+                    if (it.isSuccessful) {
+
+                        val username = it.result!!.getString("username")!!
+                        val status = it.result!!.getString("status")!!
+
+                        GlobalScope.launch {
+                            val instagram = Instagram4Android.builder().username(username).password(newPassword).build()
+                            instagram.setup()
+
+                            try {
+                                val loginResult = instagram.login()
+
+                                if (loginResult.error_type != null) {
+                                    editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.BAD_PASSWORD))
+                                    Log.d("IGFlexin_instagram", "Error type: " + loginResult.error_type)
+                                    return@launch
+                                }
+
+                                val queryUser = instagram.sendRequest(InstagramSearchUsernameRequest(instagram.username))
+
+                                // 4. Try logging him to Instagram .. done
+                                // 5. If successful, Check if IDs are matching
+                                // 6. If successful, update data in Firebase (encrypt new password)
+
+                                if (queryUser.user.pk == id) {
+                                    val data = HashMap<String, Any>()
+                                    data["encryptedPassword"] = encryptInstagramAccountPassword(key, newPassword)
+                                    data["status"] = "running"
+
+                                    firestore.collection("accounts").document(id.toString()).update(data).addOnCompleteListener {task ->
+                                        if (task.isSuccessful) {
+                                            editInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.SUCCESS))
+                                        } else {
+                                            editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ERROR))
+                                        }
+                                    }
+                                } else {
+                                    editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ID_NOT_MATCHING))
+                                }
+
+                            } catch (e: Exception) {
+                                Log.d("IGFlexin_instagram", "Exception: " + e.message)
+
+                                if (e.message == "Unable to resolve host \"i.instagram.com\": No address associated with hostname") {
+                                    editInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.NETWORK_ERROR))
+                                } else {
+                                    editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ERROR))
+                                }
+
+                                return@launch
+                            }
+                        }
+                    } else {
+                        editInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+                    }
+                }
+            }, {
+                editInstagramAccountStatusMutableLiveData.postValue(Event(it))
+            })
+
+        } else {
+            editInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.ERROR))
+        }
+    }
+
+    override fun deleteInstagramAccount(id: Long) {
+        firestore.collection("accounts").document(id.toString()).delete()
     }
 
     private fun encryptInstagramAccountPassword(key: String, password: String): String {
         return AESProcessor.encrypt(password, key)
     }
 
-    private fun addInstagramAccountToDatabase(userID: String, username: String, encryptedPassword: String) {
-        firestore.collection("accounts").document(username).set(InstagramAccount(username, encryptedPassword, userID, null, null)).addOnCompleteListener {
+    private fun decryptInstagramAccountPassword(key: String, encryptedPassword: String): String {
+        return AESProcessor.decrypt(encryptedPassword, key)
+    }
+
+    private fun addInstagramAccountToDatabase(userID: String, id: Long, username: String, fullName: String, encryptedPassword: String, photoURL: String) {
+        firestore.collection("accounts").document(id.toString()).set(InstagramAccount(id, username, fullName, encryptedPassword, userID, photoURL, "running")).addOnCompleteListener {
             if (it.isSuccessful) {
                 addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.SUCCESS))
             } else {
@@ -151,84 +317,79 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
         }
     }
 
-    private fun decryptInstagramAccountPassword(key: String, encryptedPassword: String): String {
-        return AESProcessor.decrypt(encryptedPassword, key)
-    }
-
     private fun getUserKey(onSuccess: (key: String) -> Unit, onError: (status: StatusCode) -> Unit) {
-            if (firebaseAuth.currentUser != null) {
+        if (firebaseAuth.currentUser != null) {
 
-                val uid = firebaseAuth.currentUser!!.uid
+            val uid = firebaseAuth.currentUser!!.uid
 
-                val key = userKeyManager.retrieveKey(uid)
+            val key = userKeyManager.retrieveKey(uid)
 
-                if (key != "none") {
-                    Log.d("IGFlexin_instagram", "Have key")
-                    onSuccess(key)
-                } else {
-                    Log.d("IGFlexin_instagram", "Key is missing")
+            if (key != "none") {
+                Log.d("IGFlexin_instagram", "Have key")
+                onSuccess(key)
+            } else {
+                Log.d("IGFlexin_instagram", "Key is missing")
 
-                    firestore.collection("keys").document(uid).get(Source.CACHE).addOnCompleteListener { cacheTask ->
+                firestore.collection("keys").document(uid).get(Source.CACHE).addOnCompleteListener { cacheTask ->
 
-                        if (cacheTask.isSuccessful && cacheTask.result != null && cacheTask.result!!.exists()) {
-                            val keyFromDB = cacheTask.result!!.getString("key")!!
+                    if (cacheTask.isSuccessful && cacheTask.result != null && cacheTask.result!!.exists()) {
+                        val keyFromDB = cacheTask.result!!.getString("key")!!
 
-                            val data = HashMap<String, String>()
-                            data["key"] = keyFromDB
+                        val data = HashMap<String, String>()
+                        data["key"] = keyFromDB
 
-                            functions.getHttpsCallable("decryptUserKey").call(data).addOnCompleteListener { result ->
-                                if (result.isSuccessful && result.result != null && result.result!!.data != null) {
-                                    val data = result.result!!.data as String
+                        functions.getHttpsCallable("decryptUserKey").call(data).addOnCompleteListener { result ->
+                            if (result.isSuccessful && result.result != null && result.result!!.data != null) {
+                                val data = result.result!!.data as String
 
-                                    userKeyManager.saveKey(uid, data)
-                                    onSuccess(data)
-                                } else {
-                                    onError(StatusCode.ERROR)
-                                }
+                                userKeyManager.saveKey(uid, data)
+                                onSuccess(data)
+                            } else {
+                                onError(StatusCode.ERROR)
                             }
-                        } else {
-                            firestore.collection("keys").document(uid).get(Source.SERVER).addOnCompleteListener { serverTask ->
+                        }
+                    } else {
+                        firestore.collection("keys").document(uid).get(Source.SERVER).addOnCompleteListener { serverTask ->
 
-                                if (serverTask.isSuccessful && serverTask.result != null && serverTask.result!!.exists()) {
-                                    val keyFromDB = serverTask.result!!.getString("key")!!
+                            if (serverTask.isSuccessful && serverTask.result != null && serverTask.result!!.exists()) {
+                                val keyFromDB = serverTask.result!!.getString("key")!!
 
-                                    val data = HashMap<String, String>()
-                                    data["key"] = keyFromDB
+                                val data = HashMap<String, String>()
+                                data["key"] = keyFromDB
 
-                                    functions.getHttpsCallable("decryptUserKey").call(data).addOnCompleteListener { result ->
-                                        if (result.isSuccessful && result.result != null && result.result!!.data != null) {
-                                            val data = result.result!!.data as String
+                                functions.getHttpsCallable("decryptUserKey").call(data).addOnCompleteListener { result ->
+                                    if (result.isSuccessful && result.result != null && result.result!!.data != null) {
+                                        val data = result.result!!.data as String
 
-                                            userKeyManager.saveKey(uid, data)
-                                            onSuccess(data)
+                                        userKeyManager.saveKey(uid, data)
+                                        onSuccess(data)
+                                    } else {
+                                        onError(StatusCode.ERROR)
+                                    }
+                                }
+                            } else {
+                                if (serverTask.exception != null && serverTask.exception!!.message != null && serverTask.exception!!.message!!.contains("Failed to get documents from server")) {
+                                    onError(StatusCode.NETWORK_ERROR)
+                                } else {
+                                    Log.d("IGFlexin_instagram", "We need to create key hehehe")
+
+                                    functions.getHttpsCallable("createUserKey").call().addOnCompleteListener {
+                                        if (it.isSuccessful && it.result != null && it.result!!.data != null) {
+                                            val data = HashMap<String, String>()
+                                            data["key"] = it.result!!.data as String
+
+                                            functions.getHttpsCallable("decryptUserKey").call(data).addOnCompleteListener { result ->
+                                                if (result.isSuccessful && result.result != null && result.result!!.data != null) {
+                                                    val data = result.result!!.data as String
+
+                                                    userKeyManager.saveKey(uid, result.result!!.data!! as String)
+                                                    onSuccess(data)
+                                                } else {
+                                                    onError(StatusCode.ERROR)
+                                                }
+                                            }
                                         } else {
                                             onError(StatusCode.ERROR)
-                                        }
-                                    }
-                                } else {
-                                    if (serverTask.exception != null && serverTask.exception!!.message != null && serverTask.exception!!.message!!.contains("Failed to get documents from server")) {
-                                        onError(StatusCode.NETWORK_ERROR)
-                                    } else {
-                                        Log.d("IGFlexin_instagram", "We need to create key hehehe")
-
-                                        functions.getHttpsCallable("createUserKey").call().addOnCompleteListener {
-                                            if (it.isSuccessful && it.result != null && it.result!!.data != null) {
-                                                val data = HashMap<String, String>()
-                                                data["key"] = it.result!!.data as String
-
-                                                functions.getHttpsCallable("decryptUserKey").call(data).addOnCompleteListener { result ->
-                                                    if (result.isSuccessful && result.result != null && result.result!!.data != null) {
-                                                        val data = result.result!!.data as String
-
-                                                        userKeyManager.saveKey(uid, result.result!!.data!! as String)
-                                                        onSuccess(data)
-                                                    } else {
-                                                        onError(StatusCode.ERROR)
-                                                    }
-                                                }
-                                            } else {
-                                                onError(StatusCode.ERROR)
-                                            }
                                         }
                                     }
                                 }
@@ -236,51 +397,39 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                         }
                     }
                 }
-            } else {
-                onError(StatusCode.ERROR)
             }
+        } else {
+            onError(StatusCode.ERROR)
+        }
     }
 
-    override fun pauseInstagramAccount(username: String) {
+    override fun pauseInstagramAccount(id: Long) {
         val data = HashMap<String, Any>()
         data["status"] = "paused"
 
-        firestore.collection("accounts").document(username).update(data)
+        firestore.collection("accounts").document(id.toString()).update(data)
     }
 
-    override fun resetInstagramAccount(username: String) {
+    override fun resetInstagramAccount(id: Long) {
         val data = HashMap<String, Any?>()
-        data["status"] = null
+        data["status"] = "running"
 
-        firestore.collection("accounts").document(username).update(data)
+        firestore.collection("accounts").document(id.toString()).update(data)
     }
 
-    override fun getInstagramAccountInfo(username: String, encryptedPassword: String, onSuccess: (info: InstagramAccountInfo) -> Unit, onError: () -> Unit) {
-        getUserKey({
-            GlobalScope.launch {
-                val instagram = Instagram4Android.builder().username(username).password(decryptInstagramAccountPassword(it, encryptedPassword)).build()
-                instagram.setup()
-                try {
-                    val loginResult = instagram.login()
+    override fun updateAccountWorkers(accounts: Iterable<InstagramAccount>) {
 
-                    if (loginResult.error_type != null) {
-                        onError()
-                        return@launch
-                    }
-
-                    val queryUser = instagram.sendRequest(InstagramSearchUsernameRequest(instagram.username))
-
-                    onSuccess(InstagramAccountInfo(username, queryUser.user.full_name, queryUser.user.profile_pic_url))
-                } catch(e: Exception) {
-                    onError()
-                }
-            }
-        }, {
-            onError()
-        })
+        if (accounts.toMutableList().isEmpty()) {
+            WorkManager.getInstance().cancelUniqueWork("instagram-check")
+        } else {
+            WorkManager.getInstance().enqueueUniquePeriodicWork("instagram-check", ExistingPeriodicWorkPolicy.KEEP,
+                PeriodicWorkRequestBuilder<InstagramWorker>(20, TimeUnit.MINUTES).addTag("instagram-check").build()
+            )
+        }
     }
 
     override fun reset() {
         addInstagramAccountStatusMutableLiveData.value = null
+        editInstagramAccountStatusMutableLiveData.value = null
     }
 }

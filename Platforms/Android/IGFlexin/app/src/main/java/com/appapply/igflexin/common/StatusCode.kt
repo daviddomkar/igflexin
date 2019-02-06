@@ -40,6 +40,8 @@ open class InstagramStatusCode(private val code: Int) : StatusCode(code) {
         val ACCOUNT_DOES_NOT_MEET_REQUIREMENTS = StatusCode(301)
         val ACCOUNT_ALREADY_ADDED = StatusCode(302)
         val RESTRICTED_BY_SUBSCRIPTION_PLAN = StatusCode(303)
+        val ID_NOT_MATCHING = StatusCode(304)
+        val ERROR = StatusCode(305)
     }
 }
 
@@ -67,6 +69,8 @@ fun getStringStatusCode(code: StatusCode): String {
         InstagramStatusCode.ACCOUNT_DOES_NOT_MEET_REQUIREMENTS -> "InstagramStatusCode.ACCOUNT_DOES_NOT_MEET_REQUIREMENTS"
         InstagramStatusCode.ACCOUNT_ALREADY_ADDED -> "InstagramStatusCode.ACCOUNT_ALREADY_ADDED"
         InstagramStatusCode.RESTRICTED_BY_SUBSCRIPTION_PLAN -> "InstagramStatusCode.RESTRICTED_BY_SUBSCRIPTION_PLAN"
+        InstagramStatusCode.ID_NOT_MATCHING -> "InstagramStatusCode.ID_NOT_MATCHING"
+        InstagramStatusCode.ERROR -> "InstagramStatusCode.ERROR"
         else -> "StatusCode.UNKNOWN"
     }
 }

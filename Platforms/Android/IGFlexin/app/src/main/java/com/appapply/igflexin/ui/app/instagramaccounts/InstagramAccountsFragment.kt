@@ -7,19 +7,21 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.appapply.igflexin.IGFlexinService
 
 import com.appapply.igflexin.R
 import com.appapply.igflexin.common.InstagramStatusCode
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.events.EventObserver
 import com.appapply.igflexin.ui.app.AppViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.dialog_add_ig_account.view.*
-import kotlinx.android.synthetic.main.dialog_edit_ig_account.view.*
+import kotlinx.android.synthetic.main.dialog_edit_ig_account_password.view.*
+import kotlinx.android.synthetic.main.dialog_edit_ig_account_username.view.*
 import kotlinx.android.synthetic.main.instagram_accounts_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -47,7 +49,8 @@ class InstagramAccountsFragment : Fragment() {
             progressBar.visibility = View.GONE
             if (it.itemCount > 0) {
                 viewModel.showErrorLayout(false)
-                IGFlexinService.start(requireContext())
+                Log.d("IGFlexin_worker", "Called")
+                viewModel.updateAccountWorkers(it.snapshots.asIterable())
             } else {
                 errorTextView.text = getString(R.string.no_accounts_found)
                 retryButton.text = getString(R.string.add_your_first_account)
@@ -67,10 +70,8 @@ class InstagramAccountsFragment : Fragment() {
                 it.startListening()
             }
             viewModel.showErrorLayout(true)
-        }, { username, encryptedPassword, onSucces, onError ->
-            viewModel.getInstagramAccountInfo(username, encryptedPassword, onSucces, onError)
-        }, {
-            editInstagramAccount(it)
+        }, { id, username ->
+            editInstagramAccount(id, username)
         }, {
             showDeleteDialog(it)
         }, {
@@ -112,11 +113,14 @@ class InstagramAccountsFragment : Fragment() {
             }
         })
 
+        // TODO extract strings to resources
+
         viewModel.addInstagramAccountStatusLiveData.observe(this, EventObserver {
             when (it) {
                 StatusCode.PENDING -> appViewModel.showProgressBar(true)
                 StatusCode.ERROR -> showErrorDialog("Error occurred while adding instagram account.")
                 StatusCode.NETWORK_ERROR -> showErrorDialog("Error occurred while adding instagram account. Check your internet connection.")
+                InstagramStatusCode.ERROR -> showErrorDialog("Error occurred while adding instagram account. Two factor authentication may be causing this problem. Please disable it.")
                 InstagramStatusCode.BAD_PASSWORD -> showErrorDialog("Bad username and password combination.")
                 InstagramStatusCode.ACCOUNT_DOES_NOT_MEET_REQUIREMENTS -> showErrorDialog("Your account does not meet the specified requirements. Consider upgrading your subscription.")
                 InstagramStatusCode.ACCOUNT_ALREADY_ADDED -> showErrorDialog("This account is already added to IGFlexin.")
@@ -126,9 +130,44 @@ class InstagramAccountsFragment : Fragment() {
                 }
             }
         })
+
+        viewModel.editInstagramAccountStatusLiveData.observe(this, EventObserver {
+            when (it) {
+                StatusCode.PENDING -> appViewModel.showProgressBar(true)
+                StatusCode.ERROR -> showErrorDialog("Error occurred while adding instagram account.")
+                StatusCode.NETWORK_ERROR -> showErrorDialog("Error occurred while adding instagram account. Check your internet connection.")
+                InstagramStatusCode.ERROR -> showErrorDialog("Error occurred while adding instagram account. Two factor authentication may be causing this problem. Please disable it.")
+                InstagramStatusCode.BAD_PASSWORD -> showErrorDialog("Bad username and password combination.")
+                InstagramStatusCode.ID_NOT_MATCHING -> showErrorDialog("These credentials belong to another IG account. Add new account instead.")
+                else -> {
+                    appViewModel.showProgressBar(false)
+                }
+            }
+        })
     }
 
     private fun addInstagramAccount() {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+
+        dialogBuilder.setTitle("Add an IG account")
+        dialogBuilder.setItems(R.array.using_options) { dialogInterface, which ->
+            when (which) {
+                0 -> {
+                    addInstagramAccountUsingUsernameAndPassword()
+                    dialogInterface.dismiss()
+                }
+                1 -> {
+                    Toast.makeText(requireContext(), "Facebook connected accounts are not currently supported.", Toast.LENGTH_SHORT).show()
+                    dialogInterface.dismiss()
+                }
+            }
+        }
+
+        val dialog = dialogBuilder.create()
+        dialog.show()
+    }
+
+    private fun addInstagramAccountUsingUsernameAndPassword() {
         val dialogBuilder = AlertDialog.Builder(requireContext())
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_ig_account, null)
 
@@ -158,11 +197,59 @@ class InstagramAccountsFragment : Fragment() {
         dialog.show()
     }
 
-    private fun editInstagramAccount(username: String) {
+    private fun editInstagramAccount(id: Long, username: String) {
         val dialogBuilder = AlertDialog.Builder(requireContext())
-        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_ig_account, null)
 
         dialogBuilder.setTitle("Edit $username account")
+        dialogBuilder.setItems(R.array.edit_options) { dialogInterface, which ->
+            when (which) {
+                0 -> {
+                    editInstagramUsername(id, username)
+                    dialogInterface.dismiss()
+                }
+                1 -> {
+                    editInstagramPassword(id, username)
+                    dialogInterface.dismiss()
+                }
+            }
+        }
+
+        val dialog = dialogBuilder.create()
+        dialog.show()
+    }
+
+    private fun editInstagramUsername(id: Long, username: String) {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_ig_account_username, null)
+
+        dialogBuilder.setTitle("Edit $username username")
+        dialogBuilder.setView(dialogView)
+        dialogBuilder.setPositiveButton(getString(R.string.edit), null)
+        dialogBuilder.setNegativeButton(R.string.cancel) { dialogInterface, _ ->
+            dialogInterface.cancel()
+        }
+
+        val dialog = dialogBuilder.create()
+
+        dialog.setOnShowListener {
+            (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                if(dialogView.newUsernameEditText.text.isNullOrBlank()) return@setOnClickListener
+
+                if (username != dialogView.newUsernameEditText.text.toString())
+                    viewModel.editInstagramUsername(id, dialogView.newUsernameEditText.text.toString())
+
+                dialog.dismiss()
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun editInstagramPassword(id: Long, username: String) {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_ig_account_password, null)
+
+        dialogBuilder.setTitle("Edit $username password")
         dialogBuilder.setView(dialogView)
         dialogBuilder.setPositiveButton(getString(R.string.edit), null)
         dialogBuilder.setNegativeButton(R.string.cancel) { dialogInterface, _ ->
@@ -175,7 +262,7 @@ class InstagramAccountsFragment : Fragment() {
             (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 if(dialogView.newPasswordEditText.text.isNullOrBlank()) return@setOnClickListener
 
-                viewModel.editInstagramAccount(username, dialogView.newPasswordEditText.text.toString())
+                viewModel.editInstagramPassword(id, dialogView.newPasswordEditText.text.toString())
 
                 dialog.dismiss()
             }
@@ -184,17 +271,17 @@ class InstagramAccountsFragment : Fragment() {
         dialog.show()
     }
 
-    private fun showDeleteDialog(username: String) {
+    private fun showDeleteDialog(id: Long) {
         appViewModel.showProgressBar(false)
         val dialogBuilder = AlertDialog.Builder(requireContext())
 
         dialogBuilder.setTitle("Are you sure?")
-        dialogBuilder.setMessage("This operation will delete your IG account and all its statistics.")
+        dialogBuilder.setMessage("This operation will delete your IG account and all its statistics from IGFlexin.")
         dialogBuilder.setNegativeButton(getString(R.string.cancel)) { dialogInterface, _ ->
             dialogInterface.cancel()
         }
         dialogBuilder.setPositiveButton(getString(R.string.ok)) { _, _ ->
-            viewModel.deleteInstagramAccount(username)
+            viewModel.deleteInstagramAccount(id)
         }
 
         dialogBuilder.setCancelable(false)

@@ -1,8 +1,13 @@
 import android.util.Base64
 import android.util.Log
 import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
+import java.security.spec.InvalidKeySpecException
 
 import javax.crypto.Cipher
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 
 
