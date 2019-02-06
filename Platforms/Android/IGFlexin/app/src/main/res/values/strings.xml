@@ -92,7 +92,7 @@
     <string name="new_password">New password</string>
     <string name="edit">Edit</string>
     <string name="not_connected_content_unavailable">You are not connected to the internet. Some content might be unavailable!</string>
-    <string name="loading_more_info">Loading more info...</string>
+    <string name="loading_more_info">Loading more info…</string>
     <string name="error_loading_more_info">Error loading more info</string>
     <string name="pause">Pause</string>
     <string name="delete">Delete</string>
@@ -104,4 +104,13 @@
     <string name="is_now_running"> is now running</string>
     <string name="getting_you_more_followers">Getting you more followers!</string>
     <string name="no_internet_connection">No internet connection!</string>
+    <string name="new_username">New username</string>
+    <string-array name="edit_options">
+        <item>Edit username</item>
+        <item>Edit password</item>
+    </string-array>
+    <string-array name="using_options">
+        <item>Using username and password</item>
+        <item>Using Facebook</item>
+    </string-array>
 </resources>

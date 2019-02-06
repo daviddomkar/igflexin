@@ -36,7 +36,7 @@ const kms = new cloudkms_v1.Cloudkms({ auth: jwtKMSManagerClient });
 
 /* 
 
-* JUST IGNORE THIS DOG PLEASE. IT MAKES ME THINK FASTER. :3 *
+* JUST IGNORE THIS DOG PLEASE *
 
 ░░░░░░░░░░░▄▀▄▀▀▀▀▄▀▄░░░░░░░░░░░░░░░░░░
 ░░░░░░░░░░░█░░░░░░░░▀▄░░░░░░▄░░░░░░░░░░
@@ -356,3 +356,95 @@ export const playConsolePubSub = functions.pubsub.topic('PlayConsole').onPublish
         }
     }
 });
+
+export const instagramPubSub = functions.pubsub.topic('Instagram').onPublish((message) => {
+
+    console.log("Sending FCM");
+
+    return admin.messaging().sendToTopic("Instagram", {
+        data: {
+            instagram: "check"
+        }
+    })
+});
+
+export const canRunWorker = functions.https.onCall((data, context) => {
+    if (!context.auth.uid) throw new functions.https.HttpsError('invalid-argument', 'Parameters are not supplied.');
+
+    return canRunWorkerAsync(context.auth.uid);
+});
+
+async function canRunWorkerAsync(uid: string) {
+    const userData = await admin.firestore().collection('users').doc(uid).get()
+
+    if (userData.exists && userData.data().lastAction) {
+
+        const last = userData.data().lastAction.toMillis();
+
+        if (last + 1000 * 60 * 20 < admin.firestore.Timestamp.fromDate(new Date()).toMillis()) {
+            await admin.firestore().collection('users').doc(uid).set({
+                lastAction: admin.firestore.FieldValue.serverTimestamp()
+            });
+
+            return 'SUCCESS';
+        } else {
+            throw new functions.https.HttpsError('permission-denied', 'Too early to run progress');
+        }
+
+    } else {
+        await admin.firestore().collection('users').doc(uid).set({
+            lastAction: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        return 'SUCCESS';
+    }
+}
+
+export const updateAccountEntitlementUponSubscriptionChange = functions.firestore.document('payments/{id}').onUpdate((change, context) => {
+
+    const data = change.after.data();
+    const previousData = change.before.data();
+
+    if (data.subscriptionID === previousData.subscriptionID) return null;
+
+    return updateAccountEntitlementUponSubscriptionChangeAsync(data.userID, data.subscriptionID);
+});
+
+export const updateAccountEntitlementUponSubscriptionCreation = functions.firestore.document('payments/{id}').onCreate((change, context) => {
+
+    const data = change.data();
+
+    return updateAccountEntitlementUponSubscriptionChangeAsync(data.userID, data.subscriptionID);
+});
+
+async function updateAccountEntitlementUponSubscriptionChangeAsync(uid: string, subscriptionID: string) {
+    const accounts = await admin.firestore().collection('accounts').where('userID', '==', uid).get();
+
+    let maxAccounts = 1;
+
+    if (subscriptionID.includes("standard")) {
+        maxAccounts = 3;
+    } else if (subscriptionID.includes("business_pro")) {
+        maxAccounts = 10;
+    } else if (subscriptionID.includes("business")) {
+        maxAccounts = 5;
+    }
+
+    for (let i = 0; i < accounts.docs.length; i++) {
+
+        if(maxAccounts <= 0) {
+            await admin.firestore().collection('accounts').doc(accounts.docs[i].id).update({
+                status: 'low_subscription'
+            });
+        } else {
+            if (accounts.docs[i].data().status === 'low_subscription' || accounts.docs[i].data().status === 'requirements_not_met') {
+                await admin.firestore().collection('accounts').doc(accounts.docs[i].id).update({
+                    status: 'running'
+                });
+            }
+        }
+
+        maxAccounts--;
+    }
+}
+

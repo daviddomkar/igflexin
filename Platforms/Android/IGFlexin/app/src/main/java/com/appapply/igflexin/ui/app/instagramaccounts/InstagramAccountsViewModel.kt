@@ -3,7 +3,7 @@ package com.appapply.igflexin.ui.app.instagramaccounts
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.appapply.igflexin.model.InstagramAccountInfo
+import com.appapply.igflexin.model.InstagramAccount
 import com.appapply.igflexin.repository.ConnectionRepository
 import com.appapply.igflexin.repository.InstagramRepository
 
@@ -13,6 +13,7 @@ class InstagramAccountsViewModel(private val instagramRepository: InstagramRepos
     val connectionLiveData = connectionRepository.connectionLiveData
     val showErrorLayoutLiveData: LiveData<Boolean> = showErrorLayoutMutableLiveData
     val addInstagramAccountStatusLiveData = instagramRepository.addInstagramAccountStatusLiveData
+    val editInstagramAccountStatusLiveData = instagramRepository.editInstagramAccountStatusLiveData
 
     fun showErrorLayout(show: Boolean) {
         showErrorLayoutMutableLiveData.value = show
@@ -22,24 +23,28 @@ class InstagramAccountsViewModel(private val instagramRepository: InstagramRepos
         instagramRepository.addInstagramAccount(nick, password, subscriptionID)
     }
 
-    fun editInstagramAccount(username: String, password: String) {
-        instagramRepository.editInstagramAccount(username, password)
+    fun editInstagramUsername(id: Long, username: String) {
+        instagramRepository.editInstagramUsername(id, username)
     }
 
-    fun pauseInstagramAccount(username: String) {
-        instagramRepository.pauseInstagramAccount(username)
+    fun editInstagramPassword(id: Long, password: String) {
+        instagramRepository.editInstagramPassword(id, password)
     }
 
-    fun resetInstagramAccount(username: String) {
-        instagramRepository.resetInstagramAccount(username)
+    fun pauseInstagramAccount(id: Long) {
+        instagramRepository.pauseInstagramAccount(id)
     }
 
-    fun deleteInstagramAccount(username: String) {
-        instagramRepository.deleteInstagramAccount(username)
+    fun resetInstagramAccount(id: Long) {
+        instagramRepository.resetInstagramAccount(id)
     }
 
-    fun getInstagramAccountInfo(username: String, encryptedPassword: String, onSuccess: (info: InstagramAccountInfo) -> Unit, onError: () -> Unit) {
-        instagramRepository.getInstagramAccountInfo(username, encryptedPassword, onSuccess, onError)
+    fun deleteInstagramAccount(id: Long) {
+        instagramRepository.deleteInstagramAccount(id)
+    }
+
+    fun updateAccountWorkers(accounts: Iterable<InstagramAccount>) {
+        instagramRepository.updateAccountWorkers(accounts)
     }
 
     override fun onCleared() {

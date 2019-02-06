@@ -1,5 +1,5 @@
 package com.appapply.igflexin.model
 
-data class InstagramAccount(val username: String, val encryptedPassword: String, val userID: String, val status: String?, val serviceID: String?) {
-    constructor() : this("", "", "", null, null)
+data class InstagramAccount(val id: Long, val username: String, val fullName: String, val encryptedPassword: String, val userID: String, val photoURL: String, val status: String) {
+    constructor() : this(0, "","", "", "", "", "")
 }

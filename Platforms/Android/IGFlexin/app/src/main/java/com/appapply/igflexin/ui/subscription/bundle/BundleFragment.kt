@@ -30,12 +30,14 @@ class BundleFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.setPeriod(BundleFragmentArgs.fromBundle(arguments).period)
+        if (arguments != null) {
+            viewModel.setPeriod(BundleFragmentArgs.fromBundle(arguments!!).period)
 
-        when (BundleFragmentArgs.fromBundle(arguments).period) {
-            Product.WEEKLY_BASIC_SUBSCRIPTION -> usernameTextView.text = getString(R.string.choose_your_weekly_bundle)
-            Product.MONTHLY_BASIC_SUBSCRIPTION -> usernameTextView.text = getString(R.string.choose_your_monthly_bundle)
-            Product.QUARTERLY_BASIC_SUBSCRIPTION -> usernameTextView.text = getString(R.string.choose_your_quarterly_bundle)
+            when (BundleFragmentArgs.fromBundle(arguments!!).period) {
+                Product.WEEKLY_BASIC_SUBSCRIPTION -> usernameTextView.text = getString(R.string.choose_your_weekly_bundle)
+                Product.MONTHLY_BASIC_SUBSCRIPTION -> usernameTextView.text = getString(R.string.choose_your_monthly_bundle)
+                Product.QUARTERLY_BASIC_SUBSCRIPTION -> usernameTextView.text = getString(R.string.choose_your_quarterly_bundle)
+            }
         }
 
         val viewManager = object : LinearLayoutManager(requireContext()) {
@@ -83,8 +85,6 @@ class BundleFragment : Fragment() {
 
                     progressBar.visibility = View.GONE
                 }
-
-                // TODO Extract string resource
 
                 StatusCode.ERROR -> showErrorDialog(getString(R.string.error_loading_subscriptions))
                 StatusCode.NETWORK_ERROR -> showErrorDialog(getString(R.string.error_loading_subscriptions_check_your_internet_connection))

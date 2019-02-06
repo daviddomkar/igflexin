@@ -1,12 +1,8 @@
 package com.appapply.igflexin
 
 import android.content.Intent
-import android.graphics.Color
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.WindowManager
-import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import com.appapply.igflexin.common.OnBackPressedListener
@@ -15,7 +11,6 @@ import androidx.navigation.fragment.NavHostFragment
 import com.appapply.igflexin.common.OnActivityResultObject
 import com.appapply.igflexin.common.OnBackPressedFinishListener
 import com.appapply.igflexin.events.EventObserver
-import com.appapply.igflexin.ui.auth.AuthFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
