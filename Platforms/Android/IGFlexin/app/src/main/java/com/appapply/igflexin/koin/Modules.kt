@@ -8,6 +8,7 @@ import com.appapply.igflexin.livedata.firebase.FirebaseConnectionLiveData
 import com.appapply.igflexin.repository.*
 import com.appapply.igflexin.security.UserKeyManager
 import com.appapply.igflexin.ui.app.AppViewModel
+import com.appapply.igflexin.ui.app.dashboard.DashboardViewModel
 import com.appapply.igflexin.ui.app.instagramaccounts.InstagramAccountsViewModel
 import com.appapply.igflexin.ui.app.subscriptionmanagement.SubscriptionManagementViewModel
 import com.appapply.igflexin.ui.app.subscriptionmanagement.subscriptiontab.SubscriptionTabViewModel
@@ -18,9 +19,7 @@ import com.appapply.igflexin.ui.auth.verifyemail.VerifyEmailViewModel
 import com.appapply.igflexin.ui.auth.welcome.WelcomeViewModel
 import com.appapply.igflexin.ui.loader.LoaderViewModel
 import com.appapply.igflexin.ui.subscription.SubscriptionViewModel
-import com.appapply.igflexin.ui.subscription.bundle.BundleFragment
 import com.appapply.igflexin.ui.subscription.bundle.BundleViewModel
-import com.appapply.igflexin.ui.subscription.period.PeriodFragment
 import com.appapply.igflexin.ui.subscription.period.PeriodViewModel
 import com.facebook.CallbackManager
 import com.facebook.login.LoginManager
@@ -44,7 +43,7 @@ val appModule = module {
     single<AuthRepository> { FirebaseAuthRepository(get(), get()) }
     single<UserRepository> { FirebaseUserRepository(get()) }
     single<SubscriptionRepository> { FirebaseSubscriptionRepository(get(), get(), get(), get()) }
-    single<InstagramRepository> { InstagramRepositoryImpl(get(), get(), get(), get()) }
+    single<InstagramRepository> { InstagramRepositoryImpl(get(), get(), get(), get(), get()) }
 
     viewModel { MainViewModel() }
 
@@ -66,20 +65,18 @@ val appModule = module {
     viewModel { SubscriptionTabViewModel(get()) }
 
     viewModel { InstagramAccountsViewModel(get(), get()) }
+
+    viewModel { DashboardViewModel(get()) }
 }
 
 val firebaseModule = module {
 
     single { FirebaseFunctions.getInstance() }
-
     single { FirebaseAuth.getInstance() }
-
     single { FirebaseFirestore.getInstance() }
-
     single { FirebaseDatabase.getInstance() }
 
     single { FirebaseAuthStateLiveData() }
-
     single { FirebaseConnectionLiveData() }
 }
 
