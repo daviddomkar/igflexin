@@ -14,19 +14,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager.widget.ViewPager
 
 import com.appapply.igflexin.R
-import com.appapply.igflexin.events.EventObserver
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.app_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import android.content.Context.CONNECTIVITY_SERVICE
-import androidx.core.content.ContextCompat.getSystemService
-import android.net.ConnectivityManager
-import android.content.Context
 import com.appapply.igflexin.common.*
 import com.appapply.igflexin.model.Subscription
 
@@ -54,8 +48,6 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
         bottomNavView.setOnNavigationItemSelectedListener(this)
 
         bindNavigationDrawer()
-
-        // Log.d("IGFlexin_test", AESProcessor.decrypt("QxoerjP+iwHjA7kMfqYqxw==", "CiQA3TCgqs6Kcy7htMC0hkCvyp7lxSA5RojDwL1/oidnK0dGQmkSqgEAdJi+MMOznvp3eDc2W9lVw+sUhmfeS2fOKM4VihbGHRdoYXEV2VKheCdT3u1q+kxTcINVGyJMcO8lVCeJhOd9vs2nH55m89eNec6ZzUlk57HwaLrn8nAum8Up1omk+StISaqY0W7mgPkV8p+N1KX568Yj64wiYa8JhU5XKQymNw4FaaltCrzv7NW+bwZ+RVhwMoDJi6qz9ba5Rahq5B0WB9Jnnodt4hHtsw=="))
 
         viewModel.subscriptionLiveData.observe(this, Observer {
             updateGracePeriodWarning(it)
@@ -109,7 +101,7 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
         })
     }
 
-    fun updateGracePeriodWarning(resource: Resource<Subscription>) {
+    private fun updateGracePeriodWarning(resource: Resource<Subscription>) {
         when (resource.status) {
             StatusCode.SUCCESS -> {
                 if (!resource.data!!.verified || (resource.data.autoRenewing != null && !resource.data.autoRenewing)) {
@@ -195,10 +187,35 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
             bottomNavView.selectedItemId = it.itemId
             drawerLayout.closeDrawer(GravityCompat.START)
 
+
             true
         }
 
         onPageSelected(viewPager.currentItem)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        when (viewPager.currentItem) {
+            0 -> {
+                Log.d("IGFlexin_app", "Selected dashboard")
+                toolbar.title = getString(R.string.dashboard)
+                navView.setCheckedItem(R.id.navigationDashboard)
+                bottomNavView.selectedItemId = R.id.navigationDashboard
+            }
+            1 -> {
+                Log.d("IGFlexin_app", "Selected accounts")
+                toolbar.title = getString(R.string.accounts)
+                navView.setCheckedItem(R.id.navigationInstagramAccounts)
+                bottomNavView.selectedItemId = R.id.navigationInstagramAccounts
+            }
+            2 -> {
+                Log.d("IGFlexin_app", "Selected subscription")
+                toolbar.title = getString(R.string.subscription)
+                navView.setCheckedItem(R.id.navigationSubscriptionManagement)
+                bottomNavView.selectedItemId = R.id.navigationSubscriptionManagement
+            }
+        }
     }
 
     override fun onPageScrollStateChanged(state: Int) {

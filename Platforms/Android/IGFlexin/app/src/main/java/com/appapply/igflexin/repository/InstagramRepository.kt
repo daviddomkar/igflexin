@@ -3,18 +3,23 @@ package com.appapply.igflexin.repository
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.work.*
 import com.appapply.igflexin.billing.Product
 import com.appapply.igflexin.common.InstagramStatusCode
+import com.appapply.igflexin.common.Resource
+import com.appapply.igflexin.common.StatsPeriod
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.events.Event
+import com.appapply.igflexin.livedata.firebase.FirebaseAuthStateLiveData
+import com.appapply.igflexin.livedata.firebase.FirebaseFirestoreQueryLiveData
 import com.appapply.igflexin.model.InstagramAccount
+import com.appapply.igflexin.model.InstagramRecord
 import com.appapply.igflexin.security.UserKeyManager
 import com.appapply.igflexin.workers.InstagramWorker
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.Source
+import com.google.firebase.firestore.*
 import com.google.firebase.functions.FirebaseFunctions
 import dev.niekirk.com.instagram4android.Instagram4Android
 import dev.niekirk.com.instagram4android.requests.*
@@ -26,6 +31,8 @@ import java.util.concurrent.TimeUnit
 interface InstagramRepository {
     val addInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
     val editInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
+    val instagramAccountsLiveData: LiveData<Resource<List<InstagramAccount>>>
+    val instagramRecordsLiveData: LiveData<Resource<List<InstagramRecord>>>
 
     fun addInstagramAccount(username: String, password: String, subscriptionID: String)
     fun editInstagramUsername(id: Long, newUsername: String)
@@ -37,18 +44,59 @@ interface InstagramRepository {
 
     fun updateAccountWorkers(accounts: Iterable<InstagramAccount>)
 
+    fun setRecordsIDAndPeriod(id: Long, period: Int)
+
     fun reset()
 }
 
-class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, private val firebaseAuth: FirebaseAuth, private val firestore: FirebaseFirestore, private val functions: FirebaseFunctions) : InstagramRepository {
+class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, private val firebaseAuth: FirebaseAuth, private val firestore: FirebaseFirestore, private val functions: FirebaseFunctions, firebaseAuthStateLiveData: FirebaseAuthStateLiveData) : InstagramRepository {
     private val addInstagramAccountStatusMutableLiveData: MutableLiveData<Event<StatusCode>> = MutableLiveData()
     private val editInstagramAccountStatusMutableLiveData: MutableLiveData<Event<StatusCode>> = MutableLiveData()
+
+    private val instagramAccountsMutableLiveData: LiveData<Resource<List<InstagramAccount>>> = Transformations.map(Transformations.switchMap(firebaseAuthStateLiveData) {
+            FirebaseFirestoreQueryLiveData(MetadataChanges.INCLUDE, firestore.collection("accounts").whereEqualTo("userID", it.currentUser?.uid))
+        }) {
+            var resource = Resource<List<InstagramAccount>>(StatusCode.ERROR, null)
+
+            if (it.data != null) {
+                val accounts = it.data.documents.map {
+                    it.toObject(InstagramAccount::class.java)!!
+                }
+
+                resource = Resource(StatusCode.SUCCESS, accounts)
+            }
+
+            resource
+        }
+    private val instagramRecordsFirebaseFirestoreQueryLiveData = FirebaseFirestoreQueryLiveData(MetadataChanges.INCLUDE, null)
+    private val instagramRecordsMutableLiveData: LiveData<Resource<List<InstagramRecord>>> = Transformations.map(instagramRecordsFirebaseFirestoreQueryLiveData) {
+
+        var resource = Resource<List<InstagramRecord>>(StatusCode.ERROR, null)
+
+        if (it.data != null) {
+            val records = it.data.documents.map {
+                val timestamp = it.getTimestamp("time", DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)!!
+                val followers = it.getLong("followers")!!
+                InstagramRecord(timestamp, followers)
+            }
+
+            resource = Resource(StatusCode.SUCCESS, records)
+        }
+
+        resource
+    }
 
     override val addInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
         get() = addInstagramAccountStatusMutableLiveData
 
     override val editInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
         get() = editInstagramAccountStatusMutableLiveData
+
+    override val instagramAccountsLiveData: LiveData<Resource<List<InstagramAccount>>>
+        get() = instagramAccountsMutableLiveData
+
+    override val instagramRecordsLiveData: LiveData<Resource<List<InstagramRecord>>>
+        get() = instagramRecordsMutableLiveData
 
     override fun addInstagramAccount(username: String, password: String, subscriptionID: String) {
         addInstagramAccountStatusMutableLiveData.postValue(Event(StatusCode.PENDING))
@@ -426,6 +474,26 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                 PeriodicWorkRequestBuilder<InstagramWorker>(20, TimeUnit.MINUTES).addTag("instagram-check").build()
             )
         }
+    }
+
+    override fun setRecordsIDAndPeriod(id: Long, period: Int) {
+        val cal = Calendar.getInstance()
+
+        when (period) {
+            StatsPeriod.DAY -> {
+                cal.add(Calendar.HOUR, -24)
+            }
+            StatsPeriod.WEEK -> {
+                cal.add(Calendar.HOUR, -7 * 24)
+            }
+            StatsPeriod.MONTH -> {
+                cal.add(Calendar.HOUR, -7 * 24 * 30)
+            }
+        }
+
+        val timestamp = Timestamp(cal.time)
+
+        instagramRecordsFirebaseFirestoreQueryLiveData.setQuery(firestore.collection("records").whereEqualTo("id", id).whereGreaterThan("time", timestamp))
     }
 
     override fun reset() {
