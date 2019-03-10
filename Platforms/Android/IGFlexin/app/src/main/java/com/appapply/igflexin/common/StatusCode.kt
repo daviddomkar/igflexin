@@ -42,6 +42,7 @@ open class InstagramStatusCode(private val code: Int) : StatusCode(code) {
         val RESTRICTED_BY_SUBSCRIPTION_PLAN = StatusCode(303)
         val ID_NOT_MATCHING = StatusCode(304)
         val ERROR = StatusCode(305)
+        val DATA_EMPTY = StatusCode(306)
     }
 }
 
@@ -71,6 +72,7 @@ fun getStringStatusCode(code: StatusCode): String {
         InstagramStatusCode.RESTRICTED_BY_SUBSCRIPTION_PLAN -> "InstagramStatusCode.RESTRICTED_BY_SUBSCRIPTION_PLAN"
         InstagramStatusCode.ID_NOT_MATCHING -> "InstagramStatusCode.ID_NOT_MATCHING"
         InstagramStatusCode.ERROR -> "InstagramStatusCode.ERROR"
+        InstagramStatusCode.DATA_EMPTY -> "InstagramStatusCode.DATA_EMPTY"
         else -> "StatusCode.UNKNOWN"
     }
 }
