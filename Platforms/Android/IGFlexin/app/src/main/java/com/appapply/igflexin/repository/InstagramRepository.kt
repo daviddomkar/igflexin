@@ -11,6 +11,7 @@ import com.appapply.igflexin.common.Resource
 import com.appapply.igflexin.common.StatsPeriod
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.events.Event
+import com.appapply.igflexin.livedata.InstagramRecordsLiveData
 import com.appapply.igflexin.livedata.firebase.FirebaseAuthStateLiveData
 import com.appapply.igflexin.livedata.firebase.FirebaseFirestoreQueryLiveData
 import com.appapply.igflexin.model.InstagramAccount
@@ -44,7 +45,8 @@ interface InstagramRepository {
 
     fun updateAccountWorkers(accounts: Iterable<InstagramAccount>)
 
-    fun setRecordsIDAndPeriod(id: Long, period: Int)
+    fun setStatsID(id: Long)
+    fun setStatsPeriod(period: Int)
 
     fun reset()
 }
@@ -68,23 +70,8 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
 
             resource
         }
-    private val instagramRecordsFirebaseFirestoreQueryLiveData = FirebaseFirestoreQueryLiveData(MetadataChanges.INCLUDE, null)
-    private val instagramRecordsMutableLiveData: LiveData<Resource<List<InstagramRecord>>> = Transformations.map(instagramRecordsFirebaseFirestoreQueryLiveData) {
 
-        var resource = Resource<List<InstagramRecord>>(StatusCode.ERROR, null)
-
-        if (it.data != null) {
-            val records = it.data.documents.map {
-                val timestamp = it.getTimestamp("time", DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)!!
-                val followers = it.getLong("followers")!!
-                InstagramRecord(timestamp, followers)
-            }
-
-            resource = Resource(StatusCode.SUCCESS, records)
-        }
-
-        resource
-    }
+    private val instagramRecordsMutableLiveData: InstagramRecordsLiveData = InstagramRecordsLiveData()
 
     override val addInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
         get() = addInstagramAccountStatusMutableLiveData
@@ -476,25 +463,8 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
         }
     }
 
-    override fun setRecordsIDAndPeriod(id: Long, period: Int) {
-        val cal = Calendar.getInstance()
-
-        when (period) {
-            StatsPeriod.DAY -> {
-                cal.add(Calendar.HOUR, -24)
-            }
-            StatsPeriod.WEEK -> {
-                cal.add(Calendar.HOUR, -7 * 24)
-            }
-            StatsPeriod.MONTH -> {
-                cal.add(Calendar.HOUR, -7 * 24 * 30)
-            }
-        }
-
-        val timestamp = Timestamp(cal.time)
-
-        instagramRecordsFirebaseFirestoreQueryLiveData.setQuery(firestore.collection("records").whereEqualTo("id", id).whereGreaterThan("time", timestamp))
-    }
+    override fun setStatsID(id: Long) = instagramRecordsMutableLiveData.setStatsID(id)
+    override fun setStatsPeriod(period: Int) = instagramRecordsMutableLiveData.setStatsPeriod(period)
 
     override fun reset() {
         addInstagramAccountStatusMutableLiveData.value = null

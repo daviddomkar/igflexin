@@ -18,15 +18,18 @@ import com.appapply.igflexin.common.StatsPeriod
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.common.getStringStatusCode
 import com.appapply.igflexin.model.InstagramAccount
+import com.appapply.igflexin.utils.InstagramFollowerCountLabelFormater
 import com.google.android.material.tabs.TabLayout
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter
 import com.jjoe64.graphview.series.DataPoint
+import com.jjoe64.graphview.series.DataPointInterface
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.dashboard_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class DashboardFragment : Fragment() {
 
@@ -70,28 +73,83 @@ class DashboardFragment : Fragment() {
             if (it.status == StatusCode.SUCCESS) {
                 val data = it.data!!
 
-                val dataPoints = data.map {
-                    Log.d("IGFlexin_dashboard", "Record time: ${it.timestamp}, followers: ${it.followers}")
-                    DataPoint(it.timestamp.toDate(), it.followers.toDouble())
-                }
-
                 val cal = Calendar.getInstance()
                 val end = cal.time
-                when (tabLayout.selectedTabPosition) {
+                val count = when (tabLayout.selectedTabPosition) {
                     0 -> {
                         cal.add(Calendar.HOUR, -24)
-                        graphTotal.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(requireActivity(), SimpleDateFormat("HH:mm", Locale.getDefault()))
+                        //graphTotal.gridLabelRenderer.labelFormatter = InstagramFollowerCountLabelFormater(requireActivity(), SimpleDateFormat("HH:mm", Locale.getDefault()))
+                        24
                     }
                     1 -> {
                         cal.add(Calendar.HOUR, -7 * 24)
-                        graphTotal.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(requireActivity(), SimpleDateFormat("dd.MM", Locale.getDefault()))
+                        //graphTotal.gridLabelRenderer.labelFormatter = InstagramFollowerCountLabelFormater(requireActivity(), SimpleDateFormat("dd.MM", Locale.getDefault()))
+                        7
                     }
                     else -> {
                         cal.add(Calendar.HOUR, -7 * 24 * 30)
-                        graphTotal.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(requireActivity(), SimpleDateFormat("dd.MM", Locale.getDefault()))
+                        //graphTotal.gridLabelRenderer.labelFormatter = InstagramFollowerCountLabelFormater(requireActivity(), SimpleDateFormat("dd.MM", Locale.getDefault()))
+                        30
                     }
                 }
                 val start = cal.time
+                val length = end.time - start.time
+                val segment = when (tabLayout.selectedTabPosition) {
+                    0 -> {
+                        length / 24
+                    }
+                    1 -> {
+                        length / 7
+                    }
+                    else -> {
+                        length / 30
+                    }
+                }
+
+                val dataPoints = ArrayList<DataPoint>()
+                var previousSegment = 0L
+                var currentSegment = segment
+
+                var lastFollowerCount = data.first().followers
+                var followers = 0L
+                var counter = 0
+
+                data.listIterator().forEach {
+
+                    followers += it.followers
+                    counter++
+
+                    while (it.timestamp.toDate().time - start.time > currentSegment - segment / 2) {
+
+                        if (followers > 0L) {
+                            lastFollowerCount = followers / counter
+                        }
+
+                        dataPoints.add(DataPoint(Date(previousSegment + start.time), lastFollowerCount.toDouble()))
+
+                        followers = 0
+                        counter = 0
+
+                        previousSegment = currentSegment
+                        currentSegment += segment
+                    }
+
+                    if (currentSegment > length) {
+                        return@forEach
+                    }
+                }
+
+                /*
+                val dataPoints = data.map {
+                    Log.d("IGFlexin_dashboard", "Record time: ${it.timestamp}, followers: ${it.followers}")
+                    DataPoint(it.timestamp.toDate(), it.followers.toDouble())
+                }*/
+
+                dataPoints.forEach {
+                    Log.d("IGFlexin_dashboard", it.toString())
+                }
+
+                Log.d("IGFlexin_dashboard", "loaded " + dataPoints.size + " records.")
 
                 graphTotal.removeAllSeries()
 
@@ -103,13 +161,13 @@ class DashboardFragment : Fragment() {
 
                 graphTotal.addSeries(series)
 
-                graphTotal.gridLabelRenderer.numHorizontalLabels = 3 // only 4 because of the space
+                // graphTotal.gridLabelRenderer.numHorizontalLabels = 3 // only 4 because of the space
 
-                graphTotal.viewport.setMinX(start.time.toDouble())
-                graphTotal.viewport.setMaxX(end.time.toDouble())
-                graphTotal.viewport.isXAxisBoundsManual = true
+                //graphTotal.viewport.setMinX(start.time.toDouble())
+                //graphTotal.viewport.setMaxX(end.time.toDouble())
+                //graphTotal.viewport.isXAxisBoundsManual = true
 
-                graphTotal.gridLabelRenderer.setHumanRounding(true)
+                //graphTotal.gridLabelRenderer.setHumanRounding(true)
 
                 graphsProgressBar.visibility = View.GONE
                 graphsLayout.visibility = View.VISIBLE
@@ -148,6 +206,8 @@ class DashboardFragment : Fragment() {
                 viewModel.setStatsPeriod(tab.position)
             }
         })
+
+        viewModel.setStatsPeriod(tabLayout.selectedTabPosition)
     }
 
     private fun populateSpinner(accounts: List<InstagramAccount>) {
