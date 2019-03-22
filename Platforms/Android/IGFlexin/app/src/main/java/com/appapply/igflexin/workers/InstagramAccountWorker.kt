@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import com.appapply.igflexin.billing.Product
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import dev.niekirk.com.instagram4android.Instagram4Android
 import dev.niekirk.com.instagram4android.requests.InstagramFollowRequest
 import dev.niekirk.com.instagram4android.requests.InstagramGetUserFollowersRequest
@@ -22,6 +23,7 @@ class InstagramAccountWorker(context : Context, params : WorkerParameters) : Wor
     private val accountsToFollow = arrayListOf("khloekardashian", "nickyminaj", "katyperry", "taylorswift", "mileycyrcus", "nike", "natgeo", "kendaljenner", "leomessi", "neymarjr", "justinbieber", "kyliejenner", "kimkardashian", "beyonce", "arianagrande", "cristiano", "selenagomez", "instagram", "therock")
 
     private val firestore: FirebaseFirestore by inject()
+    private val functions: FirebaseFunctions by inject()
 
     override fun doWork(): Result {
 
@@ -149,9 +151,8 @@ class InstagramAccountWorker(context : Context, params : WorkerParameters) : Wor
         val data = HashMap<String, Any>()
         data["id"] = id
         data["followers"] = followers
-        data["time"] = FieldValue.serverTimestamp()
 
-        firestore.collection("records").add(data).addOnCompleteListener {
+        functions.getHttpsCallable("recordStats").call(data).addOnCompleteListener {
             countDownLatch.countDown()
         }
 

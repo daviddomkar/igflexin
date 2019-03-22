@@ -40,7 +40,7 @@ class InstagramAccountsFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        fab.setOnClickListener {
+        fab.setOnClickListener {6
             addInstagramAccount()
         }
 
@@ -125,6 +125,7 @@ class InstagramAccountsFragment : Fragment() {
                 InstagramStatusCode.ACCOUNT_DOES_NOT_MEET_REQUIREMENTS -> showErrorDialog("Your account does not meet the specified requirements. Consider upgrading your subscription.")
                 InstagramStatusCode.ACCOUNT_ALREADY_ADDED -> showErrorDialog("This account is already added to IGFlexin.")
                 InstagramStatusCode.RESTRICTED_BY_SUBSCRIPTION_PLAN -> showErrorDialog("You have reached maximum account limit for your subscription plan. Consider upgrading your subscription.")
+                InstagramStatusCode.ACCOUNT_INCOMPLETE -> showErrorDialog("Failed to add Instagram account. This can be caused by incomplete account information. Check if you have selected you gender and verified email/phone in your IG account.")
                 else -> {
                     appViewModel.showProgressBar(false)
                 }
@@ -139,6 +140,7 @@ class InstagramAccountsFragment : Fragment() {
                 InstagramStatusCode.ERROR -> showErrorDialog("Error occurred while adding instagram account. Two factor authentication may be causing this problem. Please disable it.")
                 InstagramStatusCode.BAD_PASSWORD -> showErrorDialog("Bad username and password combination.")
                 InstagramStatusCode.ID_NOT_MATCHING -> showErrorDialog("These credentials belong to another IG account. Add new account instead.")
+                InstagramStatusCode.ACCOUNT_INCOMPLETE -> showErrorDialog("Failed to add Instagram account. This can be caused by incomplete account information. Check if you have selected you gender and verified email/phone in your IG account.")
                 else -> {
                     appViewModel.showProgressBar(false)
                 }

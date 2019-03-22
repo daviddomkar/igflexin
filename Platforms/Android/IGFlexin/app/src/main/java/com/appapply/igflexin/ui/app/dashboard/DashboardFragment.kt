@@ -1,9 +1,7 @@
 package com.appapply.igflexin.ui.app.dashboard
 
 import android.graphics.Color
-import android.opengl.Visibility
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -14,20 +12,15 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 
 import com.appapply.igflexin.R
-import com.appapply.igflexin.common.StatsPeriod
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.common.getStringStatusCode
 import com.appapply.igflexin.model.InstagramAccount
-import com.appapply.igflexin.utils.InstagramFollowerCountLabelFormater
 import com.google.android.material.tabs.TabLayout
-import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter
+import com.jjoe64.graphview.helper.StaticLabelsFormatter
 import com.jjoe64.graphview.series.DataPoint
-import com.jjoe64.graphview.series.DataPointInterface
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.dashboard_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -78,17 +71,14 @@ class DashboardFragment : Fragment() {
                 val count = when (tabLayout.selectedTabPosition) {
                     0 -> {
                         cal.add(Calendar.HOUR, -24)
-                        //graphTotal.gridLabelRenderer.labelFormatter = InstagramFollowerCountLabelFormater(requireActivity(), SimpleDateFormat("HH:mm", Locale.getDefault()))
                         24
                     }
                     1 -> {
                         cal.add(Calendar.HOUR, -7 * 24)
-                        //graphTotal.gridLabelRenderer.labelFormatter = InstagramFollowerCountLabelFormater(requireActivity(), SimpleDateFormat("dd.MM", Locale.getDefault()))
                         7
                     }
                     else -> {
                         cal.add(Calendar.HOUR, -7 * 24 * 30)
-                        //graphTotal.gridLabelRenderer.labelFormatter = InstagramFollowerCountLabelFormater(requireActivity(), SimpleDateFormat("dd.MM", Locale.getDefault()))
                         30
                     }
                 }
@@ -107,12 +97,15 @@ class DashboardFragment : Fragment() {
                 }
 
                 val dataPoints = ArrayList<DataPoint>()
-                var previousSegment = 0L
                 var currentSegment = segment
 
                 var lastFollowerCount = data.first().followers
                 var followers = 0L
                 var counter = 0
+
+                var segmentCounter = 0
+                var maxFollowers = 0L
+                var minFollowers = Long.MAX_VALUE
 
                 data.listIterator().forEach {
 
@@ -125,16 +118,28 @@ class DashboardFragment : Fragment() {
                             lastFollowerCount = followers / counter
                         }
 
-                        dataPoints.add(DataPoint(Date(previousSegment + start.time), lastFollowerCount.toDouble()))
+                        dataPoints.add(DataPoint(segmentCounter.toDouble(), lastFollowerCount.toDouble()))
+
+                        if (lastFollowerCount > maxFollowers) {
+                            maxFollowers = lastFollowerCount
+                        }
+
+                        if (lastFollowerCount < minFollowers) {
+                            minFollowers = lastFollowerCount
+                        }
 
                         followers = 0
                         counter = 0
 
-                        previousSegment = currentSegment
                         currentSegment += segment
+                        segmentCounter++
                     }
 
                     if (currentSegment > length) {
+                        if (maxFollowers < 20) {
+                            maxFollowers = 20
+                        }
+
                         return@forEach
                     }
                 }
@@ -163,11 +168,24 @@ class DashboardFragment : Fragment() {
 
                 // graphTotal.gridLabelRenderer.numHorizontalLabels = 3 // only 4 because of the space
 
-                //graphTotal.viewport.setMinX(start.time.toDouble())
-                //graphTotal.viewport.setMaxX(end.time.toDouble())
-                //graphTotal.viewport.isXAxisBoundsManual = true
+                graphTotal.viewport.setMinX(0.0)
+                graphTotal.viewport.setMaxX((count - 1).toDouble())
+                graphTotal.viewport.isXAxisBoundsManual = true
 
-                //graphTotal.gridLabelRenderer.setHumanRounding(true)
+                if (minFollowers.toDouble() - 5.0 <= 0) {
+                    graphTotal.viewport.setMinY(0.0)
+                } else {
+                    graphTotal.viewport.setMinY(minFollowers.toDouble() - 5.0)
+                }
+
+                graphTotal.viewport.setMaxY(maxFollowers.toDouble() + 5.0)
+                graphTotal.viewport.isYAxisBoundsManual = true
+
+                val staticLabelsFormatter = StaticLabelsFormatter(graphTotal)
+                staticLabelsFormatter.setHorizontalLabels(arrayOf("Ahoj", "Jejda"))
+
+                // graphTotal.gridLabelRenderer.setHumanRounding(true)
+                graphTotal.gridLabelRenderer.labelFormatter = staticLabelsFormatter
 
                 graphsProgressBar.visibility = View.GONE
                 graphsLayout.visibility = View.VISIBLE

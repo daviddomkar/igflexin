@@ -124,6 +124,11 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                             if (loginResult.error_type != null) {
                                 addInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.BAD_PASSWORD))
                                 Log.d("IGFlexin_instagram", "Error type: " + loginResult.error_type)
+
+                                if (loginResult.error_type == "checkpoint_challenge_required") {
+                                    editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ACCOUNT_INCOMPLETE))
+                                }
+
                                 return@launch
                             }
 
@@ -197,6 +202,11 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                                 if (loginResult.error_type != null) {
                                     editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.BAD_PASSWORD))
                                     Log.d("IGFlexin_instagram", "Error type: " + loginResult.error_type)
+
+                                    if (loginResult.error_type == "checkpoint_challenge_required") {
+                                        editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ACCOUNT_INCOMPLETE))
+                                    }
+
                                     return@launch
                                 }
 
@@ -276,6 +286,11 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                                 if (loginResult.error_type != null) {
                                     editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.BAD_PASSWORD))
                                     Log.d("IGFlexin_instagram", "Error type: " + loginResult.error_type)
+
+                                    if (loginResult.error_type == "checkpoint_challenge_required") {
+                                        editInstagramAccountStatusMutableLiveData.postValue(Event(InstagramStatusCode.ACCOUNT_INCOMPLETE))
+                                    }
+
                                     return@launch
                                 }
 
