@@ -454,152 +454,113 @@ export const recordStats = functions.https.onCall((data, context) => {
     return recordStatsAsync(context.auth.uid, data.id, data.followers);
 });
 
-async function recordStatsAsync(uid: string, id: number, followers: number) {
+async function recordStatsAsync(uid: string, id: number, newFollowers: number) {
+
     await admin.firestore().runTransaction(async (transaction) => {
         const account = await transaction.get(admin.firestore().collection('accounts').where('id', '==', id).limit(1));
 
         if (account.docs.length > 0 && account.docs[0].data().userID === uid) {
-            const dayStatistics = await transaction.get(admin.firestore().collection('accounts').doc(account.docs[0].id).collection('statistics').doc('day'));
-            const weekStatistics = await transaction.get(admin.firestore().collection('accounts').doc(account.docs[0].id).collection('statistics').doc('week'));
-            const monthStatistics = await transaction.get(admin.firestore().collection('accounts').doc(account.docs[0].id).collection('statistics').doc('month'));
 
-            if (dayStatistics.exists) {
-                const lastAction = (dayStatistics.data().lastAction as FirebaseFirestore.Timestamp).toDate();
-                let hours = dayStatistics.data().hours as Array<number | null>;
+            const statistics = await transaction.get(admin.firestore().collection('statistics').doc(account.docs[0].id));
+
+            function computeNewArrayOfStatsRecord(array: Array<number | null>, lastAction: Date, followers: number, diffMilisecondsComputeDivisionFunction: (diff: number) => number): { array: Array<number | null>, newLastAction: boolean } {
+
                 const date = new Date();
 
-                let lastIndex = hours.indexOf(null) - 1;
-
+                let lastIndex = array.indexOf(null);
+            
                 if (lastIndex === -1) {
-                    lastIndex = 23;
+                    lastIndex = array.length;
                 }
 
-                const hoursDiff = Math.round(new Date(date.getTime() - lastAction.getTime()).getTime() / 1000 / 60 / 60);
+                lastIndex -= 1;
+            
+                const diff = Math.round(diffMilisecondsComputeDivisionFunction(date.getTime() - lastAction.getTime()));
+            
+                const newLastAction = diff > 0;
+            
+                if (lastIndex + diff > array.length - 1) {
+                    const shift = ((lastIndex + diff) % array.length) + 1;
+                    array.splice(0, shift);
+                    lastIndex += (diff - shift);
+                    for (let i = 0; i < shift; i++) {
+                        array.push(null);
 
-                if (lastIndex + hoursDiff > 23) {
-                    hours = [
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ]
+                        if (array.length > 23) {
+                            break;
+                        }
+                    }
+                } else {
+                    lastIndex += diff
                 }
 
-                const newIndex = (lastIndex + hoursDiff) % 24;
+                if (diff > array.length - 1) {
+                    lastIndex = 0;
+                }
 
-                for (let i = 0; i < newIndex; i++) {
-                    if (hours[i] === null) {
-                        hours[i] = followers;
+                for (let i = 0; i < lastIndex; i++) {
+                    if (array[i] === null) {
+                        array[i] = followers;
                     }
                 }
 
-                if (hours[newIndex] !== null) {
-                    hours[newIndex] = (hours[newIndex] + followers) / 2;
+                if (array[lastIndex] !== null) {
+                    array[lastIndex] = (array[lastIndex] + followers) / 2;
                 } else {
-                    hours[newIndex] = followers;
+                    array[lastIndex] = followers;
                 }
 
-                await transaction.update(admin.firestore().collection('accounts').doc(account.docs[0].id).collection('statistics').doc('days'), {
-                    lastAction: admin.firestore.FieldValue.serverTimestamp(),
-                    hours: hours
+                return {
+                    array: array,
+                    newLastAction: newLastAction
+                }
+            }
+
+            if (statistics.exists) {
+                const lastAction = (statistics.data().lastAction as FirebaseFirestore.Timestamp).toDate();
+
+                const hours_of_day = statistics.data().hours_of_day as Array<number | null>;
+                const days_of_week = statistics.data().days_of_week as Array<number | null>;
+                const days_of_month = statistics.data().days_of_month as Array<number | null>;
+
+                const hours_of_day_result = computeNewArrayOfStatsRecord(hours_of_day, lastAction, newFollowers, (diff) => {
+                    return diff / 1000 / 60 / 60;
                 });
 
+                const days_of_week_result = computeNewArrayOfStatsRecord(days_of_week, lastAction, newFollowers, (diff) => {
+                    return diff / 1000 / 60 / 60 / 24;
+                });
+
+                const days_of_month_result = computeNewArrayOfStatsRecord(days_of_month, lastAction, newFollowers, (diff) => {
+                    return diff / 1000 / 60 / 60 / 24;
+                });
+
+                if (days_of_month_result.newLastAction) {
+                    await transaction.update(admin.firestore().collection('statistics').doc(account.docs[0].id), {
+                        lastAction: admin.firestore.FieldValue.serverTimestamp(),
+                        hours_of_day: hours_of_day_result.array,
+                        days_of_week: days_of_week_result.array,
+                        days_of_month: days_of_month_result.array
+                    });
+                } else {
+                    await transaction.update(admin.firestore().collection('statistics').doc(account.docs[0].id), {
+                        hours_of_day: hours_of_day_result.array,
+                        days_of_week: days_of_week_result.array,
+                        days_of_month: days_of_month_result.array
+                    });
+                }
+
             } else {
-                await transaction.set(admin.firestore().collection('accounts').doc(account.docs[0].id).collection('statistics').doc('days'), {
+                await transaction.set(admin.firestore().collection('statistics').doc(account.docs[0].id), {
                     lastAction: admin.firestore.FieldValue.serverTimestamp(),
                     hours: [
-                        followers, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ]
-                });
-            }
-
-            if (weekStatistics.exists) {
-                const lastAction = (weekStatistics.data().lastAction as FirebaseFirestore.Timestamp).toDate();
-                let days = weekStatistics.data().days as Array<number | null>;
-                const date = new Date();
-
-                let lastIndex = days.indexOf(null) - 1;
-
-                if (lastIndex === -1) {
-                    lastIndex = 6;
-                }
-
-                const daysDiff = Math.round(new Date(date.getTime() - lastAction.getTime()).getTime() / 1000 / 60 / 60 / 24);
-
-                if (lastIndex + daysDiff > 6) {
-                    days = [
-                        null, null, null, null, null, null, null
-                    ]
-                }
-
-                const newIndex = (lastIndex + daysDiff) % 7;
-
-                for (let i = 0; i < newIndex; i++) {
-                    if (days[i] === null) {
-                        days[i] = followers;
-                    }
-                }
-
-                if (days[newIndex] !== null) {
-                    days[newIndex] = (days[newIndex] + followers) / 2;
-                } else {
-                    days[newIndex] = followers;
-                }
-
-                await transaction.update(admin.firestore().collection('accounts').doc(account.docs[0].id).collection('statistics').doc('week'), {
-                    lastAction: admin.firestore.FieldValue.serverTimestamp(),
-                    days: days
-                });
-
-            } else {
-                await transaction.set(admin.firestore().collection('accounts').doc(account.docs[0].id).collection('statistics').doc('week'), {
-                    lastAction: admin.firestore.FieldValue.serverTimestamp(),
-                    days: [
-                        followers, null, null, null, null, null, null
-                    ]
-                });
-            }
-
-            if (monthStatistics.exists) {
-                const lastAction = (monthStatistics.data().lastAction as FirebaseFirestore.Timestamp).toDate();
-                let days = monthStatistics.data().days as Array<number | null>;
-                const date = new Date();
-
-                let lastIndex = days.indexOf(null) - 1;
-
-                if (lastIndex === -1) {
-                    lastIndex = 29;
-                }
-
-                const daysDiff = Math.round(new Date(date.getTime() - lastAction.getTime()).getTime() / 1000 / 60 / 60 / 24);
-
-                if (lastIndex + daysDiff > 29) {
-                    days = [
-                        null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
-                    ]
-                }
-
-                const newIndex = (lastIndex + daysDiff) % 30;
-
-                for (let i = 0; i < newIndex; i++) {
-                    if (days[i] === null) {
-                        days[i] = followers;
-                    }
-                }
-
-                if (days[newIndex] !== null) {
-                    days[newIndex] = (days[newIndex] + followers) / 2;
-                } else {
-                    days[newIndex] = followers;
-                }
-
-                await transaction.update(admin.firestore().collection('accounts').doc(account.docs[0].id).collection('statistics').doc('month'), {
-                    lastAction: admin.firestore.FieldValue.serverTimestamp(),
-                    days: days
-                });
-
-            } else {
-                await transaction.set(admin.firestore().collection('accounts').doc(account.docs[0].id).collection('statistics').doc('month'), {
-                    lastAction: admin.firestore.FieldValue.serverTimestamp(),
-                    days: [
-                        followers, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
+                        newFollowers, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
+                    ],
+                    days_of_week: [
+                        newFollowers, null, null, null, null, null, null
+                    ],
+                    days_of_month: [
+                        newFollowers, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
                     ]
                 });
             }
