@@ -535,7 +535,7 @@ async function recordStatsAsync(uid: string, id: number, newFollowers: number) {
                     return diff / 1000 / 60 / 60 / 24;
                 });
 
-                if (days_of_month_result.newLastAction) {
+                if (hours_of_day_result.newLastAction) {
                     await transaction.update(admin.firestore().collection('statistics').doc(account.docs[0].id), {
                         lastAction: admin.firestore.FieldValue.serverTimestamp(),
                         hours_of_day: hours_of_day_result.array,
@@ -553,7 +553,7 @@ async function recordStatsAsync(uid: string, id: number, newFollowers: number) {
             } else {
                 await transaction.set(admin.firestore().collection('statistics').doc(account.docs[0].id), {
                     lastAction: admin.firestore.FieldValue.serverTimestamp(),
-                    hours: [
+                    hours_of_day: [
                         newFollowers, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null
                     ],
                     days_of_week: [
