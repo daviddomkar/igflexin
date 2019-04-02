@@ -33,3 +33,5 @@
   **[] $VALUES;
   public *;
 }
+
+-keep class com.github.mikephil.charting.** { *; }

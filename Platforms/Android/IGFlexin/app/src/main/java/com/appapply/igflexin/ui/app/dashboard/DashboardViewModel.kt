@@ -6,13 +6,9 @@ import com.appapply.igflexin.repository.InstagramRepository
 class DashboardViewModel(private val instagramRepository: InstagramRepository) : ViewModel() {
 
     val instagramAccountsLiveData = instagramRepository.instagramAccountsLiveData
-    val instagramRecordsLiveData = instagramRepository.instagramRecordsLiveData
+    val instagramStatisticsLiveData = instagramRepository.instagramStatisticsLiveData
 
     fun setStatsID(id: Long) {
         instagramRepository.setStatsID(id)
-    }
-
-    fun setStatsPeriod(period: Int) {
-        instagramRepository.setStatsPeriod(period)
     }
 }

@@ -8,17 +8,15 @@ import androidx.work.*
 import com.appapply.igflexin.billing.Product
 import com.appapply.igflexin.common.InstagramStatusCode
 import com.appapply.igflexin.common.Resource
-import com.appapply.igflexin.common.StatsPeriod
 import com.appapply.igflexin.common.StatusCode
 import com.appapply.igflexin.events.Event
 import com.appapply.igflexin.livedata.InstagramRecordsLiveData
 import com.appapply.igflexin.livedata.firebase.FirebaseAuthStateLiveData
 import com.appapply.igflexin.livedata.firebase.FirebaseFirestoreQueryLiveData
 import com.appapply.igflexin.model.InstagramAccount
-import com.appapply.igflexin.model.InstagramRecord
+import com.appapply.igflexin.model.InstagramStatistics
 import com.appapply.igflexin.security.UserKeyManager
 import com.appapply.igflexin.workers.InstagramWorker
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.google.firebase.functions.FirebaseFunctions
@@ -33,7 +31,7 @@ interface InstagramRepository {
     val addInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
     val editInstagramAccountStatusLiveData: LiveData<Event<StatusCode>>
     val instagramAccountsLiveData: LiveData<Resource<List<InstagramAccount>>>
-    val instagramRecordsLiveData: LiveData<Resource<List<InstagramRecord>>>
+    val instagramStatisticsLiveData: LiveData<Resource<InstagramStatistics>>
 
     fun addInstagramAccount(username: String, password: String, subscriptionID: String)
     fun editInstagramUsername(id: Long, newUsername: String)
@@ -46,7 +44,6 @@ interface InstagramRepository {
     fun updateAccountWorkers(accounts: Iterable<InstagramAccount>)
 
     fun setStatsID(id: Long)
-    fun setStatsPeriod(period: Int)
 
     fun reset()
 }
@@ -82,7 +79,7 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
     override val instagramAccountsLiveData: LiveData<Resource<List<InstagramAccount>>>
         get() = instagramAccountsMutableLiveData
 
-    override val instagramRecordsLiveData: LiveData<Resource<List<InstagramRecord>>>
+    override val instagramStatisticsLiveData: LiveData<Resource<InstagramStatistics>>
         get() = instagramRecordsMutableLiveData
 
     override fun addInstagramAccount(username: String, password: String, subscriptionID: String) {
@@ -190,7 +187,7 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                     if (it.isSuccessful) {
 
                         val encryptedPassword = it.result!!.getString("encryptedPassword")!!
-                        val status = it.result!!.getString("status")!!
+                        // val status = it.result!!.getString("status")!!
 
                         GlobalScope.launch {
                             val instagram = Instagram4Android.builder().username(newUsername).password(decryptInstagramAccountPassword(key, encryptedPassword)).build()
@@ -274,7 +271,7 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
                     if (it.isSuccessful) {
 
                         val username = it.result!!.getString("username")!!
-                        val status = it.result!!.getString("status")!!
+                        // val status = it.result!!.getString("status")!!
 
                         GlobalScope.launch {
                             val instagram = Instagram4Android.builder().username(username).password(newPassword).build()
@@ -479,7 +476,6 @@ class InstagramRepositoryImpl(private val userKeyManager: UserKeyManager, privat
     }
 
     override fun setStatsID(id: Long) = instagramRecordsMutableLiveData.setStatsID(id)
-    override fun setStatsPeriod(period: Int) = instagramRecordsMutableLiveData.setStatsPeriod(period)
 
     override fun reset() {
         addInstagramAccountStatusMutableLiveData.value = null

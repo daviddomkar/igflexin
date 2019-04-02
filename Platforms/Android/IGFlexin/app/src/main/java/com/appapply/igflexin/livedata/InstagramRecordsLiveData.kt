@@ -4,26 +4,21 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import com.appapply.igflexin.common.InstagramStatusCode
 import com.appapply.igflexin.common.Resource
-import com.appapply.igflexin.common.StatsPeriod
 import com.appapply.igflexin.common.StatusCode
-import com.appapply.igflexin.model.InstagramRecord
-import com.google.firebase.Timestamp
+import com.appapply.igflexin.model.InstagramStatistics
 import com.google.firebase.firestore.*
 import com.google.firebase.firestore.EventListener
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.inject
-import java.util.*
+import kotlin.collections.ArrayList
 
-typealias Period = Int
-
-class InstagramRecordsLiveData: LiveData<Resource<List<InstagramRecord>>>(), KoinComponent {
+class InstagramRecordsLiveData: LiveData<Resource<InstagramStatistics>>(), KoinComponent {
 
     private val firestore: FirebaseFirestore by inject()
 
     private var listenerRegistration: ListenerRegistration? = null
 
     private var id: Long = -1
-    private var period = -1
 
     fun setStatsID(id: Long) {
         Log.d("IGFlexin_records", "Stats will load for id: $id")
@@ -34,63 +29,22 @@ class InstagramRecordsLiveData: LiveData<Resource<List<InstagramRecord>>>(), Koi
         }
     }
 
-    fun setStatsPeriod(period: Int) {
-        Log.d("IGFlexin_records", "Stats will load for period: $period")
-
-        if (this.period != period) {
-            this.period = period
-            updateRecordsIDAndPeriod()
-        }
-    }
-
     private fun updateRecordsIDAndPeriod() {
-
-        if (this.period == -1 || this.id == -1L)
+        if (this.id == -1L)
             return
 
-        val cal = Calendar.getInstance()
-
-        when (period) {
-            StatsPeriod.DAY -> {
-                cal.add(Calendar.HOUR, -24)
-            }
-            StatsPeriod.WEEK -> {
-                cal.add(Calendar.HOUR, -7 * 24)
-            }
-            StatsPeriod.MONTH -> {
-                cal.add(Calendar.HOUR, -7 * 24 * 30)
-            }
-        }
-
-        val timestamp = Timestamp(cal.time)
-
         listenerRegistration?.remove()
-        listenerRegistration = firestore.collection("records").whereEqualTo("id", id).whereGreaterThan("time", timestamp).addSnapshotListener(MetadataChanges.EXCLUDE, InstagramRecordsListener(this.period))
+        listenerRegistration = firestore.collection("statistics").document(id.toString()).addSnapshotListener(MetadataChanges.EXCLUDE, InstagramRecordsListener())
     }
 
     override fun onActive() {
         super.onActive()
 
-        if (this.period == -1 || this.id == -1L)
+        if (this.id == -1L)
             return
 
-        val cal = Calendar.getInstance()
-
-        when (period) {
-            StatsPeriod.DAY -> {
-                cal.add(Calendar.HOUR, -24)
-            }
-            StatsPeriod.WEEK -> {
-                cal.add(Calendar.HOUR, -7 * 24)
-            }
-            StatsPeriod.MONTH -> {
-                cal.add(Calendar.HOUR, -7 * 24 * 30)
-            }
-        }
-
-        val timestamp = Timestamp(cal.time)
-
-        listenerRegistration = firestore.collection("records").whereEqualTo("id", id).whereGreaterThan("time", timestamp).addSnapshotListener(MetadataChanges.EXCLUDE, InstagramRecordsListener(this.period))
+        listenerRegistration?.remove()
+        listenerRegistration = firestore.collection("statistics").document(id.toString()).addSnapshotListener(MetadataChanges.EXCLUDE, InstagramRecordsListener())
     }
 
     override fun onInactive() {
@@ -98,31 +52,23 @@ class InstagramRecordsLiveData: LiveData<Resource<List<InstagramRecord>>>(), Koi
         listenerRegistration?.remove()
     }
 
-    inner class InstagramRecordsListener(private val check_period: Period): EventListener<QuerySnapshot> {
+    inner class InstagramRecordsListener: EventListener<DocumentSnapshot> {
 
-        override fun onEvent(snapshot: QuerySnapshot?, exception: FirebaseFirestoreException?) {
-
-            var resource = Resource<List<InstagramRecord>>(StatusCode.ERROR, null)
+        override fun onEvent(snapshot: DocumentSnapshot?, exception: FirebaseFirestoreException?) {
+            var resource = Resource<InstagramStatistics>(StatusCode.ERROR, null)
 
             if (snapshot != null) {
-                val records = snapshot.documents.map {
-                    val instagramId = it.getLong("id")!!
-                    val timestamp = it.getTimestamp("time", DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)!!
-                    val followers = it.getLong("followers")!!
-                    InstagramRecord(instagramId, timestamp, followers)
-                }
+                if (snapshot.exists()) {
 
-                if (!records.isEmpty()) {
-                    if (check_period == period && records[0].instagramId == id) {
-                        resource = Resource(StatusCode.SUCCESS, records)
-                        Log.d("IGFlexin_records", "Stats loaded for period: $period")
-                    }
+
+
+                    val statistics = InstagramStatistics(snapshot.getTimestamp("lastAction", DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)!!.toDate(), snapshot.get("hours_of_day")!! as ArrayList<Number?>, snapshot.get("days_of_week")!! as ArrayList<Number?>, snapshot.get("days_of_month")!! as ArrayList<Number?>)
+                    resource = Resource(StatusCode.SUCCESS, statistics)
+                    Log.d("IGFlexin_records", "Stats loaded for id: ${snapshot.id}")
                 } else {
                     resource = Resource(InstagramStatusCode.DATA_EMPTY, null)
                 }
-
             }
-
             value = resource
         }
     }

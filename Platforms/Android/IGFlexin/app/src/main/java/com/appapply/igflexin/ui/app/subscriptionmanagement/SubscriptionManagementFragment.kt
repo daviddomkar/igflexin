@@ -14,19 +14,11 @@ import com.appapply.igflexin.events.EventObserver
 import com.appapply.igflexin.ui.app.AppViewModel
 import kotlinx.android.synthetic.main.subscription_management_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import java.lang.Exception
 
 class SubscriptionManagementFragment : Fragment(), OnBackPressedListener {
 
     private val viewModel: SubscriptionManagementViewModel by sharedViewModel()
     private val appViewModel: AppViewModel by sharedViewModel()
-
-    // This will crash the app, used for testing
-    /*
-    init {
-        requireContext()
-    }
-    */
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.subscription_management_fragment, container, false)
@@ -52,7 +44,7 @@ class SubscriptionManagementFragment : Fragment(), OnBackPressedListener {
 
                 if (data.subscriptionID != viewModel.lastSubscription) {
                     viewModel.lastSubscription = "none"
-                    if (viewModel.addInstagramAccountStatusLiveData.value == null || (viewModel.addInstagramAccountStatusLiveData.value != null&& viewModel.addInstagramAccountStatusLiveData.value!!.peekContent() != StatusCode.PENDING)) {
+                    if (viewModel.addInstagramAccountStatusLiveData.value == null || (viewModel.addInstagramAccountStatusLiveData.value != null && viewModel.addInstagramAccountStatusLiveData.value!!.peekContent() != StatusCode.PENDING)) {
                         appViewModel.showProgressBar(false)
                     }
                 }
