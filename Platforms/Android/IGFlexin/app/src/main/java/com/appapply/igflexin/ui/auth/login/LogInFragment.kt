@@ -3,11 +3,18 @@ package com.appapply.igflexin.ui.auth.login
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextPaint
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.fragment.findNavController
 
 import com.appapply.igflexin.R
@@ -71,6 +78,33 @@ class LogInFragment : Fragment() {
                 viewModel.signIn(email, password)
             }
         }
+
+        val forgotPasswordSpannableString = SpannableString("Forgot password?")
+        val forgotPasswordClickableSpan = object : ClickableSpan() {
+            override fun onClick(textView: View) {
+                val dialogBuilder = AlertDialog.Builder(requireContext())
+
+                dialogBuilder.setTitle("Password reset")
+                dialogBuilder.setPositiveButton("SEND") { dialogInterface, _ ->
+                    dialogInterface.cancel()
+                }
+
+                dialogBuilder.setCancelable(false)
+
+                val dialog = dialogBuilder.create()
+                dialog.show()
+            }
+
+            override fun updateDrawState(textPaint: TextPaint) {
+                super.updateDrawState(textPaint)
+                textPaint.isUnderlineText = true
+            }
+        }
+        forgotPasswordSpannableString.setSpan(forgotPasswordClickableSpan, 0, 16, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        forgotPasswordTextView.text = forgotPasswordSpannableString
+        forgotPasswordTextView.movementMethod = LinkMovementMethod.getInstance()
+        forgotPasswordTextView.highlightColor = ResourcesCompat.getColor(resources, R.color.colorAccent, null)
     }
 
     private fun validateEmail(email: String): Boolean {

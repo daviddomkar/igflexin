@@ -9,6 +9,7 @@ import com.appapply.igflexin.repository.*
 import com.appapply.igflexin.security.UserKeyManager
 import com.appapply.igflexin.ui.app.AppViewModel
 import com.appapply.igflexin.ui.app.dashboard.DashboardViewModel
+import com.appapply.igflexin.ui.app.dashboard.dashboardtab.DashboardTabViewModel
 import com.appapply.igflexin.ui.app.instagramaccounts.InstagramAccountsViewModel
 import com.appapply.igflexin.ui.app.subscriptionmanagement.SubscriptionManagementViewModel
 import com.appapply.igflexin.ui.app.subscriptionmanagement.subscriptiontab.SubscriptionTabViewModel
@@ -67,6 +68,7 @@ val appModule = module {
     viewModel { InstagramAccountsViewModel(get(), get()) }
 
     viewModel { DashboardViewModel(get()) }
+    viewModel { DashboardTabViewModel(get()) }
 }
 
 val firebaseModule = module {
