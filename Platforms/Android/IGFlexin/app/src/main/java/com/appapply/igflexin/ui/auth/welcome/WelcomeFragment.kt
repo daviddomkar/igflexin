@@ -24,6 +24,9 @@ import com.google.firebase.auth.AuthCredential
 import kotlinx.android.synthetic.main.welcome_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import android.content.Intent
+import android.net.Uri
+import java.lang.Exception
 
 class WelcomeFragment : Fragment() {
 
@@ -82,7 +85,7 @@ class WelcomeFragment : Fragment() {
         val howItWorksSpannableString = SpannableString(getString(R.string.how_it_works_see_for_yourself))
         val howItWorksClickableSpan = object : ClickableSpan() {
             override fun onClick(textView: View) {
-
+                // TODO How it works
             }
 
             override fun updateDrawState(textPaint: TextPaint) {
@@ -99,7 +102,9 @@ class WelcomeFragment : Fragment() {
         val acceptingTermsSpannableString = SpannableString(getString(R.string.by_creating_an_account_i_accept_igflexin_s_terms_of_service))
         val acceptingTermsClickableSpan = object : ClickableSpan() {
             override fun onClick(textView: View) {
-
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://igflexin.app/privacy-policy.htm")))
+                } catch (e: Exception) {}
             }
 
             override fun updateDrawState(textPaint: TextPaint) {
