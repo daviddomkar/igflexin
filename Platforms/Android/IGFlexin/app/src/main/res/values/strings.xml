@@ -105,6 +105,7 @@
     <string name="getting_you_more_followers">Getting you more followers!</string>
     <string name="no_internet_connection">No internet connection!</string>
     <string name="new_username">New username</string>
+    <string name="contact">Contact us</string>
     <string-array name="edit_options">
         <item>Edit username</item>
         <item>Edit password</item>

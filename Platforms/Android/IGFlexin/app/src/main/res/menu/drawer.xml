@@ -19,9 +19,9 @@
     <group
         android:id="@+id/menu_bottom"
         android:checkableBehavior="none">
-        <!--<item
-            android:icon="@drawable/ic_settings_white_24dp"
-            android:title="@string/settings" />-->
+        <item
+            android:icon="@drawable/ic_email_white_24dp"
+            android:title="@string/contact" />
         <item
             android:id="@+id/signOutMenuItem"
             android:icon="@drawable/ic_exit_to_app_white_24dp"
