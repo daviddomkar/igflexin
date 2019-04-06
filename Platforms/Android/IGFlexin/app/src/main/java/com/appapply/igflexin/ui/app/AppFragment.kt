@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ShareCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
@@ -178,6 +179,12 @@ class AppFragment : Fragment(), OnBackPressedFinishListener, BottomNavigationVie
                 }
                 R.id.navigationSubscriptionManagement -> {
                     if (viewPager.currentItem != 2) viewPager.currentItem = 2
+                }
+                R.id.contactMenuItem -> {
+                    ShareCompat.IntentBuilder.from(activity)
+                        .setType("message/rfc822")
+                        .addEmailTo("support@igflexin.app")
+                        .startChooser()
                 }
                 R.id.signOutMenuItem -> {
                     viewModel.signOut()

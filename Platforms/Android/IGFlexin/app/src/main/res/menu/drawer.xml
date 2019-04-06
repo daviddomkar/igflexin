@@ -20,6 +20,7 @@
         android:id="@+id/menu_bottom"
         android:checkableBehavior="none">
         <item
+            android:id="@+id/contactMenuItem"
             android:icon="@drawable/ic_email_white_24dp"
             android:title="@string/contact" />
         <item
