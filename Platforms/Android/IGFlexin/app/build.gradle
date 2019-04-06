@@ -14,8 +14,8 @@ android {
         applicationId "com.appapply.igflexin"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 10
-        versionName "0.0.10"
+        versionCode 11
+        versionName "0.0.11"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

@@ -18,7 +18,11 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.fragment.findNavController
 
 import com.appapply.igflexin.R
+import com.appapply.igflexin.common.StatusCode
+import com.appapply.igflexin.events.EventObserver
 import com.appapply.igflexin.ui.auth.AuthViewModel
+import kotlinx.android.synthetic.main.dialog_reset_password.*
+import kotlinx.android.synthetic.main.dialog_reset_password.view.*
 import kotlinx.android.synthetic.main.log_in_fragment.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -83,15 +87,29 @@ class LogInFragment : Fragment() {
         val forgotPasswordClickableSpan = object : ClickableSpan() {
             override fun onClick(textView: View) {
                 val dialogBuilder = AlertDialog.Builder(requireContext())
+                val dialogView = layoutInflater.inflate(R.layout.dialog_reset_password, null)
 
                 dialogBuilder.setTitle("Password reset")
-                dialogBuilder.setPositiveButton("SEND") { dialogInterface, _ ->
+                dialogBuilder.setView(dialogView)
+                dialogBuilder.setPositiveButton("SEND", null)
+                dialogBuilder.setNegativeButton(R.string.cancel) { dialogInterface, _ ->
                     dialogInterface.cancel()
                 }
 
                 dialogBuilder.setCancelable(false)
 
                 val dialog = dialogBuilder.create()
+
+                dialog.setOnShowListener {
+                    (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                        if(dialogView.emailEditText.text.isNullOrBlank() || !validateEmail(dialogView.emailEditText.text.toString())) return@setOnClickListener
+
+                        viewModel.resetPassword(dialog.emailEditText.text.toString())
+
+                        dialog.dismiss()
+                    }
+                }
+
                 dialog.show()
             }
 
@@ -105,6 +123,26 @@ class LogInFragment : Fragment() {
         forgotPasswordTextView.text = forgotPasswordSpannableString
         forgotPasswordTextView.movementMethod = LinkMovementMethod.getInstance()
         forgotPasswordTextView.highlightColor = ResourcesCompat.getColor(resources, R.color.colorAccent, null)
+
+        viewModel.passwordResetStatusLiveData.observe(this, EventObserver {
+            when (it) {
+                StatusCode.PENDING -> {
+                    authViewModel.showProgressBar(true)
+                }
+                StatusCode.SUCCESS -> {
+                    authViewModel.showProgressBar(false)
+                    authViewModel.snack("Password reset email was sent!")
+                }
+                StatusCode.NETWORK_ERROR -> {
+                    authViewModel.showProgressBar(false)
+                    authViewModel.snack("Error occurred while sending an email, no internet connection!")
+                }
+                StatusCode.ERROR -> {
+                    authViewModel.showProgressBar(false)
+                    authViewModel.snack("Error occurred while sending an email!")
+                }
+            }
+        })
     }
 
     private fun validateEmail(email: String): Boolean {

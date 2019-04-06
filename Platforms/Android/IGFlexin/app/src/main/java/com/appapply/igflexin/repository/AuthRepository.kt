@@ -14,6 +14,7 @@ import com.google.firebase.functions.FirebaseFunctions
 interface AuthRepository {
     val authErrorLiveData: LiveData<Event<StatusCode>>
     val emailSentStatusLiveData: LiveData<Event<StatusCode>>
+    val passwordResetStatusLiveData: LiveData<Event<StatusCode>>
 
     fun signIn(email: String, password: String)
     fun signUp(name: String, email: String, password: String)
@@ -21,17 +22,22 @@ interface AuthRepository {
     fun signOut()
 
     fun sendVerificationEmail()
+    fun resetPassword(email: String)
 }
 
 class FirebaseAuthRepository(private val firebaseAuth: FirebaseAuth, private val firebaseFunctions: FirebaseFunctions) : AuthRepository {
     private val authErrorMutableLiveData: MutableLiveData<Event<StatusCode>> = MutableLiveData()
     private val emailSentStatusMutableLiveData: MutableLiveData<Event<StatusCode>> = MutableLiveData()
+    private val passwordResetStatusMutableLiveData: MutableLiveData<Event<StatusCode>> = MutableLiveData()
 
     override val authErrorLiveData: LiveData<Event<StatusCode>>
         get() = authErrorMutableLiveData
 
     override val emailSentStatusLiveData: LiveData<Event<StatusCode>>
         get() = emailSentStatusMutableLiveData
+
+    override val passwordResetStatusLiveData: LiveData<Event<StatusCode>>
+        get() = passwordResetStatusMutableLiveData
 
     override fun signIn(email: String, password: String) {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
@@ -105,6 +111,20 @@ class FirebaseAuthRepository(private val firebaseAuth: FirebaseAuth, private val
                     emailSentStatusMutableLiveData.value = Event(StatusCode.NETWORK_ERROR)
                 else
                     emailSentStatusMutableLiveData.value = Event(StatusCode.ERROR)
+            }
+        }
+    }
+
+    override fun resetPassword(email: String) {
+        passwordResetStatusMutableLiveData.value = Event(StatusCode.PENDING)
+        firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener {
+            if (it.isSuccessful) {
+                passwordResetStatusMutableLiveData.value = Event(StatusCode.SUCCESS)
+            } else {
+                if(it.exception != null && it.exception is FirebaseNetworkException)
+                    passwordResetStatusMutableLiveData.value = Event(StatusCode.NETWORK_ERROR)
+                else
+                    passwordResetStatusMutableLiveData.value = Event(StatusCode.ERROR)
             }
         }
     }
