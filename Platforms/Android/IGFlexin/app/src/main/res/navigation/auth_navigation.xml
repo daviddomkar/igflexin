@@ -24,6 +24,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_welcomeFragment_to_howItWorksFragment"
+            app:destination="@id/howItWorksFragment"
+            app:enterAnim="@anim/slide_in_down"
+            app:exitAnim="@anim/slide_out_down"
+            app:popEnterAnim="@anim/slide_in_down"
+            app:popExitAnim="@anim/slide_out_down" />
     </fragment>
     <fragment
         android:id="@+id/logInFragment"
@@ -35,4 +42,9 @@
         android:name="com.appapply.igflexin.ui.auth.signup.SignUpFragment"
         android:label="sign_up_fragment"
         tools:layout="@layout/sign_up_fragment" />
+    <fragment
+        android:id="@+id/howItWorksFragment"
+        android:name="com.appapply.igflexin.ui.auth.howitworks.HowItWorksFragment"
+        android:label="how_it_works_fragment"
+        tools:layout="@layout/how_it_works_fragment" />
 </navigation>

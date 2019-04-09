@@ -85,7 +85,7 @@ class WelcomeFragment : Fragment() {
         val howItWorksSpannableString = SpannableString(getString(R.string.how_it_works_see_for_yourself))
         val howItWorksClickableSpan = object : ClickableSpan() {
             override fun onClick(textView: View) {
-                // TODO How it works
+                findNavController().navigate(R.id.action_welcomeFragment_to_howItWorksFragment)
             }
 
             override fun updateDrawState(textPaint: TextPaint) {
