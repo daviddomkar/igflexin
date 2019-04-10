@@ -1,7 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:igflexin/src/app.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(IGFlexinApp());
 
+
+// Tyhle mrdky se možná budou hodit xddd 
+
+/*
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -24,7 +29,9 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+*/
 
+/*
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -109,3 +116,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+*/
