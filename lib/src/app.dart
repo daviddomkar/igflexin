@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:igflexin/src/ui/auth_ui.dart';
+
 class IGFlexinApp extends StatelessWidget {
 
   @override
@@ -11,28 +13,13 @@ class IGFlexinApp extends StatelessWidget {
       systemNavigationBarColor: Colors.transparent,
     ));
 
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: [0.0, 1.0],
-          colors: [
-            Color.fromARGB(255, 223, 61, 139),
-            Color.fromARGB(255, 255, 161, 94)
-          ],
-        ),
+    return MaterialApp(
+      theme: ThemeData(
+        fontFamily: 'LatoLatin',
+        primaryColor: Color.fromARGB(255, 223, 61, 139),
+        accentColor: Color.fromARGB(255, 255, 161, 94),
       ),
-      child: Center(
-          child: Text(
-            'Hello World',
-            textDirection: TextDirection.ltr,
-            style: TextStyle(
-              fontSize: 32,
-              color: Colors.white,
-            ),
-          )
-      ),
+      home: Auth(),
     );
   }
 }
