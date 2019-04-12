@@ -1,37 +1,36 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_system_bars/flutter_system_bars.dart';
 
 import 'package:igflexin/src/utils.dart';
 
 class Auth extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
-      resizeToAvoidBottomInset: false,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             stops: [0.0, 1.0],
-            colors: [
-              Color.fromARGB(255, 223, 61, 139),
-              Color.fromARGB(255, 255, 161, 94)
-            ],
+            colors: [Color.fromARGB(255, 223, 61, 139), Color.fromARGB(255, 255, 161, 94)],
           ),
         ),
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints viewportConstraints) {
             return SingleChildScrollView(
               child: ConstrainedBox(
-                  constraints: BoxConstraints(
+                constraints: BoxConstraints(
                   minHeight: viewportConstraints.maxHeight,
                 ),
-                child: IntroScreen()
+                child: IntrinsicHeight(
+                  child: IntroScreen(),
+                ),
               ),
             );
           },
@@ -42,168 +41,10 @@ class Auth extends StatelessWidget {
 }
 
 class IntroScreen extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        TopMessage(),
-        Intro(),
-        PrivacyPolicy()
-      ],
-    );
-  }
-}
-
-class TopMessage extends StatefulWidget {
-  @override
-  _TopMessage createState() => _TopMessage();
-}
-
-class _TopMessage extends State<TopMessage> with SingleTickerProviderStateMixin {
-
-  AnimationController _controller;
-  Animation<double> _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 3450),
-      vsync: this,
-    );
-
-    _opacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: new Interval(
-        0.150,
-        1.000,
-        curve: Curves.fastLinearToSlowEaseIn
-      ),
-    ));
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
-  }
-
-  Widget _buildAnimation(BuildContext context, Widget child) {
-    return Opacity(
-      opacity: _opacity.value,
-      child: Text(
-        'Reach Instagram popularity rapidly!',
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr,
-        style: TextStyle(
-          fontSize: Utils.computeResponsivity(14.0, context),
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center (
-      child: Padding( 
-        padding: EdgeInsets.symmetric(vertical: Utils.computeResponsivity(50.0, context)),
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: _buildAnimation,
-        ),
-      ),
-    );
-  }
-}
-
-class PrivacyPolicy extends StatefulWidget {
-  @override
-  _PrivacyPolicy createState() => _PrivacyPolicy();
-}
-
-class _PrivacyPolicy extends State<PrivacyPolicy> with SingleTickerProviderStateMixin {
-
-  AnimationController _controller;
-  Animation<double> _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 3450),
-      vsync: this,
-    );
-
-    _opacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: new Interval(
-        0.150,
-        1.000,
-        curve: Curves.fastLinearToSlowEaseIn
-      ),
-    ));
-
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
-  }
-
-  Widget _buildAnimation(BuildContext context, Widget child) {
-    return Opacity(
-      opacity: _opacity.value,
-      child: RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: 'By using this app, you agree with IGFlexin\'s',
-              style: TextStyle(color: Colors.white)
-            ),
-            TextSpan(
-              text: '\nPrivacy Policy',
-              style: TextStyle(color: Colors.white, decoration: TextDecoration.underline, fontWeight: FontWeight.bold),
-              recognizer: TapGestureRecognizer()
-                ..onTap = () { launch('https://igflexin.app/privacy-policy.htm'); }
-            ),
-            TextSpan(
-              text: ' and ',
-              style: TextStyle(color: Colors.white)
-            ),
-            TextSpan(
-              text: 'Terms of Service',
-              style: TextStyle(color: Colors.white, decoration: TextDecoration.underline, fontWeight: FontWeight.bold),
-              recognizer: TapGestureRecognizer()
-                ..onTap = () { launch('https://igflexin.app/privacy-policy.htm'); }
-            ),
-            TextSpan(
-              text: '.',
-              style: TextStyle(color: Colors.white)
-            )
-          ]
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: Utils.computeResponsivity(50.0, context)),
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: _buildAnimation,
-      ),
+      children: <Widget>[Intro(), PrivacyPolicy()],
     );
   }
 }
@@ -214,7 +55,6 @@ class Intro extends StatefulWidget {
 }
 
 class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
-
   AnimationController _controller;
   Animation<double> _opacity;
   Animation<double> _offsetY;
@@ -229,20 +69,12 @@ class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
 
     _opacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: _controller,
-      curve: new Interval(
-        0.150,
-        1.000,
-        curve: Curves.fastLinearToSlowEaseIn
-      ),
+      curve: new Interval(0.150, 1.000, curve: Curves.fastLinearToSlowEaseIn),
     ));
 
     _offsetY = Tween(begin: 5.0, end: 0.0).animate(CurvedAnimation(
       parent: _controller,
-      curve: new Interval(
-        0.150,
-        1.000,
-        curve: Curves.fastLinearToSlowEaseIn
-      ),
+      curve: new Interval(0.150, 1.000, curve: Curves.fastLinearToSlowEaseIn),
     ));
 
     _controller.forward();
@@ -256,54 +88,38 @@ class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
 
   Widget _buildAnimation(BuildContext context, Widget child) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Transform.translate(
           offset: Offset(0.0, _offsetY.value),
           child: Opacity(
             opacity: _opacity.value,
             child: Text(
-              'Hi,',
+              'Hello.',
               textDirection: TextDirection.ltr,
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: Utils.computeResponsivity(40.0, context),
-                fontWeight: FontWeight.w800,
+                fontSize: Utils.computeResponsivity(52.0, context),
+                fontWeight: FontWeight.w900,
                 color: Colors.white,
               ),
             ),
           ),
         ),
-        Container (
-          margin: EdgeInsets.only(top: Utils.computeResponsivity(15.0, context)),
-          width: Utils.computeResponsivity(300.0, context),
+        Container(
+          margin: EdgeInsets.only(top: Utils.computeResponsivity(24.0, context)),
+          width: Utils.computeResponsivity(360.0, context),
           child: Transform.translate(
             offset: Offset(0.0, _offsetY.value),
-              child: Opacity(
-                opacity: _opacity.value, 
-                child: Text (
-                'Do you want your business to become more visible or just wanna get some fame on Instagram?',
+            child: Opacity(
+              opacity: _opacity.value,
+              child: Text(
+                'Log In and take your Instagram business to the next level.',
                 textDirection: TextDirection.ltr,
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: Utils.computeResponsivity(32.0, context),
+                  fontSize: Utils.computeResponsivity(22.0, context),
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ),
-        Container (
-          margin: EdgeInsets.only(top: Utils.computeResponsivity(15.0, context)),
-          width: Utils.computeResponsivity(290.0, context),
-          child: Transform.translate(
-            offset: Offset(0.0, _offsetY.value),
-              child: Opacity(
-                opacity: _opacity.value, 
-                child: Text(
-                "Doesn't matter, our app can help you.",
-                textDirection: TextDirection.ltr,
-                style: TextStyle(
-                  fontSize: Utils.computeResponsivity(25.0, context),
                   color: Colors.white,
                 ),
               ),
@@ -315,7 +131,7 @@ class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
           child: Container(
             width: Utils.computeResponsivity(300.0, context),
             height: Utils.computeResponsivity(50.0, context),
-            margin: EdgeInsets.only(top: Utils.computeResponsivity(30.0, context)),
+            margin: EdgeInsets.only(top: Utils.computeResponsivity(70.0, context)),
             child: SignUpButton(),
           ),
         ),
@@ -334,38 +150,51 @@ class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.only(right: Utils.computeResponsivity(40.0, context), left: Utils.computeResponsivity(40.0, context)),
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: _buildAnimation,
-        )
-      ),
-    );
+    return SystemBarsInfoProvider(
+        child: Center(
+          child: Padding(
+              padding: EdgeInsets.symmetric(
+                  vertical: Utils.computeResponsivity(0.0, context),
+                  horizontal: Utils.computeResponsivity(40.0, context)),
+              child: AnimatedBuilder(animation: _controller, builder: _buildAnimation)),
+        ),
+        builder: (context, child, systemBarsInfo, orientation) {
+          return Expanded(
+            child: Container(
+                constraints:
+                    BoxConstraints.expand(height: Utils.computeResponsivity(480.0, context)),
+                margin: EdgeInsets.only(
+                    top: (orientation == Orientation.portrait
+                            ? Utils.computeResponsivity(50.0, context)
+                            : 0.0) +
+                        systemBarsInfo.navigationBarHeight),
+                child: child),
+          );
+        });
   }
 }
 
 class SignUpButton extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
-    return RaisedButton ( 
-      highlightElevation: 0,  
+    return RaisedButton(
+      highlightElevation: 0,
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0), side: BorderSide(
-        color: Colors.white,
-      )),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50.0),
+          side: BorderSide(
+            color: Colors.white,
+          )),
       color: Colors.transparent,
-      child: Text (
-        'Sign up',
+      child: Text(
+        "I am new to this app",
         textDirection: TextDirection.ltr,
         style: TextStyle(
           fontSize: Utils.computeResponsivity(16.0, context),
-          fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-      ), onPressed: () {
+      ),
+      onPressed: () {
         // TODO onPressed
       },
     );
@@ -373,25 +202,115 @@ class SignUpButton extends StatelessWidget {
 }
 
 class LogInButton extends StatelessWidget {
-
   @override
-  Widget build(BuildContext context) {;
-    return RaisedButton ( 
-      highlightElevation: 0,  
+  Widget build(BuildContext context) {
+    ;
+    return RaisedButton(
+      highlightElevation: 0,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
       color: Colors.white,
-      child: Text (
-        'Log In',
+      child: Text(
+        'I have an account already',
         textDirection: TextDirection.ltr,
         style: TextStyle(
           fontSize: Utils.computeResponsivity(16.0, context),
-          fontWeight: FontWeight.bold,
           color: Color.fromARGB(255, 223, 61, 139),
         ),
-      ), onPressed: () {
+      ),
+      onPressed: () {
         // TODO onPressed
       },
+    );
+  }
+}
+
+class PrivacyPolicy extends StatefulWidget {
+  @override
+  _PrivacyPolicy createState() => _PrivacyPolicy();
+}
+
+class _PrivacyPolicy extends State<PrivacyPolicy> with SingleTickerProviderStateMixin {
+  AnimationController _controller;
+  Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 3450),
+      vsync: this,
+    );
+
+    _opacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: new Interval(0.150, 1.000, curve: Curves.fastLinearToSlowEaseIn),
+    ));
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+
+  Widget _buildAnimation(BuildContext context, Widget child) {
+    return Opacity(
+      opacity: _opacity.value,
+      child: RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(children: [
+          TextSpan(
+              text: 'By using this app you agree with IGFlexin\'s\n',
+              style: TextStyle(
+                  color: Colors.white, fontSize: Utils.computeResponsivity(14.0, context))),
+          TextSpan(
+              text: 'Terms of Service',
+              style: TextStyle(
+                  color: Colors.white,
+                  decoration: TextDecoration.underline,
+                  fontWeight: FontWeight.bold,
+                  fontSize: Utils.computeResponsivity(14.0, context)),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  launch('https://igflexin.app/privacy-policy.htm');
+                }),
+          TextSpan(
+              text: ' and ',
+              style: TextStyle(
+                  color: Colors.white, fontSize: Utils.computeResponsivity(14.0, context))),
+          TextSpan(
+              text: 'Privacy Policy',
+              style: TextStyle(
+                  color: Colors.white,
+                  decoration: TextDecoration.underline,
+                  fontWeight: FontWeight.bold,
+                  fontSize: Utils.computeResponsivity(14.0, context)),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  launch('https://igflexin.app/privacy-policy.htm');
+                }),
+          TextSpan(
+              text: '.',
+              style: TextStyle(
+                  color: Colors.white, fontSize: Utils.computeResponsivity(14.0, context)))
+        ]),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SystemBarsMarginBox(
+      statusBarMargin: false,
+      child: SizedBox(
+          height: Utils.computeResponsivity(50.0, context),
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: _buildAnimation,
+          )),
     );
   }
 }
