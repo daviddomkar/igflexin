@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/material.dart' hide Route;
+import 'package:igflexin/src/router.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
@@ -29,7 +29,20 @@ class Auth extends StatelessWidget {
                   minHeight: viewportConstraints.maxHeight,
                 ),
                 child: IntrinsicHeight(
-                  child: IntroScreen(),
+                  child: Router(
+                      name: 'auth',
+                      routes: [
+                        Route('intro', (context) {
+                          return IntroScreen();
+                        }, clearsHistory: true),
+                        Route('login', (context) {
+                          return LogInScreen();
+                        }),
+                        Route('create_account', (context) {
+                          return CreateAccountScreen();
+                        })
+                      ],
+                      startingRoute: 'intro'),
                 ),
               ),
             );
@@ -41,6 +54,24 @@ class Auth extends StatelessWidget {
 }
 
 class IntroScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[Intro(), PrivacyPolicy()],
+    );
+  }
+}
+
+class LogInScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[Intro()],
+    );
+  }
+}
+
+class CreateAccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -78,12 +109,14 @@ class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
     ));
 
     _controller.forward();
+    RouterController.withName('auth').registerAnimationController(_controller);
   }
 
   @override
   void dispose() {
-    super.dispose();
+    RouterController.withName('auth').unregisterAnimationController(_controller);
     _controller.dispose();
+    super.dispose();
   }
 
   Widget _buildAnimation(BuildContext context, Widget child) {
@@ -195,7 +228,7 @@ class SignUpButton extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        // TODO onPressed
+        RouterController.withName('main').switchRoute('app');
       },
     );
   }
@@ -204,7 +237,6 @@ class SignUpButton extends StatelessWidget {
 class LogInButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    ;
     return RaisedButton(
       highlightElevation: 0,
       elevation: 0,
@@ -219,7 +251,7 @@ class LogInButton extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        // TODO onPressed
+        RouterController.withName('auth').switchRoute('login');
       },
     );
   }
@@ -252,8 +284,8 @@ class _PrivacyPolicy extends State<PrivacyPolicy> with SingleTickerProviderState
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
+    super.dispose();
   }
 
   Widget _buildAnimation(BuildContext context, Widget child) {
