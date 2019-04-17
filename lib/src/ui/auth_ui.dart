@@ -33,13 +33,13 @@ class Auth extends StatelessWidget {
                       name: 'auth',
                       routes: [
                         Route('intro', (context) {
-                          return IntroScreen();
+                          return Intro();
                         }, clearsHistory: true),
                         Route('login', (context) {
-                          return LogInScreen();
+                          return LogIn();
                         }),
                         Route('create_account', (context) {
-                          return CreateAccountScreen();
+                          return CreateAccount();
                         })
                       ],
                       startingRoute: 'intro'),
@@ -53,59 +53,91 @@ class Auth extends StatelessWidget {
   }
 }
 
-class IntroScreen extends StatelessWidget {
+class Intro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[Intro(), PrivacyPolicy()],
+      children: <Widget>[HelloMessageAndButtons(), PrivacyPolicy()],
     );
   }
 }
 
-class LogInScreen extends StatelessWidget {
+class LogIn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[Intro()],
+      children: <Widget>[LogInForm()],
     );
   }
 }
 
-class CreateAccountScreen extends StatelessWidget {
+class CreateAccount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[Intro(), PrivacyPolicy()],
+      children: <Widget>[HelloMessageAndButtons(), PrivacyPolicy()],
     );
   }
 }
 
-class Intro extends StatefulWidget {
+class LogInForm extends StatelessWidget {
   @override
-  _Intro createState() => _Intro();
+  Widget build(BuildContext context) {
+    return Text('LOG IN TO YOUR ACCOUNT');
+  }
 }
 
-class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
+class HelloMessageAndButtons extends StatefulWidget {
+  @override
+  _HelloMessageAndButtons createState() => _HelloMessageAndButtons();
+}
+
+class _HelloMessageAndButtons extends State<HelloMessageAndButtons>
+    with SingleTickerProviderStateMixin {
   AnimationController _controller;
-  Animation<double> _opacity;
-  Animation<double> _offsetY;
+  Animation<double> _opacityTitle;
+  Animation<double> _offsetYTitle;
+  Animation<double> _opacitySubtitle;
+  Animation<double> _offsetYSubtitle;
+  Animation<double> _scaleSignUpButton;
+  Animation<double> _scaleLogInButton;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 3450),
+      duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
-    _opacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+    _opacityTitle = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: _controller,
-      curve: new Interval(0.150, 1.000, curve: Curves.fastLinearToSlowEaseIn),
+      curve: new Interval(0.000, 0.250, curve: Curves.easeOut),
     ));
 
-    _offsetY = Tween(begin: 5.0, end: 0.0).animate(CurvedAnimation(
+    _offsetYTitle = Tween(begin: 15.0, end: 0.0).animate(CurvedAnimation(
       parent: _controller,
-      curve: new Interval(0.150, 1.000, curve: Curves.fastLinearToSlowEaseIn),
+      curve: new Interval(0.000, 0.250, curve: Curves.easeOut),
+    ));
+
+    _opacitySubtitle = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
+    ));
+
+    _offsetYSubtitle = Tween(begin: 15.0, end: 0.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
+    ));
+
+    _scaleSignUpButton = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: new Interval(0.400, 0.900, curve: Curves.elasticOut),
+    ));
+
+    _scaleLogInButton = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: new Interval(0.500, 1.000, curve: Curves.elasticOut),
     ));
 
     _controller.forward();
@@ -124,9 +156,9 @@ class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Transform.translate(
-          offset: Offset(0.0, _offsetY.value),
+          offset: Offset(0.0, _offsetYTitle.value),
           child: Opacity(
-            opacity: _opacity.value,
+            opacity: _opacityTitle.value,
             child: Text(
               'Hello.',
               textDirection: TextDirection.ltr,
@@ -143,9 +175,9 @@ class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
           margin: EdgeInsets.only(top: Utils.computeResponsivity(24.0, context)),
           width: Utils.computeResponsivity(360.0, context),
           child: Transform.translate(
-            offset: Offset(0.0, _offsetY.value),
+            offset: Offset(0.0, _offsetYSubtitle.value),
             child: Opacity(
-              opacity: _opacity.value,
+              opacity: _opacitySubtitle.value,
               child: Text(
                 'Log In and take your Instagram business to the next level.',
                 textDirection: TextDirection.ltr,
@@ -159,8 +191,9 @@ class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
             ),
           ),
         ),
-        Opacity(
-          opacity: _opacity.value,
+        Transform.scale(
+          scale: _scaleSignUpButton.value,
+          origin: Offset(0.0, Utils.computeResponsivity(25.0, context)),
           child: Container(
             width: Utils.computeResponsivity(300.0, context),
             height: Utils.computeResponsivity(50.0, context),
@@ -168,8 +201,8 @@ class _Intro extends State<Intro> with SingleTickerProviderStateMixin {
             child: SignUpButton(),
           ),
         ),
-        Opacity(
-          opacity: _opacity.value,
+        Transform.scale(
+          scale: _scaleLogInButton.value,
           child: Container(
             width: Utils.computeResponsivity(300.0, context),
             height: Utils.computeResponsivity(50.0, context),
@@ -270,20 +303,22 @@ class _PrivacyPolicy extends State<PrivacyPolicy> with SingleTickerProviderState
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 3450),
+      duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
     _opacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: _controller,
-      curve: new Interval(0.150, 1.000, curve: Curves.fastLinearToSlowEaseIn),
+      curve: new Interval(0.500, 1.000, curve: Curves.easeOut),
     ));
 
     _controller.forward();
+    RouterController.withName('auth').registerAnimationController(_controller);
   }
 
   @override
   void dispose() {
+    RouterController.withName('auth').unregisterAnimationController(_controller);
     _controller.dispose();
     super.dispose();
   }

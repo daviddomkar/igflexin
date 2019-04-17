@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-import 'package:tuple/tuple.dart';
-
 typedef Widget RouteBuilder(BuildContext context);
 
 class Router extends StatefulWidget {
@@ -140,6 +138,7 @@ class _RouterController extends Listenable {
 
     await reverseAnimationControllers();
     notifyListeners();
+    await forwardAnimationControllers();
   }
 
   @override
@@ -169,6 +168,20 @@ class _RouterController extends Listenable {
     for (int i = routers.indexOf(this); i < _routers.values.length; i++) {
       routers.toList()[i]._animationControllers.forEach((controller) {
         futures.add(controller.reverse().whenComplete(() {}));
+      });
+    }
+
+    await Future.wait(futures);
+  }
+
+  Future<void> forwardAnimationControllers() async {
+    List<Future<void>> futures = List<Future<void>>();
+
+    List<_RouterController> routers = _routers.values.toList();
+
+    for (int i = routers.indexOf(this); i < _routers.values.length; i++) {
+      routers.toList()[i]._animationControllers.forEach((controller) {
+        futures.add(controller.forward().whenComplete(() {}));
       });
     }
 
