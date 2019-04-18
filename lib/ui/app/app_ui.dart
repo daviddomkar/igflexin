@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart' hide Route;
 import 'package:flutter/services.dart';
-import 'package:igflexin/src/router.dart';
+import 'package:igflexin/router/router.dart';
 
-import 'package:igflexin/src/ui/auth_ui.dart';
-import 'package:igflexin/src/utils.dart';
+import 'package:igflexin/ui/auth/auth_ui.dart';
+import 'package:igflexin/utils/utils.dart';
 
 class IGFlexinApp extends StatelessWidget {
   @override
