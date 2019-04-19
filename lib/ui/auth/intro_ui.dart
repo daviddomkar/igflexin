@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 
 import 'package:igflexin/router/router.dart';
 import 'package:igflexin/utils/utils.dart';
+import 'package:igflexin/ui/shared/buttons.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
@@ -39,12 +40,12 @@ class _PrivacyPolicy extends State<PrivacyPolicy> with SingleTickerProviderState
     ));
 
     _controller.forward();
-    RouterController.withName('auth').registerAnimationController(_controller);
+    //RouterController.withName('auth').registerAnimationController(_controller);
   }
 
   @override
   void dispose() {
-    RouterController.withName('auth').unregisterAnimationController(_controller);
+    //RouterController.withName('auth').unregisterAnimationController(_controller);
     _controller.dispose();
     super.dispose();
   }
@@ -57,8 +58,7 @@ class _PrivacyPolicy extends State<PrivacyPolicy> with SingleTickerProviderState
         text: TextSpan(children: [
           TextSpan(
               text: 'By using this app you agree with IGFlexin\'s\n',
-              style: TextStyle(
-                  color: Colors.white, fontSize: Utils.computeResponsivity(14.0, context))),
+              style: TextStyle(color: Colors.white, fontSize: Utils.computeResponsivity(14.0, context))),
           TextSpan(
               text: 'Terms of Service',
               style: TextStyle(
@@ -70,10 +70,7 @@ class _PrivacyPolicy extends State<PrivacyPolicy> with SingleTickerProviderState
                 ..onTap = () {
                   launch('https://igflexin.app/privacy-policy.htm');
                 }),
-          TextSpan(
-              text: ' and ',
-              style: TextStyle(
-                  color: Colors.white, fontSize: Utils.computeResponsivity(14.0, context))),
+          TextSpan(text: ' and ', style: TextStyle(color: Colors.white, fontSize: Utils.computeResponsivity(14.0, context))),
           TextSpan(
               text: 'Privacy Policy',
               style: TextStyle(
@@ -85,10 +82,7 @@ class _PrivacyPolicy extends State<PrivacyPolicy> with SingleTickerProviderState
                 ..onTap = () {
                   launch('https://igflexin.app/privacy-policy.htm');
                 }),
-          TextSpan(
-              text: '.',
-              style: TextStyle(
-                  color: Colors.white, fontSize: Utils.computeResponsivity(14.0, context)))
+          TextSpan(text: '.', style: TextStyle(color: Colors.white, fontSize: Utils.computeResponsivity(14.0, context)))
         ]),
       ),
     );
@@ -113,8 +107,7 @@ class HelloMessageAndButtons extends StatefulWidget {
   _HelloMessageAndButtons createState() => _HelloMessageAndButtons();
 }
 
-class _HelloMessageAndButtons extends State<HelloMessageAndButtons>
-    with SingleTickerProviderStateMixin {
+class _HelloMessageAndButtons extends State<HelloMessageAndButtons> with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation<double> _opacityTitle;
   Animation<double> _offsetYTitle;
@@ -162,12 +155,12 @@ class _HelloMessageAndButtons extends State<HelloMessageAndButtons>
     ));
 
     _controller.forward();
-    RouterController.withName('auth').registerAnimationController(_controller);
+    //RouterController.withName('auth').registerAnimationController(_controller);
   }
 
   @override
   void dispose() {
-    RouterController.withName('auth').unregisterAnimationController(_controller);
+    //RouterController.withName('auth').unregisterAnimationController(_controller);
     _controller.dispose();
     super.dispose();
   }
@@ -240,23 +233,55 @@ class _HelloMessageAndButtons extends State<HelloMessageAndButtons>
     return SystemBarsInfoProvider(
         child: Center(
           child: Padding(
-              padding: EdgeInsets.symmetric(
-                  vertical: Utils.computeResponsivity(0.0, context),
-                  horizontal: Utils.computeResponsivity(40.0, context)),
+              padding: EdgeInsets.symmetric(vertical: Utils.computeResponsivity(0.0, context), horizontal: Utils.computeResponsivity(40.0, context)),
               child: AnimatedBuilder(animation: _controller, builder: _buildAnimation)),
         ),
         builder: (context, child, systemBarsInfo, orientation) {
           return Expanded(
             child: Container(
-                constraints:
-                    BoxConstraints.expand(height: Utils.computeResponsivity(480.0, context)),
+                constraints: BoxConstraints.expand(height: Utils.computeResponsivity(480.0, context)),
                 margin: EdgeInsets.only(
-                    top: (orientation == Orientation.portrait
-                            ? Utils.computeResponsivity(50.0, context)
-                            : 0.0) +
-                        systemBarsInfo.navigationBarHeight),
+                    top: (orientation == Orientation.portrait ? Utils.computeResponsivity(50.0, context) : 0.0) + systemBarsInfo.navigationBarHeight),
                 child: child),
           );
         });
+  }
+}
+
+class SignUpButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CurvedWhiteBorderedTransparentButton(
+      child: Text(
+        "I am new to this app",
+        textDirection: TextDirection.ltr,
+        style: TextStyle(
+          fontSize: Utils.computeResponsivity(16.0, context),
+          color: Colors.white,
+        ),
+      ),
+      onPressed: () {
+        RouterController.of(context, 'main').switchRoute('app');
+      },
+    );
+  }
+}
+
+class LogInButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CurvedWhiteButton(
+      child: Text(
+        'I have an account already',
+        textDirection: TextDirection.ltr,
+        style: TextStyle(
+          fontSize: Utils.computeResponsivity(16.0, context),
+          color: Color.fromARGB(255, 223, 61, 139),
+        ),
+      ),
+      onPressed: () {
+        RouterController.of(context, 'auth').switchRoute('login');
+      },
+    );
   }
 }
