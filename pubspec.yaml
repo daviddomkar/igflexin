@@ -25,6 +25,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   flutter_system_bars: ^0.0.4
   url_launcher: ^5.0.2
+  scoped_model: ^1.0.1
 
 dev_dependencies:
   flutter_test:

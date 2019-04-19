@@ -26,7 +26,7 @@ class Auth extends StatelessWidget {
                   minHeight: viewportConstraints.maxHeight,
                 ),
                 child: IntrinsicHeight(
-                  child: Router(
+                  child: RouterController.createRouter(context,
                       name: 'auth',
                       routes: [
                         Route('intro', (context) {
@@ -96,7 +96,7 @@ class SignUpButton extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        RouterController.withName('main').switchRoute('app');
+        // RouterController.withName('main').switchRoute('app');
       },
     );
   }
@@ -119,7 +119,7 @@ class LogInButton extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        RouterController.withName('auth').switchRoute('login');
+        // RouterController.withName('auth').switchRoute('login');
       },
     );
   }
