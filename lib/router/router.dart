@@ -49,8 +49,6 @@ class RouterController extends Listenable {
       }
     }
 
-    Route route = _routerStates[routerName].widget.routes.firstWhere((route) => route.name == routeName);
-
     List<Future<void>> futures = List<Future<void>>();
 
     int startIndex = _routerStates.values.toList().indexWhere((routerState) => routerState.widget.name == routerName);
@@ -65,17 +63,27 @@ class RouterController extends Listenable {
     _exitingAnimationStreamSubscription = Future.wait(futures).asStream().listen((data) {
       _exiting = false;
 
-      if (route.clearsHistory) {
-        _routerStates[routerName]._history.clear();
-      }
+      Route route = _routerStates[routerName].widget.routes.firstWhere((route) => route.name == routeName);
 
       if (recordHistory) {
         _routerStates[routerName]._history.add(_routerStates[routerName]._selectedRoute.name);
       }
 
+      if (route.clearsHistory) {
+        _routerStates[routerName]._history.clear();
+      }
+
       _routerStates[routerName]._selectedRoute = route;
 
       notifyListeners();
+
+      int startIndex = _routerStates.values.toList().indexWhere((routerState) => routerState.widget.name == routerName);
+
+      for (int i = startIndex; i < _routerStates.values.toList().length; i++) {
+        _routerStates.values.toList()[i]._animationControllers.forEach((controller) {
+          controller.forward();
+        });
+      }
     });
   }
 
@@ -264,234 +272,46 @@ class _RouterState extends State<_Router> {
   }
 }
 
-/*
-class _RouterState extends State<Router> {
-  _RouterController _routerController;
+typedef Widget RouterAnimationControllerBuilder(BuildContext context, AnimationController controller);
+
+class RouterAnimationController extends StatefulWidget {
+  RouterAnimationController({Key key, @required this.routerName, @required this.duration, @required this.builder}) : super(key: key);
+
+  final String routerName;
+  final Duration duration;
+  final RouterAnimationControllerBuilder builder;
+
+  @override
+  _RouterAnimationControllerState createState() => _RouterAnimationControllerState();
+}
+
+class _RouterAnimationControllerState extends State<RouterAnimationController> with TickerProviderStateMixin {
+  RouterController _routerController;
+  AnimationController _controller;
 
   @override
   void initState() {
-    _routerController = _RouterController(this.widget.name, this.widget.routes, this.widget.startingRoute);
-    _routerController.addListener(updateRoute);
     super.initState();
+    _controller = AnimationController(duration: widget.duration, vsync: this);
+    _controller.forward();
   }
 
   @override
-  void didUpdateWidget(Router oldWidget) {
-    _remountController();
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void reassemble() {
-    //_remountController();
-    super.reassemble();
-  }
-
-  void _remountController() {
-    _routerController.removeListener(updateRoute);
-    _routerController.dispose();
-    _routerController = _RouterController(this.widget.name, this.widget.routes, this.widget.startingRoute);
-    _routerController.addListener(updateRoute);
-  }
-
-  void updateRoute() {
-    // idk ale bez toho to nefunguje xdddd
-    setState(() {});
+  void didChangeDependencies() {
+    _routerController = RouterController.of(context, widget.routerName);
+    _routerController.registerAnimationController(widget.routerName, _controller);
+    super.didChangeDependencies();
   }
 
   @override
   void dispose() {
-    _routerController.removeListener(updateRoute);
-    _routerController.dispose();
+    _routerController.unregisterAnimationController(widget.routerName, _controller);
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    context.inherit
-
-    if (_RouterController.routers.length > 1) {
-      return _routerController.selectedRouteBuilder(context);
-    } else {
-      return WillPopScope(
-        onWillPop: () async => await _RouterController.popRoot(),
-        child: _routerController.selectedRouteBuilder(context),
-      );
-    }
+    return widget.builder(context, _controller);
   }
 }
-
-class RouterController {
-  final _RouterController router;
-
-  RouterController(this.router);
-
-  static Future<bool> popRoot() async {
-    return await _RouterController.popRoot();
-  }
-
-  factory RouterController.main() {
-    return RouterController(_RouterController.routers[_RouterController.routers.keys.first]);
-  }
-
-  factory RouterController.withName(String name) {
-    return RouterController(_RouterController.routers[name]);
-  }
-
-  void switchRoute(String name) {
-    router.switchRoute(name);
-  }
-
-  void clearHistory() {
-    router.clearHistory();
-  }
-
-  void registerAnimationController(AnimationController controller) {
-    router.registerAnimationController(controller);
-  }
-
-  void unregisterAnimationController(AnimationController controller) {
-    router.unregisterAnimationController(controller);
-  }
-
-  Future<bool> pop() async {
-    return await router.pop();
-  }
-}
-
-
-class _RouterController extends Listenable {
-  final Set<VoidCallback> _listeners = Set<VoidCallback>();
-  final List<String> _history = List<String>();
-  final List<AnimationController> _animationControllers = List<AnimationController>();
-
-  final String name;
-  final List<Route> routes;
-  final String startingRoute;
-  final bool autoPop;
-
-  Route _selectedRoute;
-  bool _disposed;
-
-  static Map<String, _RouterController> _routers = Map();
-
-  static Map<String, _RouterController> get routers {
-    return _routers;
-  }
-
-  _RouterController(this.name, this.routes, this.startingRoute, {this.autoPop = true}) {
-    _selectedRoute = routes[routes.indexWhere((route) => route.name == startingRoute)];
-    _routers[this.name] = this;
-    _disposed = false;
-  }
-
-  Future<void> switchRoute(String name, {bool record = true}) async {
-    if (name == _selectedRoute.name) return Future.value();
-    if (record) _history.add(_selectedRoute.name);
-    _selectedRoute = routes[routes.indexWhere((route) => route.name == name)];
-
-    if (_selectedRoute.clearsHistory) {
-      clearHistory();
-    }
-
-    await reverseAnimationControllers();
-    notifyListeners();
-    await forwardAnimationControllers();
-  }
-
-  @override
-  void addListener(VoidCallback listener) {
-    _listeners.add(listener);
-  }
-
-  @override
-  void removeListener(VoidCallback listener) {
-    _listeners.remove(listener);
-  }
-
-  @protected
-  void notifyListeners() {
-    _listeners.toList().forEach((VoidCallback listener) => listener());
-  }
-
-  RouteBuilder get selectedRouteBuilder {
-    return _selectedRoute.builder;
-  }
-
-  Future<void> reverseAnimationControllers() async {
-    List<Future<void>> futures = List<Future<void>>();
-
-    List<_RouterController> routers = _routers.values.toList();
-
-    for (int i = routers.indexOf(this); i < _routers.values.length; i++) {
-      routers.toList()[i]._animationControllers.forEach((controller) {
-        futures.add(controller.reverse().whenComplete(() {}));
-      });
-    }
-
-    await Future.wait(futures);
-  }
-
-  Future<void> forwardAnimationControllers() async {
-    List<Future<void>> futures = List<Future<void>>();
-
-    List<_RouterController> routers = _routers.values.toList();
-
-    for (int i = routers.indexOf(this); i < _routers.values.length; i++) {
-      routers.toList()[i]._animationControllers.forEach((controller) {
-        futures.add(controller.forward().whenComplete(() {}));
-      });
-    }
-
-    await Future.wait(futures);
-  }
-
-  Future<bool> pop() async {
-    if (_history.isNotEmpty) {
-      String route = _history.removeLast();
-      await switchRoute(route, record: false);
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  static Future<bool> popRoot() async {
-    return await _popRecursive(_routers.values.toList().lastIndexWhere((router) => router.autoPop));
-  }
-
-  static Future<bool> _popRecursive(int routerIndex) async {
-    if (routerIndex < 0) return true;
-
-    _RouterController router = _routers.values.toList()[routerIndex];
-    if (router._history.isNotEmpty && router.autoPop) {
-      String route = router._history.removeLast();
-      await router.switchRoute(route, record: false);
-      return false;
-    } else {
-      return await _popRecursive(routerIndex - 1);
-    }
-  }
-
-  void clearHistory() {
-    _history.clear();
-  }
-
-  void registerAnimationController(AnimationController controller) {
-    _animationControllers.add(controller);
-  }
-
-  void unregisterAnimationController(AnimationController controller) {
-    _animationControllers.remove(controller);
-  }
-
-  bool get disposed {
-    return _disposed;
-  }
-
-  void dispose() {
-    _routers.remove(this.name);
-    _disposed = true;
-  }
-}
-*/
