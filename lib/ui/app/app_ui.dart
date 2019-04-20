@@ -27,7 +27,7 @@ class IGFlexinApp extends StatelessWidget {
           routes: [
             Route('auth', (context) {
               return Auth();
-            }),
+            }, clearsHistory: true),
             Route('app', (context) {
               return Center(
                 child: RaisedButton(
@@ -44,7 +44,7 @@ class IGFlexinApp extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    RouterController.of(context, 'main').switchRoute('auth');
+                    RouterController.of(context, 'main').switchRoute('main', 'auth');
                   },
                 ),
               );

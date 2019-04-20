@@ -108,6 +108,8 @@ class HelloMessageAndButtons extends StatefulWidget {
 }
 
 class _HelloMessageAndButtons extends State<HelloMessageAndButtons> with SingleTickerProviderStateMixin {
+  RouterController _routerController;
+
   AnimationController _controller;
   Animation<double> _opacityTitle;
   Animation<double> _offsetYTitle;
@@ -155,12 +157,18 @@ class _HelloMessageAndButtons extends State<HelloMessageAndButtons> with SingleT
     ));
 
     _controller.forward();
-    //RouterController.withName('auth').registerAnimationController(_controller);
+  }
+
+  @override
+  void didChangeDependencies() {
+    _routerController = RouterController.of(context, 'auth');
+    _routerController.registerAnimationController('auth', _controller);
+    super.didChangeDependencies();
   }
 
   @override
   void dispose() {
-    //RouterController.withName('auth').unregisterAnimationController(_controller);
+    _routerController.unregisterAnimationController('auth', _controller);
     _controller.dispose();
     super.dispose();
   }
@@ -261,7 +269,7 @@ class SignUpButton extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        RouterController.of(context, 'main').switchRoute('app');
+        RouterController.of(context, 'main').switchRoute('main', 'app');
       },
     );
   }
@@ -280,7 +288,7 @@ class LogInButton extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        RouterController.of(context, 'auth').switchRoute('login');
+        RouterController.of(context, 'auth').switchRoute('auth', 'login');
       },
     );
   }
