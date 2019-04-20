@@ -11,48 +11,33 @@ import 'package:flutter_system_bars/flutter_system_bars.dart';
 class Intro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[HelloMessageAndButtons(), PrivacyPolicy()],
-    );
-  }
-}
-
-class PrivacyPolicy extends StatefulWidget {
-  @override
-  _PrivacyPolicy createState() => _PrivacyPolicy();
-}
-
-class _PrivacyPolicy extends State<PrivacyPolicy> with SingleTickerProviderStateMixin {
-  AnimationController _controller;
-  Animation<double> _opacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
+    return RouterAnimationController(
+      routerName: 'auth',
       duration: const Duration(milliseconds: 2000),
-      vsync: this,
+      builder: (context, controller) {
+        return Column(
+          children: <Widget>[HelloMessageAndButtons(controller: controller), PrivacyPolicy(controller: controller)],
+        );
+      },
     );
-
-    _opacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: new Interval(0.500, 1.000, curve: Curves.easeOut),
-    ));
-
-    _controller.forward();
-    //RouterController.withName('auth').registerAnimationController(_controller);
   }
+}
 
-  @override
-  void dispose() {
-    //RouterController.withName('auth').unregisterAnimationController(_controller);
-    _controller.dispose();
-    super.dispose();
-  }
+class PrivacyPolicy extends StatelessWidget {
+  PrivacyPolicy({Key key, this.controller})
+      : opacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+          parent: controller,
+          curve: new Interval(0.500, 1.000, curve: Curves.easeOut),
+        )),
+        super(key: key);
+
+  final AnimationController controller;
+
+  final Animation<double> opacity;
 
   Widget _buildAnimation(BuildContext context, Widget child) {
     return Opacity(
-      opacity: _opacity.value,
+      opacity: opacity.value,
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(children: [
@@ -95,92 +80,58 @@ class _PrivacyPolicy extends State<PrivacyPolicy> with SingleTickerProviderState
       child: SizedBox(
           height: Utils.computeResponsivity(50.0, context),
           child: AnimatedBuilder(
-            animation: _controller,
+            animation: controller,
             builder: _buildAnimation,
           )),
     );
   }
 }
 
-class HelloMessageAndButtons extends StatefulWidget {
-  @override
-  _HelloMessageAndButtons createState() => _HelloMessageAndButtons();
-}
+class HelloMessageAndButtons extends StatelessWidget {
+  HelloMessageAndButtons({Key key, this.controller})
+      : opacityTitle = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+          parent: controller,
+          curve: new Interval(0.000, 0.250, curve: Curves.easeOut),
+        )),
+        offsetYTitle = Tween(begin: 15.0, end: 0.0).animate(CurvedAnimation(
+          parent: controller,
+          curve: new Interval(0.000, 0.250, curve: Curves.easeOut),
+        )),
+        opacitySubtitle = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+          parent: controller,
+          curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
+        )),
+        offsetYSubtitle = Tween(begin: 15.0, end: 0.0).animate(CurvedAnimation(
+          parent: controller,
+          curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
+        )),
+        scaleSignUpButton = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+          parent: controller,
+          curve: new Interval(0.400, 0.900, curve: Curves.elasticOut),
+        )),
+        scaleLogInButton = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+          parent: controller,
+          curve: new Interval(0.500, 1.000, curve: Curves.elasticOut),
+        )),
+        super(key: key);
 
-class _HelloMessageAndButtons extends State<HelloMessageAndButtons> with SingleTickerProviderStateMixin {
-  RouterController _routerController;
+  final AnimationController controller;
 
-  AnimationController _controller;
-  Animation<double> _opacityTitle;
-  Animation<double> _offsetYTitle;
-  Animation<double> _opacitySubtitle;
-  Animation<double> _offsetYSubtitle;
-  Animation<double> _scaleSignUpButton;
-  Animation<double> _scaleLogInButton;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-
-    _opacityTitle = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: new Interval(0.000, 0.250, curve: Curves.easeOut),
-    ));
-
-    _offsetYTitle = Tween(begin: 15.0, end: 0.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: new Interval(0.000, 0.250, curve: Curves.easeOut),
-    ));
-
-    _opacitySubtitle = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
-    ));
-
-    _offsetYSubtitle = Tween(begin: 15.0, end: 0.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
-    ));
-
-    _scaleSignUpButton = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: new Interval(0.400, 0.900, curve: Curves.elasticOut),
-    ));
-
-    _scaleLogInButton = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: new Interval(0.500, 1.000, curve: Curves.elasticOut),
-    ));
-
-    _controller.forward();
-  }
-
-  @override
-  void didChangeDependencies() {
-    _routerController = RouterController.of(context, 'auth');
-    _routerController.registerAnimationController('auth', _controller);
-    super.didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    _routerController.unregisterAnimationController('auth', _controller);
-    _controller.dispose();
-    super.dispose();
-  }
+  final Animation<double> opacityTitle;
+  final Animation<double> offsetYTitle;
+  final Animation<double> opacitySubtitle;
+  final Animation<double> offsetYSubtitle;
+  final Animation<double> scaleSignUpButton;
+  final Animation<double> scaleLogInButton;
 
   Widget _buildAnimation(BuildContext context, Widget child) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Transform.translate(
-          offset: Offset(0.0, _offsetYTitle.value),
+          offset: Offset(0.0, offsetYTitle.value),
           child: Opacity(
-            opacity: _opacityTitle.value,
+            opacity: opacityTitle.value,
             child: Text(
               'Hello.',
               textDirection: TextDirection.ltr,
@@ -197,9 +148,9 @@ class _HelloMessageAndButtons extends State<HelloMessageAndButtons> with SingleT
           margin: EdgeInsets.only(top: Utils.computeResponsivity(24.0, context)),
           width: Utils.computeResponsivity(360.0, context),
           child: Transform.translate(
-            offset: Offset(0.0, _offsetYSubtitle.value),
+            offset: Offset(0.0, offsetYSubtitle.value),
             child: Opacity(
-              opacity: _opacitySubtitle.value,
+              opacity: opacitySubtitle.value,
               child: Text(
                 'Log In and take your Instagram business to the next level.',
                 textDirection: TextDirection.ltr,
@@ -214,7 +165,7 @@ class _HelloMessageAndButtons extends State<HelloMessageAndButtons> with SingleT
           ),
         ),
         Transform.scale(
-          scale: _scaleSignUpButton.value,
+          scale: scaleSignUpButton.value,
           origin: Offset(0.0, Utils.computeResponsivity(25.0, context)),
           child: Container(
             width: Utils.computeResponsivity(300.0, context),
@@ -224,7 +175,7 @@ class _HelloMessageAndButtons extends State<HelloMessageAndButtons> with SingleT
           ),
         ),
         Transform.scale(
-          scale: _scaleLogInButton.value,
+          scale: scaleLogInButton.value,
           child: Container(
             width: Utils.computeResponsivity(300.0, context),
             height: Utils.computeResponsivity(50.0, context),
@@ -242,7 +193,7 @@ class _HelloMessageAndButtons extends State<HelloMessageAndButtons> with SingleT
         child: Center(
           child: Padding(
               padding: EdgeInsets.symmetric(vertical: Utils.computeResponsivity(0.0, context), horizontal: Utils.computeResponsivity(40.0, context)),
-              child: AnimatedBuilder(animation: _controller, builder: _buildAnimation)),
+              child: AnimatedBuilder(animation: controller, builder: _buildAnimation)),
         ),
         builder: (context, child, systemBarsInfo, orientation) {
           return Expanded(

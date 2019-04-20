@@ -32,10 +32,10 @@ class Auth extends StatelessWidget {
                           return Intro();
                         }, clearsHistory: true),
                         Route('login', (context) {
-                          return LogIn();
+                          return Intro();
                         }),
                         Route('create_account', (context) {
-                          return CreateAccount();
+                          return Intro();
                         })
                       ],
                       startingRoute: 'intro'),
@@ -53,7 +53,7 @@ class LogIn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[LogInForm(), HelloMessageAndButtons()],
+      children: <Widget>[LogInForm()],
     );
   }
 }
@@ -62,7 +62,7 @@ class CreateAccount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[HelloMessageAndButtons(), PrivacyPolicy()],
+      children: <Widget>[LogInForm()],
     );
   }
 }
