@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart' hide Route;
 
 import 'package:igflexin/router/router.dart';
-import 'package:igflexin/ui/auth/intro_ui.dart';
+
+import 'intro/index.dart';
+import 'log_in/index.dart';
 
 class Auth extends StatelessWidget {
   @override
@@ -32,7 +34,7 @@ class Auth extends StatelessWidget {
                           return Intro();
                         }, clearsHistory: true),
                         Route('login', (context) {
-                          return Intro();
+                          return LogIn();
                         }),
                         Route('create_account', (context) {
                           return Intro();
@@ -46,30 +48,5 @@ class Auth extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class LogIn extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[LogInForm()],
-    );
-  }
-}
-
-class CreateAccount extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[LogInForm()],
-    );
-  }
-}
-
-class LogInForm extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Text('LOG IN TO YOUR ACCOUNT.....');
   }
 }

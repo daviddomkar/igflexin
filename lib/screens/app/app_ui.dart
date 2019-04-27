@@ -2,8 +2,8 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:flutter/services.dart';
 import 'package:igflexin/router/router.dart';
 
-import 'package:igflexin/ui/auth/auth_ui.dart';
-import 'package:igflexin/utils/utils.dart';
+import 'package:igflexin/screens//auth/auth_ui.dart';
+import 'package:igflexin/utils/responsivity_utils.dart';
 
 class IGFlexinApp extends StatelessWidget {
   @override
@@ -39,7 +39,7 @@ class IGFlexinApp extends StatelessWidget {
                     'Klikni sem kámo',
                     textDirection: TextDirection.ltr,
                     style: TextStyle(
-                      fontSize: Utils.computeResponsivity(16.0, context),
+                      fontSize: ResponsivityUtils.compute(16.0, context),
                       color: Color.fromARGB(255, 223, 61, 139),
                     ),
                   ),

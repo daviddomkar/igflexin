@@ -107,3 +107,6 @@ flutter:
         - asset: fonts/LatoLatin-BlackItalic.ttf
           weight: 900
           style: italic
+    - family:  AuthProviderIcons
+      fonts:
+        - asset: fonts/AuthProviderIcons.ttf
