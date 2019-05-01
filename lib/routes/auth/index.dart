@@ -2,8 +2,8 @@ import 'package:flutter/material.dart' hide Route;
 
 import 'package:igflexin/router/router.dart';
 
-import 'intro/index.dart';
-import 'log_in/index.dart';
+import 'routes/intro/index.dart';
+import 'routes/log_in/index.dart';
 
 class Auth extends StatelessWidget {
   @override
