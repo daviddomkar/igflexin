@@ -6,10 +6,10 @@ import 'log_in_button.dart';
 
 class LogInForm extends StatefulWidget {
   @override
-  LogInFormState createState() => LogInFormState();
+  _LogInFormState createState() => _LogInFormState();
 }
 
-class LogInFormState extends State<LogInForm> {
+class _LogInFormState extends State<LogInForm> {
   final _formKey = GlobalKey<FormState>();
 
   @override
