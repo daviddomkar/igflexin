@@ -5,6 +5,7 @@ import 'package:igflexin/router/router.dart';
 
 import 'package:igflexin/routes/auth/index.dart';
 import 'package:igflexin/routes/app/index.dart';
+import 'package:igflexin/routes/entry/index.dart';
 
 void main() => runApp(IGFlexinApp());
 
@@ -29,7 +30,7 @@ class IGFlexinApp extends StatelessWidget {
           name: 'main',
           routes: [
             Route('entry', (context) {
-              return Auth();
+              return Entry();
             }, clearsHistory: true),
             Route('auth', (context) {
               return Auth();

@@ -35,7 +35,8 @@ class RouterController extends Listenable {
       if (_exiting) {
         _exitingAnimationStreamSubscription?.cancel();
 
-        int startIndex = _routerStates.values.toList().indexWhere((routerState) => routerState.widget.name == routerName);
+        int startIndex =
+            _routerStates.values.toList().indexWhere((routerState) => routerState.widget.name == routerName);
 
         for (int i = startIndex; i < _routerStates.values.toList().length; i++) {
           _routerStates.values.toList()[i]._animationControllers.forEach((controller) {
@@ -113,7 +114,9 @@ class RouterController extends Listenable {
             if (_exiting) {
               _exitingAnimationStreamSubscription?.cancel();
 
-              int startIndex = _routerStates.values.toList().indexWhere((routerState) => routerState.widget.name == routerStates[i].widget.name);
+              int startIndex = _routerStates.values
+                  .toList()
+                  .indexWhere((routerState) => routerState.widget.name == routerStates[i].widget.name);
 
               for (int i = startIndex; i < _routerStates.values.toList().length; i++) {
                 _routerStates.values.toList()[i]._animationControllers.forEach((controller) {
@@ -143,7 +146,8 @@ class RouterController extends Listenable {
     return InheritedModel.inheritFrom<_RouterControllerModel>(context, aspect: routerName).controller;
   }
 
-  static Widget createRouter(BuildContext context, {Key key, @required name, @required routes, @required startingRoute, autoPop = true}) {
+  static Widget createRouter(BuildContext context,
+      {Key key, @required name, @required routes, @required startingRoute, autoPop = true}) {
     return _Router(name: name, routes: routes, startingRoute: startingRoute, autoPop: autoPop);
   }
 
@@ -157,11 +161,13 @@ class RouterController extends Listenable {
     RouterController.of(context, routerName).switchRoute(routerName, routeName);
   }
 
-  static void registerAnimationControllerStatic(BuildContext context, String routerName, AnimationController controller) {
+  static void registerAnimationControllerStatic(
+      BuildContext context, String routerName, AnimationController controller) {
     RouterController.of(context, routerName).registerAnimationController(routerName, controller);
   }
 
-  static void unregisterAnimationControllerStatic(BuildContext context, String routerName, AnimationController controller) {
+  static void unregisterAnimationControllerStatic(
+      BuildContext context, String routerName, AnimationController controller) {
     RouterController.of(context, routerName).unregisterAnimationController(routerName, controller);
   }
 
@@ -207,7 +213,7 @@ class _RouterControllerModel extends InheritedModel<String> {
   _RouterControllerModel({Key key, Widget child, RouterController controller})
       : this.controller = controller,
         this.version = controller._version,
-        super(key: key, child: child) {}
+        super(key: key, child: child);
 
   final RouterController controller;
   final int version;
@@ -235,7 +241,8 @@ class _Router extends StatefulWidget {
   final String startingRoute;
   final bool autoPop;
 
-  _Router({Key key, @required this.name, @required this.routes, @required this.startingRoute, this.autoPop = true}) : super(key: key);
+  _Router({Key key, @required this.name, @required this.routes, @required this.startingRoute, this.autoPop = true})
+      : super(key: key);
 
   @override
   _RouterState createState() => _RouterState();
@@ -275,7 +282,8 @@ class _RouterState extends State<_Router> {
 typedef Widget RouterAnimationControllerBuilder(BuildContext context, AnimationController controller);
 
 class RouterAnimationController extends StatefulWidget {
-  RouterAnimationController({Key key, @required this.routerName, @required this.duration, @required this.builder}) : super(key: key);
+  RouterAnimationController({Key key, @required this.routerName, @required this.duration, @required this.builder})
+      : super(key: key);
 
   final String routerName;
   final Duration duration;
