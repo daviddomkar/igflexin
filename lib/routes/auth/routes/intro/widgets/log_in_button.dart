@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:igflexin/router/router.dart';
+import 'package:igflexin/utils/router_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 
