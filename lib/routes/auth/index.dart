@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Route;
 
-import 'package:igflexin/router/router.dart';
+import 'package:igflexin/utils/router_utils.dart';
+import 'package:igflexin/utils/keyboard_utils.dart';
 
 import 'routes/intro/index.dart';
 import 'routes/log_in/index.dart';
@@ -9,7 +10,8 @@ class Auth extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomPadding: true,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

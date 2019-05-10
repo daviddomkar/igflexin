@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Title;
 
-import 'package:igflexin/router/router.dart';
+import 'package:igflexin/utils/router_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 
 import 'package:flutter_system_bars/flutter_system_bars.dart';
@@ -42,13 +42,13 @@ class _Intro extends StatelessWidget {
           child: Container(
             constraints: orientation == Orientation.landscape
                 ? BoxConstraints.expand(
-                    height: ResponsivityUtils.compute(480, context),
+                    height: ResponsivityUtils.compute(360, context),
                   )
                 : BoxConstraints(),
             margin: EdgeInsets.only(
               top: (orientation == Orientation.portrait
                   ? systemBarsInfo.navigationBarHeight + ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context)
-                  : ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context)),
+                  : 0.0),
             ),
             child: Center(
               child: Padding(
@@ -63,7 +63,7 @@ class _Intro extends StatelessWidget {
                       child: Subtitle(controller: controller),
                     ),
                     SignUpButton(controller: controller),
-                    LogInButton(controller: controller)
+                    LogInButton(controller: controller),
                   ],
                 ),
               ),

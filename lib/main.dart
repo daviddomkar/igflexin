@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Route;
 import 'package:flutter/services.dart';
 
-import 'package:igflexin/router/router.dart';
+import 'package:igflexin/utils/router_utils.dart';
 
 import 'package:igflexin/routes/auth/index.dart';
 import 'package:igflexin/routes/app/index.dart';

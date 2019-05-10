@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:igflexin/utils/keyboard_utils.dart';
 
 import 'package:igflexin/utils/responsivity_utils.dart';
 
@@ -12,6 +13,8 @@ class LogInForm extends StatefulWidget {
 class _LogInFormState extends State<LogInForm> {
   final _formKey = GlobalKey<FormState>();
 
+  FocusNode _passwordFocusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -21,7 +24,7 @@ class _LogInFormState extends State<LogInForm> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            margin: EdgeInsets.only(bottom: 40.0),
+            margin: EdgeInsets.only(bottom: ResponsivityUtils.compute(30.0, context)),
             child: Text(
               'LOG IN TO YOUR ACCOUNT',
               textAlign: TextAlign.center,
@@ -32,14 +35,16 @@ class _LogInFormState extends State<LogInForm> {
               ),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.0),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(10.0, context)),
             child: TextFormField(
               style: TextStyle(
                 color: Colors.white,
               ),
               decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+                contentPadding: EdgeInsets.symmetric(
+                    horizontal: ResponsivityUtils.compute(15.0, context),
+                    vertical: ResponsivityUtils.compute(10.0, context)),
                 labelText: 'Email',
                 alignLabelWithHint: true,
                 labelStyle: TextStyle(
@@ -49,35 +54,41 @@ class _LogInFormState extends State<LogInForm> {
                   borderSide: BorderSide(color: Color.fromARGB(200, 255, 255, 255)),
                 ),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white, width: 2.0),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.0),
-            child: TextFormField(
-              style: TextStyle(
-                color: Colors.white,
-              ),
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
-                labelText: 'Password',
-                alignLabelWithHint: true,
-                labelStyle: TextStyle(
-                  color: Colors.white,
-                ),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color.fromARGB(200, 255, 255, 255)),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white, width: 2.0),
+                  borderSide: BorderSide(color: Colors.white, width: ResponsivityUtils.compute(2.0, context)),
                 ),
               ),
             ),
           ),
           Container(
-            margin: EdgeInsets.only(top: 40.0),
+            padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(10.0, context)),
+            child: EnsureVisibleWhenFocused(
+              focusNode: _passwordFocusNode,
+              child: TextFormField(
+                focusNode: _passwordFocusNode,
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: ResponsivityUtils.compute(15.0, context),
+                      vertical: ResponsivityUtils.compute(10.0, context)),
+                  labelText: 'Password',
+                  alignLabelWithHint: true,
+                  labelStyle: TextStyle(
+                    color: Colors.white,
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(200, 255, 255, 255)),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white, width: ResponsivityUtils.compute(2.0, context)),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(top: ResponsivityUtils.compute(50.0, context)),
             child: LogInButton(),
           ),
         ],
