@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Title;
+import 'package:igflexin/utils/keyboard_utils.dart';
 
 import 'package:igflexin/utils/router_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
@@ -40,7 +41,6 @@ class _LogIn extends StatelessWidget {
           child: KeyboardInfoProvider(
             builder: (context, info) {
               return Container(
-                decoration: BoxDecoration(color: Colors.blue),
                 constraints: orientation == Orientation.landscape
                     ? BoxConstraints.expand(
                         height: ResponsivityUtils.compute(360, context),
@@ -82,71 +82,5 @@ class _LogIn extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-typedef Widget KeyboardInfoProviderBuilder(
-  BuildContext context,
-  KeyboardInfo info,
-);
-
-class KeyboardInfo {
-  KeyboardInfo(this.offsetY);
-
-  final double offsetY;
-}
-
-class KeyboardInfoProvider extends StatefulWidget {
-  KeyboardInfoProvider({this.builder});
-
-  final KeyboardInfoProviderBuilder builder;
-
-  @override
-  _KeyboardInfoProviderState createState() => _KeyboardInfoProviderState();
-}
-
-class _KeyboardInfoProviderState extends State<KeyboardInfoProvider> with WidgetsBindingObserver {
-  double offsetY = 0.0;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    WidgetsBinding.instance.removeObserver(this);
-  }
-
-  @override
-  void didChangeMetrics() {
-    _updateInfo();
-  }
-
-  Future<Null> _keyboardToggled() async {
-    if (mounted) {
-      EdgeInsets edgeInsets = MediaQuery.of(context).viewInsets;
-      while (mounted && MediaQuery.of(context).viewInsets == edgeInsets) {
-        await new Future.delayed(const Duration(milliseconds: 10));
-      }
-    }
-
-    return;
-  }
-
-  Future<Null> _updateInfo() async {
-    await Future.any([new Future.delayed(const Duration(milliseconds: 300)), _keyboardToggled()]);
-
-    final mediaQuery = MediaQuery.of(context);
-    final screenInsets = mediaQuery.viewInsets;
-
-    offsetY = screenInsets.bottom;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.builder(context, KeyboardInfo(offsetY));
   }
 }
