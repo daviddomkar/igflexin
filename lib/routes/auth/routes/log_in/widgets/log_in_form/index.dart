@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:igflexin/utils/keyboard_utils.dart';
+import 'package:flutter/rendering.dart';
 
+import 'package:igflexin/utils/keyboard_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 
 import 'log_in_button.dart';
@@ -14,6 +15,7 @@ class _LogInFormState extends State<LogInForm> {
   final _formKey = GlobalKey<FormState>();
 
   FocusNode _passwordFocusNode = FocusNode();
+  FocusNode _emailFocusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -37,24 +39,28 @@ class _LogInFormState extends State<LogInForm> {
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(10.0, context)),
-            child: TextFormField(
-              style: TextStyle(
-                color: Colors.white,
-              ),
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(
-                    horizontal: ResponsivityUtils.compute(15.0, context),
-                    vertical: ResponsivityUtils.compute(10.0, context)),
-                labelText: 'Email',
-                alignLabelWithHint: true,
-                labelStyle: TextStyle(
+            child: EnsureVisibleWhenFocused(
+              focusNode: _emailFocusNode,
+              child: TextFormField(
+                focusNode: _emailFocusNode,
+                style: TextStyle(
                   color: Colors.white,
                 ),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color.fromARGB(200, 255, 255, 255)),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white, width: ResponsivityUtils.compute(2.0, context)),
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: ResponsivityUtils.compute(15.0, context),
+                      vertical: ResponsivityUtils.compute(10.0, context)),
+                  labelText: 'Email',
+                  alignLabelWithHint: true,
+                  labelStyle: TextStyle(
+                    color: Colors.white,
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Color.fromARGB(200, 255, 255, 255)),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white, width: ResponsivityUtils.compute(2.0, context)),
+                  ),
                 ),
               ),
             ),
