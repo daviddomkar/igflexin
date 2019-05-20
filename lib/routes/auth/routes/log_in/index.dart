@@ -58,7 +58,7 @@ class _LogIn extends StatelessWidget {
                 child: Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(40.0, context)),
-                    child: LogInForm(),
+                    child: LogInForm(controller: controller),
                   ),
                 ),
               );

@@ -7,6 +7,10 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 import 'log_in_button.dart';
 
 class LogInForm extends StatefulWidget {
+  LogInForm({Key key, this.controller}) : super(key: key);
+
+  final AnimationController controller;
+
   @override
   _LogInFormState createState() => _LogInFormState();
 }
@@ -95,7 +99,7 @@ class _LogInFormState extends State<LogInForm> {
           ),
           Container(
             margin: EdgeInsets.only(top: ResponsivityUtils.compute(50.0, context)),
-            child: LogInButton(),
+            child: LogInButton(controller: widget.controller),
           ),
         ],
       ),
