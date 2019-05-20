@@ -4,7 +4,7 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/icons/auth_provider_icons.dart';
 
 class AuthProviderIconsBar extends StatelessWidget {
-  AuthProviderIconsBar({Key key, this.controller});
+  AuthProviderIconsBar({Key key, this.controller}) : super(key: key);
 
   final AnimationController controller;
 
