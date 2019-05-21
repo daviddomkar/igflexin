@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CurvedWhiteBorderedTransparentButton extends StatelessWidget {
-  CurvedWhiteBorderedTransparentButton({@required this.onPressed, @required this.child});
+  CurvedWhiteBorderedTransparentButton(
+      {@required this.onPressed, @required this.child});
 
   final GestureTapCallback onPressed;
   final Widget child;
