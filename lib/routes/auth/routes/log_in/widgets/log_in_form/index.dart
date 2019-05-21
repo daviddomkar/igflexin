@@ -80,6 +80,7 @@ class _LogInFormState extends State<LogInForm> {
                   child: WhiteTextFormField(
                     focusNode: _emailFocusNode,
                     label: 'Email',
+                    obscureText: false,
                     validator: (value) {
                       if (value.isEmpty) {
                         return 'Please enter some text!';
@@ -101,6 +102,7 @@ class _LogInFormState extends State<LogInForm> {
                   child: WhiteTextFormField(
                     focusNode: _passwordFocusNode,
                     label: 'Password',
+                    obscureText: true,
                     validator: (value) {
                       if (value.isEmpty) {
                         return 'Please enter some text!';

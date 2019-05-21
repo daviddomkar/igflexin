@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 
 class WhiteTextFormField extends StatelessWidget {
-  WhiteTextFormField({Key key, @required this.focusNode, this.label, this.validator}) : super(key: key);
+  WhiteTextFormField({Key key, @required this.focusNode, this.label, this.validator, this.obscureText})
+      : super(key: key);
 
   final FocusNode focusNode;
   final String label;
   final FormFieldValidator<String> validator;
+  final bool obscureText;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       focusNode: focusNode,
       validator: validator,
+      obscureText: obscureText,
       style: TextStyle(
         color: Colors.white,
       ),
