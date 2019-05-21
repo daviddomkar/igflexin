@@ -1,0 +1,33 @@
+service cloud.firestore 
+{
+  match /databases/{database}/documents 
+  {
+    match /payments/{payment}
+    {
+      allow read: if request.auth.uid != null && request.auth.uid == resource.data.userID;
+    }
+    
+    match /keys/{key}
+    {
+      allow read: if request.auth.uid != null && request.auth.uid == key;
+    }
+    
+    match /accounts/{account}
+    {
+      allow delete, read: if request.auth.uid != null && request.auth.uid == resource.data.userID;
+      allow create: if request.auth.uid != null && !exists(/databases/$(database)/documents/accounts/$(request.resource.id));
+      allow update: if request.auth.uid != null && request.auth.uid == resource.data.userID && request.resource.data != resource.data;
+    }
+    
+    match /records/{record}
+    {
+    	allow read: if request.auth.uid != null;
+      allow create: if request.auth.uid != null;
+    }
+    
+    match /statistics/{statistic}
+    {
+    	allow read: if request.auth.uid != null;
+    }
+  }
+}

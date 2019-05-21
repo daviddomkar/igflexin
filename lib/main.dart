@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart' hide Route;
 import 'package:flutter/services.dart';
 
+import 'package:igflexin/repositories/auth_repository.dart';
+
+import 'package:igflexin/routes/app/index.dart';
+import 'package:igflexin/routes/auth/index.dart';
+import 'package:igflexin/routes/splash/index.dart';
+
 import 'package:igflexin/utils/router_utils.dart';
 
-import 'package:igflexin/routes/auth/index.dart';
-import 'package:igflexin/routes/app/index.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(IGFlexinApp());
 
@@ -24,21 +29,31 @@ class IGFlexinApp extends StatelessWidget {
       ),
       home: RouterController.create(
         context,
-        child: RouterController.createRouter(
-          context,
-          name: 'main',
-          routes: [
-            Route('auth', (context) {
-              return Auth();
-            }, clearsHistory: true),
-            Route('purchase', (context) {
-              return Auth();
-            }, clearsHistory: true),
-            Route('app', (context) {
-              return App();
-            }, clearsHistory: true),
+        child: MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthRepository>(
+              builder: (_) => AuthRepository(),
+            ),
           ],
-          startingRoute: 'auth',
+          child: RouterController.createRouter(
+            context,
+            name: 'main',
+            routes: [
+              Route('splash', (context) {
+                return Splash();
+              }, clearsHistory: true),
+              Route('auth', (context) {
+                return Auth();
+              }, clearsHistory: true),
+              Route('purchase', (context) {
+                return Auth();
+              }, clearsHistory: true),
+              Route('app', (context) {
+                return App();
+              }, clearsHistory: true),
+            ],
+            startingRoute: 'splash',
+          ),
         ),
       ),
     );
