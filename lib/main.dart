@@ -52,7 +52,7 @@ class IGFlexinApp extends StatelessWidget {
                 return App();
               }, clearsHistory: true),
             ],
-            startingRoute: 'splash',
+            startingRoute: 'auth',
           ),
         ),
       ),
