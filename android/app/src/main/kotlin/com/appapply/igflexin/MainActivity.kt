@@ -8,7 +8,7 @@ import android.content.Context
 import io.flutter.app.FlutterActivity
 import io.flutter.plugins.GeneratedPluginRegistrant
 
-import android.support.multidex.MultiDex
+import androidx.multidex.MultiDex
 
 class MainActivity: FlutterActivity(), ViewTreeObserver.OnGlobalLayoutListener {
   override fun onCreate(savedInstanceState: Bundle?) {
