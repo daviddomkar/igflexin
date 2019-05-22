@@ -61,6 +61,13 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation "com.google.firebase:firebase-core:16.0.9"
+    implementation "com.google.firebase:firebase-auth:17.0.0"
+    implementation "com.crashlytics.sdk.android:crashlytics:2.10.0"
+    implementation "com.google.firebase:firebase-messaging:18.0.0"
+    implementation "com.google.firebase:firebase-firestore:19.0.0"
+    implementation "com.google.firebase:firebase-functions:17.0.0"
 }
 repositories {
     mavenCentral()
