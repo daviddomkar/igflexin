@@ -2,25 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 
 class WhiteTextFormField extends StatelessWidget {
-  WhiteTextFormField(
-      {Key key,
-      @required this.focusNode,
-      this.label,
-      this.validator,
-      this.obscureText})
-      : super(key: key);
+  WhiteTextFormField({
+    Key key,
+    @required this.focusNode,
+    this.label,
+    this.validator,
+    this.onSaved,
+    this.controller,
+    this.obscureText = false,
+    this.keyboardType,
+  }) : super(key: key);
 
   final FocusNode focusNode;
   final String label;
   final FormFieldValidator<String> validator;
+  final FormFieldSetter<String> onSaved;
+  final TextEditingController controller;
   final bool obscureText;
+  final TextInputType keyboardType;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       focusNode: focusNode,
       validator: validator,
+      onSaved: onSaved,
+      controller: controller,
       obscureText: obscureText,
+      keyboardType: keyboardType,
       style: TextStyle(
         color: Colors.white,
       ),
@@ -30,6 +39,7 @@ class WhiteTextFormField extends StatelessWidget {
             vertical: ResponsivityUtils.compute(10.0, context)),
         labelText: label,
         alignLabelWithHint: true,
+        errorMaxLines: 3,
         errorStyle: TextStyle(
           color: Colors.white,
         ),

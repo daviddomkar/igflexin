@@ -139,20 +139,28 @@ class RouterController extends Listenable {
         } else {
           if (i == 0) {
             if (_exiting) {
-              /*_exitingAnimationStreamSubscription?.cancel();
+              if (routerStates[i]._selectedRoute.clearsHistory) {
+                _exitingAnimationStreamSubscription?.cancel();
 
-              int startIndex = _routerStates.values
-                  .toList()
-                  .indexWhere((routerState) => routerState.widget.name == routerStates[i].widget.name);
+                int startIndex = _routerStates.values.toList().indexWhere(
+                    (routerState) =>
+                        routerState.widget.name == routerStates[i].widget.name);
 
-              for (int i = startIndex; i < _routerStates.values.toList().length; i++) {
-                _routerStates.values.toList()[i]._animationControllers.forEach((controller) {
-                  controller.forward();
-                });
+                for (int i = startIndex;
+                    i < _routerStates.values.toList().length;
+                    i++) {
+                  _routerStates.values
+                      .toList()[i]
+                      ._animationControllers
+                      .forEach((controller) {
+                    controller.forward();
+                  });
+                }
+
+                return false;
+              } else {
+                return false;
               }
-
-              _exiting = false;
-              return false;*/
             } else {
               return true;
             }
