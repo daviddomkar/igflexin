@@ -23,5 +23,9 @@ class AuthRepository with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> signInWithEmailAndPassword(String email, String password) async {
+    await _auth.signInWithEmailAndPassword(email: email, password: password);
+  }
+
   UserResource get user => _user;
 }
