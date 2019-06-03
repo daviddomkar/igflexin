@@ -5,6 +5,7 @@ import 'package:igflexin/utils/keyboard_utils.dart';
 
 import 'routes/intro/index.dart';
 import 'routes/log_in/index.dart';
+import 'routes/sign_up/index.dart';
 
 class Auth extends StatelessWidget {
   @override
@@ -38,8 +39,8 @@ class Auth extends StatelessWidget {
                         Route('login', (context) {
                           return LogIn();
                         }),
-                        Route('create_account', (context) {
-                          return Intro();
+                        Route('signup', (context) {
+                          return SignUp();
                         })
                       ],
                       startingRoute: 'intro'),

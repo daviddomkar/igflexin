@@ -30,16 +30,23 @@ class RouterController extends Listenable {
   StreamSubscription<List> _exitingAnimationStreamSubscription;
   bool _exiting = false;
 
-  void switchRoute(String routerName, String routeName, {bool recordHistory = true}) {
+  void switchRoute(String routerName, String routeName,
+      {bool recordHistory = true}) {
     if (_routerStates[routerName]._selectedRoute.name == routeName) {
       if (_exiting) {
         _exitingAnimationStreamSubscription?.cancel();
 
-        int startIndex =
-            _routerStates.values.toList().indexWhere((routerState) => routerState.widget.name == routerName);
+        int startIndex = _routerStates.values
+            .toList()
+            .indexWhere((routerState) => routerState.widget.name == routerName);
 
-        for (int i = startIndex; i < _routerStates.values.toList().length; i++) {
-          _routerStates.values.toList()[i]._animationControllers.forEach((controller) {
+        for (int i = startIndex;
+            i < _routerStates.values.toList().length;
+            i++) {
+          _routerStates.values
+              .toList()[i]
+              ._animationControllers
+              .forEach((controller) {
             controller.forward();
           });
         }
@@ -52,22 +59,33 @@ class RouterController extends Listenable {
 
     List<Future<void>> futures = List<Future<void>>();
 
-    int startIndex = _routerStates.values.toList().indexWhere((routerState) => routerState.widget.name == routerName);
+    int startIndex = _routerStates.values
+        .toList()
+        .indexWhere((routerState) => routerState.widget.name == routerName);
 
     for (int i = startIndex; i < _routerStates.values.toList().length; i++) {
-      _routerStates.values.toList()[i]._animationControllers.forEach((controller) {
+      _routerStates.values
+          .toList()[i]
+          ._animationControllers
+          .forEach((controller) {
         futures.add(controller.reverse().whenComplete(() {}));
       });
     }
 
     _exiting = true;
-    _exitingAnimationStreamSubscription = Future.wait(futures).asStream().listen((data) {
+    _exitingAnimationStreamSubscription =
+        Future.wait(futures).asStream().listen((data) {
       _exiting = false;
 
-      Route route = _routerStates[routerName].widget.routes.firstWhere((route) => route.name == routeName);
+      Route route = _routerStates[routerName]
+          .widget
+          .routes
+          .firstWhere((route) => route.name == routeName);
 
       if (recordHistory) {
-        _routerStates[routerName]._history.add(_routerStates[routerName]._selectedRoute.name);
+        _routerStates[routerName]
+            ._history
+            .add(_routerStates[routerName]._selectedRoute.name);
       }
 
       if (route.clearsHistory) {
@@ -78,54 +96,71 @@ class RouterController extends Listenable {
 
       notifyListeners();
 
-      int startIndex = _routerStates.values.toList().indexWhere((routerState) => routerState.widget.name == routerName);
+      int startIndex = _routerStates.values
+          .toList()
+          .indexWhere((routerState) => routerState.widget.name == routerName);
 
       for (int i = startIndex; i < _routerStates.values.toList().length; i++) {
-        _routerStates.values.toList()[i]._animationControllers.forEach((controller) {
+        _routerStates.values
+            .toList()[i]
+            ._animationControllers
+            .forEach((controller) {
           controller.forward();
         });
       }
     });
   }
 
-  void registerAnimationController(String routerName, AnimationController controller) {
+  void registerAnimationController(
+      String routerName, AnimationController controller) {
     if (!_routerStates[routerName]._animationControllers.contains(controller)) {
       _routerStates[routerName]._animationControllers.add(controller);
     }
   }
 
-  void unregisterAnimationController(String routerName, AnimationController controller) {
+  void unregisterAnimationController(
+      String routerName, AnimationController controller) {
     _routerStates[routerName]._animationControllers.remove(controller);
   }
 
   bool pop() {
     List<_RouterState> routerStates = _routerStates.values.toList();
 
-    int startIndex = routerStates.lastIndexWhere((routerState) => routerState.widget.autoPop);
+    int startIndex = routerStates
+        .lastIndexWhere((routerState) => routerState.widget.autoPop);
 
     for (int i = startIndex; i >= 0; i--) {
       if (routerStates[i].widget.autoPop) {
         if (routerStates[i]._history.isNotEmpty) {
           String routeName = routerStates[i]._history.removeLast();
-          switchRoute(routerStates[i].widget.name, routeName, recordHistory: false);
+          switchRoute(routerStates[i].widget.name, routeName,
+              recordHistory: false);
           break;
         } else {
           if (i == 0) {
             if (_exiting) {
-              _exitingAnimationStreamSubscription?.cancel();
+              if (routerStates[i]._selectedRoute.clearsHistory) {
+                _exitingAnimationStreamSubscription?.cancel();
 
-              int startIndex = _routerStates.values
-                  .toList()
-                  .indexWhere((routerState) => routerState.widget.name == routerStates[i].widget.name);
+                int startIndex = _routerStates.values.toList().indexWhere(
+                    (routerState) =>
+                        routerState.widget.name == routerStates[i].widget.name);
 
-              for (int i = startIndex; i < _routerStates.values.toList().length; i++) {
-                _routerStates.values.toList()[i]._animationControllers.forEach((controller) {
-                  controller.forward();
-                });
+                for (int i = startIndex;
+                    i < _routerStates.values.toList().length;
+                    i++) {
+                  _routerStates.values
+                      .toList()[i]
+                      ._animationControllers
+                      .forEach((controller) {
+                    controller.forward();
+                  });
+                }
+
+                return false;
+              } else {
+                return false;
               }
-
-              _exiting = false;
-              return false;
             } else {
               return true;
             }
@@ -143,12 +178,22 @@ class RouterController extends Listenable {
   }
 
   factory RouterController.of(BuildContext context, String routerName) {
-    return InheritedModel.inheritFrom<_RouterControllerModel>(context, aspect: routerName).controller;
+    return InheritedModel.inheritFrom<_RouterControllerModel>(context,
+            aspect: routerName)
+        .controller;
   }
 
   static Widget createRouter(BuildContext context,
-      {Key key, @required name, @required routes, @required startingRoute, autoPop = true}) {
-    return _Router(name: name, routes: routes, startingRoute: startingRoute, autoPop: autoPop);
+      {Key key,
+      @required name,
+      @required routes,
+      @required startingRoute,
+      autoPop = true}) {
+    return _Router(
+        name: name,
+        routes: routes,
+        startingRoute: startingRoute,
+        autoPop: autoPop);
   }
 
   static Widget create(BuildContext context, {Widget child}) {
@@ -157,18 +202,21 @@ class RouterController extends Listenable {
     );
   }
 
-  static void switchRouteStatic(BuildContext context, String routerName, String routeName) {
+  static void switchRouteStatic(
+      BuildContext context, String routerName, String routeName) {
     RouterController.of(context, routerName).switchRoute(routerName, routeName);
   }
 
   static void registerAnimationControllerStatic(
       BuildContext context, String routerName, AnimationController controller) {
-    RouterController.of(context, routerName).registerAnimationController(routerName, controller);
+    RouterController.of(context, routerName)
+        .registerAnimationController(routerName, controller);
   }
 
   static void unregisterAnimationControllerStatic(
       BuildContext context, String routerName, AnimationController controller) {
-    RouterController.of(context, routerName).unregisterAnimationController(routerName, controller);
+    RouterController.of(context, routerName)
+        .unregisterAnimationController(routerName, controller);
   }
 
   @override
@@ -224,7 +272,8 @@ class _RouterControllerModel extends InheritedModel<String> {
   }
 
   @override
-  bool updateShouldNotifyDependent(InheritedModel<String> oldWidget, Set<String> aspects) {
+  bool updateShouldNotifyDependent(
+      InheritedModel<String> oldWidget, Set<String> aspects) {
     bool result = false;
 
     controller._routerStates.keys.forEach((routerName) {
@@ -241,7 +290,12 @@ class _Router extends StatefulWidget {
   final String startingRoute;
   final bool autoPop;
 
-  _Router({Key key, @required this.name, @required this.routes, @required this.startingRoute, this.autoPop = true})
+  _Router(
+      {Key key,
+      @required this.name,
+      @required this.routes,
+      @required this.startingRoute,
+      this.autoPop = true})
       : super(key: key);
 
   @override
@@ -258,7 +312,8 @@ class _RouterState extends State<_Router> {
   void didChangeDependencies() {
     _controller = RouterController.of(context, widget.name);
     if (!_controller._routerStates.containsKey(widget.name)) {
-      _selectedRoute = widget.routes[widget.routes.indexWhere((route) => route.name == widget.startingRoute)];
+      _selectedRoute = widget.routes[widget.routes
+          .indexWhere((route) => route.name == widget.startingRoute)];
       _controller._routerStates[widget.name] = this;
     }
     super.didChangeDependencies();
@@ -279,10 +334,15 @@ class _RouterState extends State<_Router> {
   }
 }
 
-typedef Widget RouterAnimationControllerBuilder(BuildContext context, AnimationController controller);
+typedef Widget RouterAnimationControllerBuilder(
+    BuildContext context, AnimationController controller);
 
 class RouterAnimationController extends StatefulWidget {
-  RouterAnimationController({Key key, @required this.routerName, @required this.duration, @required this.builder})
+  RouterAnimationController(
+      {Key key,
+      @required this.routerName,
+      @required this.duration,
+      @required this.builder})
       : super(key: key);
 
   final String routerName;
@@ -290,10 +350,12 @@ class RouterAnimationController extends StatefulWidget {
   final RouterAnimationControllerBuilder builder;
 
   @override
-  _RouterAnimationControllerState createState() => _RouterAnimationControllerState();
+  _RouterAnimationControllerState createState() =>
+      _RouterAnimationControllerState();
 }
 
-class _RouterAnimationControllerState extends State<RouterAnimationController> with TickerProviderStateMixin {
+class _RouterAnimationControllerState extends State<RouterAnimationController>
+    with TickerProviderStateMixin {
   RouterController _routerController;
   AnimationController _controller;
 
@@ -307,13 +369,15 @@ class _RouterAnimationControllerState extends State<RouterAnimationController> w
   @override
   void didChangeDependencies() {
     _routerController = RouterController.of(context, widget.routerName);
-    _routerController.registerAnimationController(widget.routerName, _controller);
+    _routerController.registerAnimationController(
+        widget.routerName, _controller);
     super.didChangeDependencies();
   }
 
   @override
   void dispose() {
-    _routerController.unregisterAnimationController(widget.routerName, _controller);
+    _routerController.unregisterAnimationController(
+        widget.routerName, _controller);
     _controller.dispose();
     super.dispose();
   }

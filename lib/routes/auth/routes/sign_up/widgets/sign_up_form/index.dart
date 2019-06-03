@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
-
-import 'package:igflexin/repositories/auth_repository.dart';
-
 import 'package:igflexin/routes/auth/widgets/text_form_field.dart';
 
 import 'package:igflexin/utils/keyboard_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
+import 'sign_up_button.dart';
 
-import 'package:provider/provider.dart';
 
-import 'log_in_button.dart';
-
-class LogInForm extends StatefulWidget {
-  LogInForm({Key key, this.controller})
+class SignUpForm extends StatefulWidget {
+  SignUpForm({Key key, this.controller})
       : opacityTitle = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
           parent: controller,
           curve: new Interval(0.000, 0.250, curve: Curves.easeOut),
@@ -27,8 +21,7 @@ class LogInForm extends StatefulWidget {
           parent: controller,
           curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
         )),
-        offsetYTextFields =
-            Tween(begin: 15.0, end: 0.0).animate(CurvedAnimation(
+        offsetYTextFields = Tween(begin: 15.0, end: 0.0).animate(CurvedAnimation(
           parent: controller,
           curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
         )),
@@ -42,22 +35,20 @@ class LogInForm extends StatefulWidget {
   final Animation<double> offsetYTextFields;
 
   @override
-  _LogInFormState createState() => _LogInFormState();
+  _SignUpFormState createState() => _SignUpFormState();
 }
 
-class _LogInFormState extends State<LogInForm> {
+class _SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
-  final _emailFocusNode = FocusNode();
-  final _passwordFocusNode = FocusNode();
+  final _passKey = GlobalKey<FormFieldState>();
 
-  bool _autoValidate = false;
-  String _email;
-  String _password;
+  FocusNode _passwordFocusNode = FocusNode();
+  FocusNode _confirmationFocusNode = FocusNode();
+  FocusNode _emailFocusNode = FocusNode();
 
   Widget _buildAnimation(BuildContext context, Widget child) {
     return Form(
       key: _formKey,
-      autovalidate: _autoValidate,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -67,10 +58,9 @@ class _LogInFormState extends State<LogInForm> {
             child: Opacity(
               opacity: widget.opacityTitle.value,
               child: Container(
-                margin: EdgeInsets.only(
-                    bottom: ResponsivityUtils.compute(30.0, context)),
+                margin: EdgeInsets.only(bottom: ResponsivityUtils.compute(30.0, context)),
                 child: Text(
-                  'LOG IN TO YOUR ACCOUNT',
+                  'CREATE YOUR ACCOUNT',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -86,18 +76,18 @@ class _LogInFormState extends State<LogInForm> {
             child: Opacity(
               opacity: widget.opacityTextFields.value,
               child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: ResponsivityUtils.compute(10.0, context)),
+                padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(10.0, context)),
                 child: EnsureVisibleWhenFocused(
                   focusNode: _emailFocusNode,
                   child: WhiteTextFormField(
                     focusNode: _emailFocusNode,
                     label: 'Email',
-                    onSaved: (value) {
-                      _email = value;
+                    obscureText: false,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter some text!';
+                      }
                     },
-                    validator: _validateEmail,
-                    keyboardType: TextInputType.emailAddress,
                   ),
                 ),
               ),
@@ -108,71 +98,57 @@ class _LogInFormState extends State<LogInForm> {
             child: Opacity(
               opacity: widget.opacityTextFields.value,
               child: Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: ResponsivityUtils.compute(10.0, context)),
+                padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(10.0, context)),
                 child: EnsureVisibleWhenFocused(
                   focusNode: _passwordFocusNode,
                   child: WhiteTextFormField(
+                    key: _passKey,
                     focusNode: _passwordFocusNode,
                     label: 'Password',
-                    onSaved: (value) {
-                      _password = value;
-                    },
-                    validator: _validatePassword,
                     obscureText: true,
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please enter some text!';
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Transform.translate(
+            offset: Offset(0.0, widget.offsetYTextFields.value),
+            child: Opacity(
+              opacity: widget.opacityTextFields.value,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(10.0, context)),
+                child: EnsureVisibleWhenFocused(
+                  focusNode: _confirmationFocusNode,
+                  child: WhiteTextFormField(
+                    focusNode: _confirmationFocusNode,
+                    label: 'Confirmation',
+                    obscureText: true,
+                    validator: (value) {
+                      //var password = _passKey.currentState.value;
+                      if (value.isEmpty) {
+                        return 'Please enter some text!';
+                      } //else return equals(value, password) ? null : "Confirmation should match password";
+                    },
                   ),
                 ),
               ),
             ),
           ),
           Container(
-            margin:
-                EdgeInsets.only(top: ResponsivityUtils.compute(50.0, context)),
-            child: LogInButton(
+            margin: EdgeInsets.only(top: ResponsivityUtils.compute(50.0, context)),
+            child: SignUpButton(
               controller: widget.controller,
-              onPressed: () {
-                if (_formKey.currentState.validate()) {
-                  _formKey.currentState.save();
-                  Provider.of<AuthRepository>(context)
-                      .signInWithEmailAndPassword(_email, _password);
-                } else {
-                  setState(() {
-                    _autoValidate = true;
-                  });
-                }
-              },
+              formKey: _formKey,
             ),
           ),
         ],
       ),
     );
-  }
-
-  String _validateEmail(String value) {
-    Pattern pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
-
-    if (value.isEmpty) {
-      return 'This field is required!';
-    } else if (!regex.hasMatch(value)) {
-      return 'Enter valid email!';
-    } else {
-      return null;
-    }
-  }
-
-  String _validatePassword(String value) {
-    Pattern pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$';
-    RegExp regex = new RegExp(pattern);
-
-    if (value.isEmpty) {
-      return 'This field is required!';
-    } else if (!regex.hasMatch(value)) {
-      return 'Password has to have minimum of eight characters, at least one uppercase letter, one lowercase letter and one number!';
-    } else {
-      return null;
-    }
   }
 
   @override
@@ -181,12 +157,5 @@ class _LogInFormState extends State<LogInForm> {
       animation: widget.controller,
       builder: _buildAnimation,
     );
-  }
-
-  @override
-  void dispose() {
-    _emailFocusNode.dispose();
-    _passwordFocusNode.dispose();
-    super.dispose();
   }
 }

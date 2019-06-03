@@ -35,7 +35,7 @@ class SignUpButton extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            RouterController.of(context, 'main').switchRoute('main', 'app');
+            RouterController.of(context, 'auth').switchRoute('auth', 'signup');
           },
         ),
       ),
