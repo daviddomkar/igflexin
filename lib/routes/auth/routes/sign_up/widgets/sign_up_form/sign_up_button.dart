@@ -3,19 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 
-class LogInButton extends StatelessWidget {
-  LogInButton({
-    Key key,
-    this.controller,
-    this.onPressed,
-  })  : scale = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+class SignUpButton extends StatelessWidget {
+  SignUpButton({Key key, this.controller, this.formKey})
+      : scale = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
           parent: controller,
           curve: new Interval(0.400, 0.900, curve: Curves.elasticOut),
         )),
         super(key: key);
 
+  final GlobalKey<FormState> formKey;
   final AnimationController controller;
-  final GestureTapCallback onPressed;
 
   final Animation<double> scale;
 
@@ -29,14 +26,16 @@ class LogInButton extends StatelessWidget {
         margin: EdgeInsets.only(top: ResponsivityUtils.compute(10.0, context)),
         child: CurvedWhiteButton(
           child: Text(
-            'Log In',
+            'Sign Up',
             textDirection: TextDirection.ltr,
             style: TextStyle(
               fontSize: ResponsivityUtils.compute(16.0, context),
               color: Color.fromARGB(255, 223, 61, 139),
             ),
           ),
-          onPressed: onPressed,
+          onPressed: () {
+            formKey.currentState.validate();
+          },
         ),
       ),
     );

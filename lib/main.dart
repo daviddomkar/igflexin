@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 import 'package:igflexin/repositories/auth_repository.dart';
 
+import 'package:igflexin/resources/user.dart';
+
 import 'package:igflexin/routes/app/index.dart';
 import 'package:igflexin/routes/auth/index.dart';
 import 'package:igflexin/routes/splash/index.dart';
@@ -35,24 +37,20 @@ class IGFlexinApp extends StatelessWidget {
               builder: (_) => AuthRepository(),
             ),
           ],
-          child: RouterController.createRouter(
-            context,
-            name: 'main',
-            routes: [
-              Route('splash', (context) {
-                return Splash();
-              }, clearsHistory: true),
-              Route('auth', (context) {
-                return Auth();
-              }, clearsHistory: true),
-              Route('purchase', (context) {
-                return Auth();
-              }, clearsHistory: true),
-              Route('app', (context) {
-                return App();
-              }, clearsHistory: true),
-            ],
-            startingRoute: 'auth',
+          child: Consumer<AuthRepository>(
+            builder: (context, value, child) {
+              switch (value.user.state) {
+                case UserState.None:
+                  return Splash();
+                  break;
+                case UserState.Unauthenticated:
+                  return Auth();
+                  break;
+                case UserState.Authenticated:
+                  return App();
+                  break;
+              }
+            },
           ),
         ),
       ),
