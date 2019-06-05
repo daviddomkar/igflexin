@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:igflexin/utils/router_utils.dart';
+import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/routes/auth/router_controller.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 
@@ -35,7 +36,7 @@ class SignUpButton extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            RouterController.of(context, 'auth').switchRoute('auth', 'signup');
+            RouterController.of<AuthRouterController>(context).switchRoute('signup');
           },
         ),
       ),

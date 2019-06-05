@@ -26,7 +26,7 @@ dependencies:
 
   flutter_system_bars: ^0.0.5
   url_launcher: ^5.0.2
-  provider: ^2.0.1
+  provider: ^2.0.1+1
 
   firebase_core: ^0.4.0+1
   firebase_analytics: ^3.0.1

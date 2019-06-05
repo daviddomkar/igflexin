@@ -1,31 +1,48 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-
-import 'package:igflexin/resources/user.dart';
+import 'package:flutter/services.dart';
+import 'package:igflexin/resources/auth_info.dart';
 
 class AuthRepository with ChangeNotifier {
-  AuthRepository()
-      : _user = UserResource(state: UserState.None, data: null),
-        _auth = FirebaseAuth.instance {
-    _auth.onAuthStateChanged.listen(_onAuthStateChanged);
+  AuthRepository() : _auth = FirebaseAuth.instance {
+    _authSubscription = _auth.onAuthStateChanged.listen(_onAuthStateChanged);
   }
 
-  UserResource _user;
   FirebaseAuth _auth;
+  AuthInfoResource _info;
+  StreamSubscription<FirebaseUser> _authSubscription;
 
   Future<void> _onAuthStateChanged(FirebaseUser firebaseUser) async {
     if (firebaseUser == null) {
-      _user = UserResource(state: UserState.Unauthenticated, data: null);
+      _info = AuthInfoResource(state: AuthInfoState.None, data: null);
     } else {
-      _user = UserResource(state: UserState.Authenticated, data: null);
+      _info = AuthInfoResource(state: AuthInfoState.Success, data: null);
     }
     notifyListeners();
   }
 
   Future<void> signInWithEmailAndPassword(String email, String password) async {
-    await _auth.signInWithEmailAndPassword(email: email, password: password);
+    _info = AuthInfoResource(state: AuthInfoState.Pending, data: null);
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+    } catch (error) {
+      if (error is PlatformException) {
+        print(error.code);
+      } else {
+        print(error);
+        _info = AuthInfoResource(state: AuthInfoState.Error, data: null);
+      }
+    }
   }
 
-  UserResource get user => _user;
+  @override
+  void dispose() {
+    _authSubscription.cancel();
+    super.dispose();
+  }
+
+  AuthInfoResource get info => _info;
 }
