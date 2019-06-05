@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart' hide Route;
-import 'package:igflexin/utils/router_utils.dart';
+
+import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/router_controller.dart';
 
 import 'package:igflexin/utils/responsivity_utils.dart';
 
@@ -21,7 +23,7 @@ class App extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          RouterController.of(context, 'main').switchRoute('main', 'auth');
+          RouterController.of<MainRouterController>(context).switchRoute('auth');
         },
       ),
     );

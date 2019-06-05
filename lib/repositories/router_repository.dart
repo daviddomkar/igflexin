@@ -1,6 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'dart:async';
 
+import 'package:provider/provider.dart';
+
+/*
 typedef Widget RouteBuilder(BuildContext context);
 
 class Route {
@@ -355,7 +358,7 @@ class RouterAnimationController extends StatefulWidget {
 }
 
 class _RouterAnimationControllerState extends State<RouterAnimationController>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   RouterController _routerController;
   AnimationController _controller;
 
@@ -385,5 +388,142 @@ class _RouterAnimationControllerState extends State<RouterAnimationController>
   @override
   Widget build(BuildContext context) {
     return widget.builder(context, _controller);
+  }
+}
+*/
+
+class RouterRepository {
+  RouterRepository() : _controllers = List();
+
+  final List<RouterController> _controllers;
+
+  void registerController(RouterController controller) {
+    _controllers.add(controller);
+  }
+
+  void unregisterController(RouterController controller) {
+    _controllers.remove(controller);
+  }
+}
+
+class Router<C extends RouterController> extends StatefulWidget {
+  Router({@required this.builder});
+
+  final ValueBuilder<C> builder;
+
+  @override
+  _RouterState createState() => _RouterState<C>();
+}
+
+class _RouterState<C extends RouterController> extends State<Router> {
+  C _routerController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _routerController = widget.builder(context);
+
+    Provider.of<RouterRepository>(context).registerController(_routerController);
+  }
+
+  @override
+  void dispose() {
+    Provider.of<RouterRepository>(context).unregisterController(_routerController);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _routerController.buildRouter(context, (_) => _routerController);
+  }
+}
+
+typedef Widget RouteBuilder(BuildContext context);
+
+class Route {
+  Route(this.name, this.builder, {this.clearsHistory = false});
+
+  final String name;
+  final RouteBuilder builder;
+  final bool clearsHistory;
+}
+
+abstract class RouterController extends ChangeNotifier {
+  RouterController(this.routes, String startingRouteName) {
+    this.currentRoute = this.routes.firstWhere((route) => route.name == startingRouteName);
+    this.controllers = List();
+  }
+
+  static C of<C extends RouterController>(BuildContext context) {
+    return Provider.of<C>(context);
+  }
+
+  final List<Route> routes;
+
+  List<AnimationController> controllers;
+  Route currentRoute;
+
+  Widget buildRouter<C extends RouterController>(BuildContext context, ValueBuilder<C> builder) {
+    return ChangeNotifierProvider<C>(
+      builder: builder,
+      child: build(context),
+    );
+  }
+
+  Widget build(BuildContext context) {
+    return currentRoute.builder(context);
+  }
+
+  void switchRoute(String routeName) {
+    this.currentRoute = this.routes.firstWhere((route) => route.name == routeName);
+    notifyListeners();
+  }
+
+  void registerAnimationController(AnimationController controller) {
+    this.controllers.add(controller);
+  }
+
+  void unregisterAnimationController(AnimationController controller) {
+    this.controllers.remove(controller);
+  }
+}
+
+typedef Widget RouterAnimationControllerBuilder(
+    BuildContext context, AnimationController controller);
+
+class RouterAnimationController<C extends RouterController> extends StatefulWidget {
+  RouterAnimationController({@required this.duration, @required this.builder});
+
+  final Duration duration;
+  final RouterAnimationControllerBuilder builder;
+
+  @override
+  _RouterAnimationControllerState createState() {
+    return _RouterAnimationControllerState<C>();
+  }
+}
+
+class _RouterAnimationControllerState<C extends RouterController>
+    extends State<RouterAnimationController> {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return null;
+  }
+}
+
+class RouterPopScope extends StatefulWidget {
+  @override
+  _RouterPopScopeState createState() {
+    return _RouterPopScopeState();
+  }
+}
+
+class _RouterPopScopeState extends State<RouterPopScope> {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return null;
   }
 }

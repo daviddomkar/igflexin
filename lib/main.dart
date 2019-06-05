@@ -2,14 +2,10 @@ import 'package:flutter/material.dart' hide Route;
 import 'package:flutter/services.dart';
 
 import 'package:igflexin/repositories/auth_repository.dart';
+import 'package:igflexin/repositories/user_repository.dart';
 
-import 'package:igflexin/resources/user.dart';
-
-import 'package:igflexin/routes/app/index.dart';
-import 'package:igflexin/routes/auth/index.dart';
-import 'package:igflexin/routes/splash/index.dart';
-
-import 'package:igflexin/utils/router_utils.dart';
+import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/router_controller.dart';
 
 import 'package:provider/provider.dart';
 
@@ -23,35 +19,26 @@ class IGFlexinApp extends StatelessWidget {
       systemNavigationBarColor: Colors.transparent,
     ));
 
-    return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'LatoLatin',
-        primaryColor: Color.fromARGB(255, 223, 61, 139),
-        accentColor: Color.fromARGB(255, 255, 161, 94),
-      ),
-      home: RouterController.create(
-        context,
-        child: MultiProvider(
-          providers: [
-            ChangeNotifierProvider<AuthRepository>(
-              builder: (_) => AuthRepository(),
-            ),
-          ],
-          child: Consumer<AuthRepository>(
-            builder: (context, value, child) {
-              switch (value.user.state) {
-                case UserState.None:
-                  return Splash();
-                  break;
-                case UserState.Unauthenticated:
-                  return Auth();
-                  break;
-                case UserState.Authenticated:
-                  return App();
-                  break;
-              }
-            },
-          ),
+    return MultiProvider(
+      providers: [
+        Provider<RouterRepository>(
+          builder: (_) => RouterRepository(),
+        ),
+        ChangeNotifierProvider<AuthRepository>(
+          builder: (_) => AuthRepository(),
+        ),
+        ChangeNotifierProvider<UserRepository>(
+          builder: (_) => UserRepository(),
+        ),
+      ],
+      child: MaterialApp(
+        theme: ThemeData(
+          fontFamily: 'LatoLatin',
+          primaryColor: Color.fromARGB(255, 223, 61, 139),
+          accentColor: Color.fromARGB(255, 255, 161, 94),
+        ),
+        home: Router<MainRouterController>(
+          builder: (_) => MainRouterController(),
         ),
       ),
     );
