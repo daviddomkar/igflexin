@@ -23,7 +23,7 @@ class App extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          RouterController.of<MainRouterController>(context).switchRoute('auth');
+          Router.of<MainRouterController>(context).push('auth');
         },
       ),
     );

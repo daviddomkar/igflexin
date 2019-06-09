@@ -17,8 +17,7 @@ class SignUpButton extends StatelessWidget {
 
   final Animation<double> scale;
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildAnimation(BuildContext context, Widget child) {
     return Transform.scale(
       scale: scale.value,
       origin: Offset(0.0, ResponsivityUtils.compute(25.0, context)),
@@ -36,10 +35,18 @@ class SignUpButton extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            RouterController.of<AuthRouterController>(context).switchRoute('signup');
+            Router.of<AuthRouterController>(context).push('signup');
           },
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: _buildAnimation,
     );
   }
 }
