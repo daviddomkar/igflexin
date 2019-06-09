@@ -37,8 +37,10 @@ class IGFlexinApp extends StatelessWidget {
           primaryColor: Color.fromARGB(255, 223, 61, 139),
           accentColor: Color.fromARGB(255, 255, 161, 94),
         ),
-        home: Router<MainRouterController>(
-          builder: (_) => MainRouterController(),
+        home: RouterPopScope(
+          child: Router<MainRouterController>(
+            builder: (context) => MainRouterController(context),
+          ),
         ),
       ),
     );

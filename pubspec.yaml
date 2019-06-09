@@ -24,7 +24,10 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
 
-  flutter_system_bars: ^0.0.5
+  flutter_system_bars:
+    git:
+      url: https://github.com/DEXIT33/flutter_system_bars
+
   url_launcher: ^5.0.2
   provider: ^2.0.1+1
 

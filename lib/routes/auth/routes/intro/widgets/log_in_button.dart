@@ -17,8 +17,7 @@ class LogInButton extends StatelessWidget {
 
   final Animation<double> scale;
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildAnimation(BuildContext context, Widget child) {
     return Transform.scale(
       scale: scale.value,
       child: Container(
@@ -35,10 +34,18 @@ class LogInButton extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            RouterController.of<AuthRouterController>(context).switchRoute('login');
+            Router.of<AuthRouterController>(context).push('login');
           },
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: _buildAnimation,
     );
   }
 }

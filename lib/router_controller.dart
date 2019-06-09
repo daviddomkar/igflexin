@@ -16,37 +16,33 @@ class MainRouterController extends RouterController {
     return [
       Route('splash', (context) {
         return Splash();
-      }),
+      }, clearsHistory: true),
       Route('auth', (context) {
         return Auth();
-      }),
+      }, clearsHistory: true),
       Route('app', (context) {
         return App();
-      }),
+      }, clearsHistory: true),
     ];
   }
 
-  MainRouterController() : super(_generateRoutes(), 'splash');
+  MainRouterController(BuildContext context) : super(context, _generateRoutes(), 'splash');
 
   /* (╯°□°）╯︵ ┻━┻ */
   @override
-  Widget build(BuildContext context) {
-    return Consumer<UserRepository>(
-      builder: (context, value, child) {
-        switch (value.user.state) {
-          case UserState.None:
-            switchRoute('splash');
-            break;
-          case UserState.Unauthenticated:
-            switchRoute('auth');
-            break;
-          case UserState.Authenticated:
-            switchRoute('app');
-            break;
-        }
+  void beforeBuild(BuildContext context) {
+    UserResource user = Provider.of<UserRepository>(context).user;
 
-        return super.build(context);
-      },
-    );
+    switch (user.state) {
+      case UserState.None:
+        push('splash');
+        break;
+      case UserState.Unauthenticated:
+        push('auth');
+        break;
+      case UserState.Authenticated:
+        push('app');
+        break;
+    }
   }
 }

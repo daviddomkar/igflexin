@@ -28,7 +28,7 @@ class Auth extends StatelessWidget {
                 ),
                 child: IntrinsicHeight(
                   child: Router<AuthRouterController>(
-                    builder: (_) => AuthRouterController(),
+                    builder: (context) => AuthRouterController(context),
                   ),
                 ),
               ),
