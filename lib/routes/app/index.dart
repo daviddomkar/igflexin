@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart' hide Route;
 
-import 'package:igflexin/repositories/router_repository.dart';
-import 'package:igflexin/router_controller.dart';
+import 'package:igflexin/repositories/auth_repository.dart';
 
 import 'package:igflexin/utils/responsivity_utils.dart';
+
+import 'package:provider/provider.dart';
 
 class App extends StatelessWidget {
   @override
@@ -23,7 +24,7 @@ class App extends StatelessWidget {
           ),
         ),
         onPressed: () {
-          Router.of<MainRouterController>(context).push('auth');
+          Provider.of<AuthRepository>(context).signOut();
         },
       ),
     );
