@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CurvedWhiteBorderedTransparentButton extends StatelessWidget {
-  CurvedWhiteBorderedTransparentButton(
-      {@required this.onPressed, @required this.child});
+  CurvedWhiteBorderedTransparentButton({@required this.onPressed, @required this.child});
 
   final GestureTapCallback onPressed;
   final Widget child;
@@ -25,20 +24,33 @@ class CurvedWhiteBorderedTransparentButton extends StatelessWidget {
 }
 
 class CurvedWhiteButton extends StatelessWidget {
-  CurvedWhiteButton({@required this.onPressed, @required this.child});
+  CurvedWhiteButton({@required this.onPressed, @required this.child, this.padding});
 
   final GestureTapCallback onPressed;
   final Widget child;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
-    return RaisedButton(
-      highlightElevation: 0,
-      elevation: 0,
-      color: Colors.white,
-      child: child,
-      onPressed: onPressed,
-      shape: const StadiumBorder(),
-    );
+    if (padding == null) {
+      return RaisedButton(
+        highlightElevation: 0,
+        elevation: 0,
+        color: Colors.white,
+        child: child,
+        onPressed: onPressed,
+        shape: const StadiumBorder(),
+      );
+    } else {
+      return RaisedButton(
+        padding: padding,
+        highlightElevation: 0,
+        elevation: 0,
+        color: Colors.white,
+        child: child,
+        onPressed: onPressed,
+        shape: const StadiumBorder(),
+      );
+    }
   }
 }

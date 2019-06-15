@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart' hide Title;
 
-import 'package:igflexin/utils/router_utils.dart';
+import 'package:igflexin/repositories/router_repository.dart';
+
+import 'package:igflexin/routes/auth/router_controller.dart';
+
 import 'package:igflexin/utils/responsivity_utils.dart';
 
 import 'package:flutter_system_bars/flutter_system_bars.dart';
@@ -15,8 +18,7 @@ const double _BOTTOM_HEIGHT_ = 40.0;
 
 class Intro extends StatelessWidget {
   Widget build(BuildContext context) {
-    return RouterAnimationController(
-      routerName: 'auth',
+    return RouterAnimationController<AuthRouterController>(
       duration: const Duration(milliseconds: 2000),
       builder: (context, controller) {
         return SystemBarsInfoProvider(builder: (context, child, systemBarsInfo, orientation) {
@@ -47,7 +49,8 @@ class _Intro extends StatelessWidget {
                 : BoxConstraints(),
             margin: EdgeInsets.only(
               top: (orientation == Orientation.portrait
-                  ? systemBarsInfo.navigationBarHeight + ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context)
+                  ? systemBarsInfo.navigationBarHeight +
+                      ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context)
                   : 0.0),
             ),
             child: Center(
@@ -72,8 +75,9 @@ class _Intro extends StatelessWidget {
         ),
         Container(
           height: ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context),
-          margin:
-              EdgeInsets.only(bottom: orientation == Orientation.portrait ? systemBarsInfo.navigationBarHeight : 0.0),
+          margin: EdgeInsets.only(
+              bottom:
+                  orientation == Orientation.portrait ? systemBarsInfo.navigationBarHeight : 0.0),
           child: Align(
             alignment: Alignment.topCenter,
             child: TermsOfServiceAndPrivacyPolicy(controller: controller),

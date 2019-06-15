@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart' hide Route;
 
-import 'package:igflexin/utils/router_utils.dart';
-import 'package:igflexin/utils/keyboard_utils.dart';
+import 'package:igflexin/repositories/router_repository.dart';
 
-import 'routes/intro/index.dart';
-import 'routes/log_in/index.dart';
-import 'routes/sign_up/index.dart';
+import 'package:igflexin/routes/auth/router_controller.dart';
 
 class Auth extends StatelessWidget {
   @override
@@ -30,20 +27,9 @@ class Auth extends StatelessWidget {
                   minHeight: viewportConstraints.maxHeight,
                 ),
                 child: IntrinsicHeight(
-                  child: RouterController.createRouter(context,
-                      name: 'auth',
-                      routes: [
-                        Route('intro', (context) {
-                          return Intro();
-                        }, clearsHistory: true),
-                        Route('login', (context) {
-                          return LogIn();
-                        }),
-                        Route('signup', (context) {
-                          return SignUp();
-                        })
-                      ],
-                      startingRoute: 'intro'),
+                  child: Router<AuthRouterController>(
+                    builder: (context) => AuthRouterController(context),
+                  ),
                 ),
               ),
             );
