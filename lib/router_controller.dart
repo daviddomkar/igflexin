@@ -26,7 +26,8 @@ class MainRouterController extends RouterController {
     ];
   }
 
-  MainRouterController(BuildContext context) : super(context, _generateRoutes(), 'splash');
+  MainRouterController(BuildContext context)
+      : super(context, _generateRoutes(), 'splash');
 
   /* (╯°□°）╯︵ ┻━┻ */
   @override
@@ -41,7 +42,7 @@ class MainRouterController extends RouterController {
         push('auth');
         break;
       case UserState.Authenticated:
-        push('app');
+        // push('app');
         break;
     }
   }
