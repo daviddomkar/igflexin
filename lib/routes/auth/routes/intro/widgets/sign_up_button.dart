@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:igflexin/utils/router_utils.dart';
+import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/routes/auth/router_controller.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 
@@ -16,8 +17,7 @@ class SignUpButton extends StatelessWidget {
 
   final Animation<double> scale;
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildAnimation(BuildContext context, Widget child) {
     return Transform.scale(
       scale: scale.value,
       origin: Offset(0.0, ResponsivityUtils.compute(25.0, context)),
@@ -35,10 +35,18 @@ class SignUpButton extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            RouterController.of(context, 'auth').switchRoute('auth', 'signup');
+            Router.of<AuthRouterController>(context).push('signup');
           },
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: _buildAnimation,
     );
   }
 }
