@@ -30,7 +30,7 @@ class AuthProviderIconsBar extends StatelessWidget {
             child: IconButton(
               icon: Icon(AuthProviderIcons.google),
               color: Colors.white,
-              iconSize: ResponsivityUtils.compute(40.0, context), 
+              iconSize: ResponsivityUtils.compute(40.0, context),
               onPressed: () {
                 Provider.of<AuthRepository>(context).signInWithGoogle();
               },
@@ -39,9 +39,20 @@ class AuthProviderIconsBar extends StatelessWidget {
           Transform.scale(
             scale: scale.value,
             child: IconButton(
+              icon: Icon(AuthProviderIcons.instagram),
+              color: Colors.white,
+              iconSize: ResponsivityUtils.compute(40.0, context),
+              onPressed: () {
+                Provider.of<AuthRepository>(context).signInWithFacebook();
+              },
+            ),
+          ),
+          Transform.scale(
+            scale: scale.value,
+            child: IconButton(
               icon: Icon(AuthProviderIcons.facebook),
               color: Colors.white,
-              iconSize: ResponsivityUtils.compute(40.0, context), 
+              iconSize: ResponsivityUtils.compute(40.0, context),
               onPressed: () {
                 Provider.of<AuthRepository>(context).signInWithFacebook();
               },

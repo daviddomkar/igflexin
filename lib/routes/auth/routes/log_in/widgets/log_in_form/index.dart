@@ -3,7 +3,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:igflexin/repositories/auth_repository.dart';
-import 'package:igflexin/routes/auth/routes/log_in/index.dart';
 
 import 'package:igflexin/routes/auth/widgets/text_form_field.dart';
 
@@ -28,7 +27,8 @@ class LogInForm extends StatefulWidget {
           parent: controller,
           curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
         )),
-        offsetYTextFields = Tween(begin: 15.0, end: 0.0).animate(CurvedAnimation(
+        offsetYTextFields =
+            Tween(begin: 15.0, end: 0.0).animate(CurvedAnimation(
           parent: controller,
           curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
         )),
@@ -67,7 +67,8 @@ class _LogInFormState extends State<LogInForm> {
             child: Opacity(
               opacity: widget.opacityTitle.value,
               child: Container(
-                margin: EdgeInsets.only(bottom: ResponsivityUtils.compute(30.0, context)),
+                margin: EdgeInsets.only(
+                    bottom: ResponsivityUtils.compute(30.0, context)),
                 child: Text(
                   'LOG IN TO YOUR ACCOUNT',
                   textAlign: TextAlign.center,
@@ -85,7 +86,8 @@ class _LogInFormState extends State<LogInForm> {
             child: Opacity(
               opacity: widget.opacityTextFields.value,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(10.0, context)),
+                padding: EdgeInsets.symmetric(
+                    horizontal: ResponsivityUtils.compute(10.0, context)),
                 child: EnsureVisibleWhenFocused(
                   focusNode: _emailFocusNode,
                   child: WhiteTextFormField(
@@ -106,7 +108,8 @@ class _LogInFormState extends State<LogInForm> {
             child: Opacity(
               opacity: widget.opacityTextFields.value,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(10.0, context)),
+                padding: EdgeInsets.symmetric(
+                    horizontal: ResponsivityUtils.compute(10.0, context)),
                 child: EnsureVisibleWhenFocused(
                   focusNode: _passwordFocusNode,
                   child: WhiteTextFormField(
@@ -123,7 +126,8 @@ class _LogInFormState extends State<LogInForm> {
             ),
           ),
           Container(
-            margin: EdgeInsets.only(top: ResponsivityUtils.compute(50.0, context)),
+            margin:
+                EdgeInsets.only(top: ResponsivityUtils.compute(50.0, context)),
             child: Transform.scale(
               scale: 1.0,
               child: LogInButton(
