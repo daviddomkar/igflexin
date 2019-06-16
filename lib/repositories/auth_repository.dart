@@ -28,6 +28,8 @@ class AuthRepository with ChangeNotifier {
 
   Future<void> signInWithEmailAndPassword(String email, String password) async {
     _info = AuthInfoResource(state: AuthInfoState.Pending, data: null);
+    notifyListeners();
+
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
     } catch (error) {
@@ -43,6 +45,7 @@ class AuthRepository with ChangeNotifier {
 
   Future<void> signInWithGoogle() async {
     _info = AuthInfoResource(state: AuthInfoState.Pending, data: null);
+    notifyListeners();
 
     try {
       var googleSignIn = GoogleSignIn();
@@ -57,6 +60,7 @@ class AuthRepository with ChangeNotifier {
         ));
       } else {
         _info = AuthInfoResource(state: AuthInfoState.None, data: null);
+        notifyListeners();
       }
     } catch (error) {
       _handleAuthError(error);
@@ -65,6 +69,8 @@ class AuthRepository with ChangeNotifier {
 
   Future<void> signInWithFacebook() async {
     _info = AuthInfoResource(state: AuthInfoState.Pending, data: null);
+    notifyListeners();
+
     try {
       var facebookLogin = FacebookLogin();
       var result = await facebookLogin
@@ -78,6 +84,7 @@ class AuthRepository with ChangeNotifier {
           break;
         case FacebookLoginStatus.cancelledByUser:
           _info = AuthInfoResource(state: AuthInfoState.None, data: null);
+          notifyListeners();
           break;
         case FacebookLoginStatus.error:
           _handleAuthError(result);

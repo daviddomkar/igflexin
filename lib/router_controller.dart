@@ -42,7 +42,7 @@ class MainRouterController extends RouterController {
         push('auth');
         break;
       case UserState.Authenticated:
-        // push('app');
+        push('app', playExitAnimations: false, playOnlyLastAnimation: true);
         break;
     }
   }
