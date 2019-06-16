@@ -136,7 +136,8 @@ abstract class RouterController extends ChangeNotifier {
   RouterController(BuildContext context, this.routes, String startingRouteName)
       : controllers = List(),
         this.history = List() {
-    this.currentRoute = this.routes.firstWhere((route) => route.name == startingRouteName);
+    this.currentRoute =
+        this.routes.firstWhere((route) => route.name == startingRouteName);
     this._routerRepository = Provider.of<RouterRepository>(context);
   }
 
@@ -151,14 +152,21 @@ abstract class RouterController extends ChangeNotifier {
 
   void beforeBuild(BuildContext context) {}
 
-  Future<void> push(String routeName) async {
+  Future<void> push(String routeName,
+      {bool playExitAnimations = true,
+      bool playOnlyLastAnimation = false}) async {
     if (currentRoute.name == routeName) return;
 
-    _exiting = true;
-    await _routerRepository.reverseAnimationControllers(this);
-    _exiting = false;
+    if (playExitAnimations) {
+      _exiting = true;
+      await _routerRepository.reverseAnimationControllers(this);
+      _exiting = false;
+    } else if (playOnlyLastAnimation) {
+      await controllers.last.reverse();
+    }
 
-    Route nextRoute = this.routes.firstWhere((route) => route.name == routeName);
+    Route nextRoute =
+        this.routes.firstWhere((route) => route.name == routeName);
 
     if (nextRoute.clearsHistory) {
       history.clear();
@@ -205,7 +213,8 @@ abstract class RouterController extends ChangeNotifier {
 typedef Widget RouterAnimationControllerBuilder(
     BuildContext context, AnimationController controller);
 
-class RouterAnimationController<C extends RouterController> extends StatefulWidget {
+class RouterAnimationController<C extends RouterController>
+    extends StatefulWidget {
   RouterAnimationController({@required this.duration, @required this.builder});
 
   final Duration duration;
@@ -218,7 +227,8 @@ class RouterAnimationController<C extends RouterController> extends StatefulWidg
 }
 
 class _RouterAnimationControllerState<C extends RouterController>
-    extends State<RouterAnimationController> with SingleTickerProviderStateMixin {
+    extends State<RouterAnimationController>
+    with SingleTickerProviderStateMixin {
   RouterController _routerController;
   AnimationController _controller;
 
