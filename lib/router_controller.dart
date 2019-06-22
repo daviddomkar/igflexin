@@ -26,10 +26,8 @@ class MainRouterController extends RouterController {
     ];
   }
 
-  MainRouterController(BuildContext context)
-      : super(context, _generateRoutes(), 'splash');
+  MainRouterController(BuildContext context) : super(context, _generateRoutes(), 'splash');
 
-  /* (╯°□°）╯︵ ┻━┻ */
   @override
   void beforeBuild(BuildContext context) {
     UserResource user = Provider.of<UserRepository>(context).user;
