@@ -1,10 +1,14 @@
+// @ts-ignore
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import * as crypto from 'crypto';
+// @ts-ignore
 import * as cryptojs from "crypto-js";
 import {cloudkms_v1, google} from 'googleapis';
 import {IgApiClient, IgCheckpointError} from 'instagram-private-api';
+// @ts-ignore
 import Timestamp = admin.firestore.Timestamp;
+import { stripe as stripeFunction } from "./stripe/products";
 
 admin.initializeApp();
 
@@ -17,6 +21,9 @@ const jwtKMSManagerClient = new google.auth.JWT(IGFlexinKMSManagerServiceAccount
 
 const kms = new cloudkms_v1.Cloudkms({auth: jwtKMSManagerClient});
 
+export const stripe = functions.pubsub.topic('stripe').onPublish(stripeFunction);
+
+/*
 export const runner = functions
   .runWith({memory: '2GB'})
   .pubsub.schedule('* * * * *')
@@ -49,7 +56,8 @@ export const runner = functions
     await Promise.all(jobs);
   }
 );
-
+*/
+// @ts-ignore
 async function processAccount(username: string, password: string) {
   const ig = new IgApiClient();
   ig.state.generateDevice(username);
@@ -65,6 +73,7 @@ async function processAccount(username: string, password: string) {
   }
 }
 
+// @ts-ignore
 async function getUserKey(uid: string) {
   const keyDoc = await firestore.collection('keys').doc(uid).get();
 
@@ -99,19 +108,9 @@ function hashString(string: string, salt: string) {
   const hash = crypto.createHmac('sha512', salt);
   hash.update(string);
 
-  const value = hash.digest('hex');
-
-  return value;
+  return hash.digest('hex');
 }
 
 function getRandomString(length: number) {
   return crypto.randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
 }
-
-
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
