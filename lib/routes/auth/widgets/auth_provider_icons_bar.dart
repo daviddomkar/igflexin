@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:igflexin/repositories/auth_repository.dart';
 
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/icons/auth_provider_icons.dart';
+import 'package:provider/provider.dart';
 
 class AuthProviderIconsBar extends StatelessWidget {
   AuthProviderIconsBar({Key key, this.controller})
@@ -25,26 +27,35 @@ class AuthProviderIconsBar extends StatelessWidget {
         children: [
           Transform.scale(
             scale: scale.value,
-            child: Icon(
-              AuthProviderIcons.google,
+            child: IconButton(
+              icon: Icon(AuthProviderIcons.google),
               color: Colors.white,
-              size: ResponsivityUtils.compute(40.0, context),
+              iconSize: ResponsivityUtils.compute(40.0, context),
+              onPressed: () {
+                Provider.of<AuthRepository>(context).logInWithGoogle();
+              },
             ),
           ),
           Transform.scale(
             scale: scale.value,
-            child: Icon(
-              AuthProviderIcons.instagram,
+            child: IconButton(
+              icon: Icon(AuthProviderIcons.instagram),
               color: Colors.white,
-              size: ResponsivityUtils.compute(40.0, context),
+              iconSize: ResponsivityUtils.compute(40.0, context),
+              onPressed: () {
+                Provider.of<AuthRepository>(context).logInWithFacebook();
+              },
             ),
           ),
           Transform.scale(
             scale: scale.value,
-            child: Icon(
-              AuthProviderIcons.facebook,
+            child: IconButton(
+              icon: Icon(AuthProviderIcons.facebook),
               color: Colors.white,
-              size: ResponsivityUtils.compute(40.0, context),
+              iconSize: ResponsivityUtils.compute(40.0, context),
+              onPressed: () {
+                Provider.of<AuthRepository>(context).logInWithFacebook();
+              },
             ),
           ),
         ],

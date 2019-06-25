@@ -15,8 +15,7 @@ class App extends StatelessWidget {
         child: RaisedButton(
           highlightElevation: 0,
           elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
           color: Colors.black,
           child: Text(
             'Sign out',

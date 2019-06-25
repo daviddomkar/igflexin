@@ -17,33 +17,29 @@ class AuthRepository with ChangeNotifier {
   AuthInfoResource _info;
   StreamSubscription<FirebaseUser> _authSubscription;
 
-  Future<void> _onAuthStateChanged(FirebaseUser firebaseUser) async {
-    if (firebaseUser == null) {
-      _info = AuthInfoResource(state: AuthInfoState.None, data: null);
-    } else {
-      _info = AuthInfoResource(state: AuthInfoState.Success, data: null);
-    }
-    notifyListeners();
-  }
-
-  Future<void> signInWithEmailAndPassword(String email, String password) async {
+  Future<void> logInWithEmailAndPassword(String email, String password) async {
     _info = AuthInfoResource(state: AuthInfoState.Pending, data: null);
     notifyListeners();
 
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);
     } catch (error) {
-      if (error is PlatformException) {
-        print(error.code);
-      } else {
-        print(error);
-      }
-      _info = AuthInfoResource(state: AuthInfoState.Error, data: null);
-      notifyListeners();
+      _handleAuthError(error);
     }
   }
 
-  Future<void> signInWithGoogle() async {
+  Future<void> signUpWithEmailAndPassword(String email, String password) async {
+    _info = AuthInfoResource(state: AuthInfoState.Pending, data: null);
+    notifyListeners();
+
+    try {
+      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+    } catch (error) {
+      _handleAuthError(error);
+    }
+  }
+
+  Future<void> logInWithGoogle() async {
     _info = AuthInfoResource(state: AuthInfoState.Pending, data: null);
     notifyListeners();
 
@@ -67,14 +63,13 @@ class AuthRepository with ChangeNotifier {
     }
   }
 
-  Future<void> signInWithFacebook() async {
+  Future<void> logInWithFacebook() async {
     _info = AuthInfoResource(state: AuthInfoState.Pending, data: null);
     notifyListeners();
 
     try {
       var facebookLogin = FacebookLogin();
-      var result = await facebookLogin
-          .logInWithReadPermissions(['email', 'public_profile']);
+      var result = await facebookLogin.logInWithReadPermissions(['email', 'public_profile']);
 
       switch (result.status) {
         case FacebookLoginStatus.loggedIn:
@@ -99,16 +94,69 @@ class AuthRepository with ChangeNotifier {
     await _auth.signOut();
   }
 
+  Future<void> _onAuthStateChanged(FirebaseUser firebaseUser) async {
+    if (firebaseUser == null) {
+      _info = AuthInfoResource(state: AuthInfoState.None, data: null);
+    } else {
+      _info = AuthInfoResource(state: AuthInfoState.Success, data: null);
+    }
+    notifyListeners();
+  }
+
   void _handleAuthError(error) {
+    AuthError authError = AuthError.Unknown;
+
     if (error is PlatformException) {
-      print(error.code);
+      switch (error.code) {
+        case "ERROR_UNKNOWN":
+          authError = AuthError.Unknown;
+          break;
+        case "ERROR_API_NOT_AVAILABLE":
+          authError = AuthError.ServiceNotAvailable;
+          break;
+        case "ERROR_CUSTOM_TOKEN_MISMATCH":
+          authError = AuthError.Internal;
+          break;
+        case "ERROR_USER_DISABLED":
+          authError = AuthError.AccountDisabled;
+          break;
+        case "ERROR_OPERATION_NOT_ALLOWED":
+          authError = AuthError.OperationNotAllowed;
+          break;
+        case "ERROR_EMAIL_ALREADY_IN_USE":
+          authError = AuthError.EmailAlreadyInUse;
+          break;
+        case "ERROR_INVALID_EMAIL":
+          authError = AuthError.InvalidEmail;
+          break;
+        case "ERROR_WRONG_PASSWORD":
+          authError = AuthError.WrongPassword;
+          break;
+        case "ERROR_TOO_MANY_REQUESTS":
+          authError = AuthError.TooManyRequests;
+          break;
+        case "ERROR_USER_NOT_FOUND":
+          authError = AuthError.UserNotFound;
+          break;
+        case "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL":
+          authError = AuthError.AccountExistsWithDifferentCredential;
+          break;
+        case "ERROR_NETWORK_REQUEST_FAILED":
+          authError = AuthError.NetworkError;
+          break;
+        default:
+          authError = AuthError.Unknown;
+          break;
+      }
     } else if (error is FacebookLoginResult) {
       print(error.errorMessage);
     } else {
       print(error);
     }
-    // TODO Provide error data for better information about the error
-    _info = AuthInfoResource(state: AuthInfoState.Error, data: null);
+    _info = AuthInfoResource(
+      state: AuthInfoState.Error,
+      data: authError,
+    );
     notifyListeners();
   }
 
@@ -119,4 +167,48 @@ class AuthRepository with ChangeNotifier {
   }
 
   AuthInfoResource get info => _info;
+
+  static String getAuthErrorMessage(AuthError error) {
+    switch (error) {
+      case AuthError.Unknown:
+        return "An unknown error occurred!";
+        break;
+      case AuthError.ServiceNotAvailable:
+        return "Service is not available!";
+        break;
+      case AuthError.Internal:
+        return "Internal server error!";
+        break;
+      case AuthError.AccountDisabled:
+        return "Your account is disabled!";
+        break;
+      case AuthError.OperationNotAllowed:
+        return "This operation is not allowed!";
+        break;
+      case AuthError.EmailAlreadyInUse:
+        return "This email is already in use!";
+        break;
+      case AuthError.InvalidEmail:
+        return "Email is invalid. Check if you typed it correctly!";
+        break;
+      case AuthError.WrongPassword:
+        return "Wrong password!";
+        break;
+      case AuthError.TooManyRequests:
+        return "You are making too many requests!";
+        break;
+      case AuthError.UserNotFound:
+        return "Account with this email adress does not exist!";
+        break;
+      case AuthError.AccountExistsWithDifferentCredential:
+        return "This account is signed up with different login provider! Choose the right login provider and try again!";
+        break;
+      case AuthError.NetworkError:
+        return "Check your internet connection!";
+        break;
+      default:
+        return "An unknown error occurred!";
+        break;
+    }
+  }
 }

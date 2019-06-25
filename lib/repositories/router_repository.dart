@@ -99,6 +99,8 @@ class _RouterState<C extends RouterController> extends State<Router> {
 
     _routerRepository = Provider.of<RouterRepository>(context);
     _routerRepository.registerController(_routerController);
+
+    _routerController.didWidgetChangeDependencies(context);
   }
 
   @override
@@ -136,8 +138,7 @@ abstract class RouterController extends ChangeNotifier {
   RouterController(BuildContext context, this.routes, String startingRouteName)
       : controllers = List(),
         this.history = List() {
-    this.currentRoute =
-        this.routes.firstWhere((route) => route.name == startingRouteName);
+    this.currentRoute = this.routes.firstWhere((route) => route.name == startingRouteName);
     this._routerRepository = Provider.of<RouterRepository>(context);
   }
 
@@ -150,11 +151,12 @@ abstract class RouterController extends ChangeNotifier {
 
   bool _exiting = false;
 
+  void didWidgetChangeDependencies(BuildContext context) {}
+
   void beforeBuild(BuildContext context) {}
 
   Future<void> push(String routeName,
-      {bool playExitAnimations = true,
-      bool playOnlyLastAnimation = false}) async {
+      {bool playExitAnimations = true, bool playOnlyLastAnimation = false}) async {
     if (currentRoute.name == routeName) return;
 
     if (playExitAnimations) {
@@ -162,11 +164,12 @@ abstract class RouterController extends ChangeNotifier {
       await _routerRepository.reverseAnimationControllers(this);
       _exiting = false;
     } else if (playOnlyLastAnimation) {
-      await controllers.last.reverse();
+      if (controllers.isNotEmpty) {
+        await controllers.last.reverse();
+      }
     }
 
-    Route nextRoute =
-        this.routes.firstWhere((route) => route.name == routeName);
+    Route nextRoute = this.routes.firstWhere((route) => route.name == routeName);
 
     if (nextRoute.clearsHistory) {
       history.clear();
@@ -175,8 +178,11 @@ abstract class RouterController extends ChangeNotifier {
     }
 
     currentRoute = nextRoute;
+    afterPush(nextRoute);
     notifyListeners();
   }
+
+  void afterPush(Route nextRoute) {}
 
   Future<bool> pop() async {
     if (_exiting) {
@@ -213,8 +219,7 @@ abstract class RouterController extends ChangeNotifier {
 typedef Widget RouterAnimationControllerBuilder(
     BuildContext context, AnimationController controller);
 
-class RouterAnimationController<C extends RouterController>
-    extends StatefulWidget {
+class RouterAnimationController<C extends RouterController> extends StatefulWidget {
   RouterAnimationController({@required this.duration, @required this.builder});
 
   final Duration duration;
@@ -227,8 +232,7 @@ class RouterAnimationController<C extends RouterController>
 }
 
 class _RouterAnimationControllerState<C extends RouterController>
-    extends State<RouterAnimationController>
-    with SingleTickerProviderStateMixin {
+    extends State<RouterAnimationController> with SingleTickerProviderStateMixin {
   RouterController _routerController;
   AnimationController _controller;
 
