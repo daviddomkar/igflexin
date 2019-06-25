@@ -8,7 +8,7 @@ import {cloudkms_v1, google} from 'googleapis';
 import {IgApiClient, IgCheckpointError} from 'instagram-private-api';
 // @ts-ignore
 import Timestamp = admin.firestore.Timestamp;
-import { stripe as stripeFunction } from "./stripe/products";
+import { stripe as stripeFunction } from "./stripe/index";
 
 admin.initializeApp();
 
