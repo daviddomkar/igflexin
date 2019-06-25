@@ -63,8 +63,6 @@ class AuthProviderIconsBar extends StatelessWidget {
     );
   }
 
-  provider() => Provider;
-
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
