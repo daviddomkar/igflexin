@@ -3,7 +3,6 @@ import 'package:igflexin/repositories/auth_repository.dart';
 import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/resources/auth_info.dart';
 import 'package:igflexin/router_controller.dart';
-import 'package:igflexin/routes/auth/router_controller.dart';
 
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
@@ -29,8 +28,7 @@ class LogInButton extends StatefulWidget {
   _LogInButtonState createState() => _LogInButtonState();
 }
 
-class _LogInButtonState extends State<LogInButton>
-    with SingleTickerProviderStateMixin {
+class _LogInButtonState extends State<LogInButton> with SingleTickerProviderStateMixin {
   AnimationController _buttonScaleController;
   Animation<double> _scale;
 
@@ -39,8 +37,8 @@ class _LogInButtonState extends State<LogInButton>
   @override
   void initState() {
     super.initState();
-    _buttonScaleController = AnimationController(
-        duration: const Duration(milliseconds: 250), vsync: this);
+    _buttonScaleController =
+        AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
 
     _scale = Tween(begin: 50.0, end: 1.0).animate(CurvedAnimation(
       parent: _buttonScaleController,
@@ -74,11 +72,9 @@ class _LogInButtonState extends State<LogInButton>
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOutExpo,
-          width: ResponsivityUtils.compute(
-              state == AuthInfoState.Pending ? 50.0 : 300, context),
+          width: ResponsivityUtils.compute(state == AuthInfoState.Pending ? 50.0 : 300, context),
           height: ResponsivityUtils.compute(50.0, context),
-          margin:
-              EdgeInsets.only(top: ResponsivityUtils.compute(10.0, context)),
+          margin: EdgeInsets.only(top: ResponsivityUtils.compute(10.0, context)),
           child: CurvedWhiteButton(
             padding: EdgeInsets.all(0),
             child: Stack(
@@ -88,10 +84,8 @@ class _LogInButtonState extends State<LogInButton>
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.ease,
-                    opacity: state == AuthInfoState.None ||
-                            state == AuthInfoState.Error
-                        ? 1.0
-                        : 0.0,
+                    opacity:
+                        state == AuthInfoState.None || state == AuthInfoState.Error ? 1.0 : 0.0,
                     child: Text(
                       'Log In',
                       style: TextStyle(
