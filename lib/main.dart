@@ -31,6 +31,12 @@ class IGFlexinApp extends StatelessWidget {
       ],
       child: SystemBarsObserver(
         child: MaterialApp(
+          builder: (context, child) {
+            return ScrollConfiguration(
+              behavior: IGFlexinScrollBehavior(),
+              child: child,
+            );
+          },
           theme: ThemeData(
             fontFamily: 'LatoLatin',
             primaryColor: Color.fromARGB(255, 223, 61, 139),
@@ -44,5 +50,12 @@ class IGFlexinApp extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class IGFlexinScrollBehavior extends ScrollBehavior {
+  @override
+  Widget buildViewportChrome(BuildContext context, Widget child, AxisDirection axisDirection) {
+    return child;
   }
 }

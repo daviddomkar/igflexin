@@ -72,7 +72,9 @@ class _SignUpButtonState extends State<SignUpButton> with SingleTickerProviderSt
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOutExpo,
-          width: ResponsivityUtils.compute(state == AuthInfoState.Pending ? 50.0 : 300, context),
+          width: ResponsivityUtils.compute(
+              state == AuthInfoState.Pending || state == AuthInfoState.Success ? 50.0 : 300,
+              context),
           height: ResponsivityUtils.compute(50.0, context),
           margin: EdgeInsets.only(top: ResponsivityUtils.compute(10.0, context)),
           child: CurvedWhiteButton(
@@ -100,7 +102,9 @@ class _SignUpButtonState extends State<SignUpButton> with SingleTickerProviderSt
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.ease,
-                    opacity: state == AuthInfoState.Pending ? 1.0 : 0.0,
+                    opacity: state == AuthInfoState.Pending || state == AuthInfoState.Success
+                        ? 1.0
+                        : 0.0,
                     child: Container(
                       width: 40.0,
                       height: 40.0,
