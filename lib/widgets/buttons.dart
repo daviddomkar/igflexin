@@ -22,6 +22,27 @@ class CurvedWhiteBorderedTransparentButton extends StatelessWidget {
   }
 }
 
+class CurvedBlackBorderedTransparentButton extends StatelessWidget {
+  CurvedBlackBorderedTransparentButton({@required this.onPressed, @required this.child});
+
+  final GestureTapCallback onPressed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlatButton(
+      color: Colors.transparent,
+      child: child,
+      onPressed: onPressed,
+      shape: const StadiumBorder(
+        side: const BorderSide(
+          color: Colors.black,
+        ),
+      ),
+    );
+  }
+}
+
 class CurvedWhiteButton extends StatelessWidget {
   CurvedWhiteButton({@required this.onPressed, @required this.child, this.padding});
 
