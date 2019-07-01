@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:provider/provider.dart';
 
-class SystemBarsRepository extends ChangeNotifier {
+class SystemBarsRepository {
   bool useWhiteStatusBarForeground;
   bool useWhiteNavigationBarForeground;
 

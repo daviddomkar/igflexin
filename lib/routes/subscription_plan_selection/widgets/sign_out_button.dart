@@ -11,7 +11,7 @@ class SignOutButton extends StatelessWidget {
   SignOutButton({Key key, this.controller, this.systemBarsInfo})
       : height = Tween(begin: 0.0, end: _BOTTOM_HEIGHT_).animate(CurvedAnimation(
           parent: controller,
-          curve: new Interval(0.000, 0.250, curve: Curves.easeOutExpo),
+          curve: new Interval(0.000, 0.5 / 2.25, curve: Curves.easeOutExpo),
         )),
         margin = Tween(
                 begin: 0.0,
@@ -20,11 +20,11 @@ class SignOutButton extends StatelessWidget {
                     : systemBarsInfo.statusBarHeight)
             .animate(CurvedAnimation(
           parent: controller,
-          curve: new Interval(0.000, 0.250, curve: Curves.easeOutExpo),
+          curve: new Interval(0.000, 0.5 / 2.25, curve: Curves.easeOutExpo),
         )),
         scale = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
           parent: controller,
-          curve: new Interval(0.500, 1.000, curve: Curves.elasticOut),
+          curve: new Interval(0.5 / 2.25 * 3, 1.000, curve: Curves.elasticOut),
         )),
         super(key: key);
 

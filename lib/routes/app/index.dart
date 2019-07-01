@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Route;
 
 import 'package:igflexin/repositories/auth_repository.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
 
 import 'package:igflexin/utils/responsivity_utils.dart';
 
@@ -22,7 +23,7 @@ class App extends StatelessWidget {
             textDirection: TextDirection.ltr,
             style: TextStyle(
               fontSize: ResponsivityUtils.compute(16.0, context),
-              color: Color.fromARGB(255, 223, 61, 139),
+              color: Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
             ),
           ),
           onPressed: () {

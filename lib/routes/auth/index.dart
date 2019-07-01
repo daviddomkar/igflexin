@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart' hide Route;
 
 import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
 
 import 'package:igflexin/routes/auth/router_controller.dart';
+import 'package:provider/provider.dart';
 
 class Auth extends StatelessWidget {
   @override
@@ -16,7 +18,10 @@ class Auth extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             stops: [0.0, 1.0],
-            colors: [Color.fromARGB(255, 223, 61, 139), Color.fromARGB(255, 255, 161, 94)],
+            colors: [
+              Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
+              Provider.of<SubscriptionRepository>(context).planTheme.gradientEndColor
+            ],
           ),
         ),
         child: LayoutBuilder(
