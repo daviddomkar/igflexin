@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Route;
 
 import 'package:igflexin/repositories/auth_repository.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/repositories/system_bars_repository.dart';
 import 'package:igflexin/repositories/user_repository.dart';
 
@@ -28,6 +29,9 @@ class IGFlexinApp extends StatelessWidget {
         ChangeNotifierProvider<UserRepository>(
           builder: (_) => UserRepository(),
         ),
+        ChangeNotifierProvider<SubscriptionRepository>(
+          builder: (_) => SubscriptionRepository(),
+        ),
       ],
       child: SystemBarsObserver(
         child: MaterialApp(
@@ -39,8 +43,6 @@ class IGFlexinApp extends StatelessWidget {
           },
           theme: ThemeData(
             fontFamily: 'LatoLatin',
-            primaryColor: Color.fromARGB(255, 223, 61, 139),
-            accentColor: Color.fromARGB(255, 255, 161, 94),
           ),
           home: RouterPopScope(
             child: Router<MainRouterController>(

@@ -1,0 +1,27 @@
+import 'package:flutter/widgets.dart';
+import 'package:igflexin/resources/subscription_plan.dart';
+import 'package:igflexin/resources/subscription_plan_theme.dart';
+
+class SubscriptionRepository with ChangeNotifier {
+  SubscriptionPlanType _selectedPlanType = SubscriptionPlanType.Standard;
+  SubscriptionPlanInterval _selectedPlanInterval = SubscriptionPlanInterval.Month;
+
+  SubscriptionPlanTheme _planTheme = SubscriptionPlanTheme(SubscriptionPlanType.Standard);
+
+  void setSelectedPlanType(SubscriptionPlanType type) {
+    _selectedPlanType = type;
+    _planTheme = SubscriptionPlanTheme(_selectedPlanType);
+    notifyListeners();
+  }
+
+  void setSelectedPlanInterval(SubscriptionPlanInterval interval) {
+    _selectedPlanInterval = interval;
+    // TODO Probably call notifyListeners
+  }
+
+  SubscriptionPlanTheme get planTheme => _planTheme;
+  SubscriptionPlanType get selectedPlanType => _selectedPlanType;
+  SubscriptionPlanInterval get selectedPlanInterval => _selectedPlanInterval;
+
+  SubscriptionRepository();
+}

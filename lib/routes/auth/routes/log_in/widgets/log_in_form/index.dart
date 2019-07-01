@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:igflexin/repositories/auth_repository.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/auth_info.dart';
 
 import 'package:igflexin/routes/auth/widgets/text_form_field.dart';
@@ -78,7 +79,9 @@ class _LogInFormState extends State<LogInForm> {
             return RoundedAlertDialog(
               title: Text(
                 'Log In Error',
-                style: TextStyle(color: Theme.of(context).primaryColor),
+                style: TextStyle(
+                    color:
+                        Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor),
               ),
               content: Text(
                 AuthRepository.getAuthErrorMessage(_authRepository.info.data),

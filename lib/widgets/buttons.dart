@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
+import 'package:provider/provider.dart';
 
 class CurvedWhiteBorderedTransparentButton extends StatelessWidget {
   CurvedWhiteBorderedTransparentButton({@required this.onPressed, @required this.child});
@@ -98,8 +100,8 @@ class GradientButton extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).primaryColor,
-                      Theme.of(context).accentColor,
+                      Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
+                      Provider.of<SubscriptionRepository>(context).planTheme.gradientEndColor,
                     ],
                     begin: FractionalOffset.centerLeft,
                     end: FractionalOffset.centerRight,

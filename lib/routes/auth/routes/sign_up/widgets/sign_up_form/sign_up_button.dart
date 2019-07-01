@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:igflexin/repositories/auth_repository.dart';
 import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/auth_info.dart';
 import 'package:igflexin/router_controller.dart';
 
@@ -92,7 +93,9 @@ class _SignUpButtonState extends State<SignUpButton> with SingleTickerProviderSt
                       'Sign Up',
                       style: TextStyle(
                         fontSize: ResponsivityUtils.compute(16.0, context),
-                        color: Color.fromARGB(255, 223, 61, 139),
+                        color: Provider.of<SubscriptionRepository>(context)
+                            .planTheme
+                            .gradientStartColor,
                       ),
                     ),
                   ),
@@ -108,7 +111,12 @@ class _SignUpButtonState extends State<SignUpButton> with SingleTickerProviderSt
                     child: Container(
                       width: 40.0,
                       height: 40.0,
-                      child: CircularProgressIndicator(strokeWidth: 2.0),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.0,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Provider.of<SubscriptionRepository>(context).planTheme.gradientEndColor,
+                        ),
+                      ),
                     ),
                   ),
                 ),

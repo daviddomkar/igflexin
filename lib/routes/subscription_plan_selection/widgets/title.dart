@@ -8,7 +8,7 @@ class Title extends StatelessWidget {
   Title({Key key, this.controller, this.systemBarsInfo})
       : height = Tween(begin: 0.0, end: _TOP_HEIGHT_).animate(CurvedAnimation(
           parent: controller,
-          curve: new Interval(0.000, 0.250, curve: Curves.easeOutExpo),
+          curve: new Interval(0.000, 0.5 / 2.25, curve: Curves.easeOutExpo),
         )),
         margin = Tween(
                 begin: 0.0,
@@ -17,15 +17,15 @@ class Title extends StatelessWidget {
                     : systemBarsInfo.statusBarHeight)
             .animate(CurvedAnimation(
           parent: controller,
-          curve: new Interval(0.000, 0.250, curve: Curves.easeOutExpo),
+          curve: new Interval(0.000, 0.5 / 2.25, curve: Curves.easeOutExpo),
         )),
         opacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
           parent: controller,
-          curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
+          curve: new Interval(0.5 / 2.25, 0.5 / 2.25 * 2, curve: Curves.easeOut),
         )),
         offsetY = Tween(begin: 10.0, end: 0.0).animate(CurvedAnimation(
           parent: controller,
-          curve: new Interval(0.250, 0.500, curve: Curves.easeOut),
+          curve: new Interval(0.5 / 2.25, 0.5 / 2.25 * 2, curve: Curves.easeOut),
         )),
         super(key: key);
 
