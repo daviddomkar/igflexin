@@ -2,34 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:provider/provider.dart';
 
-class SystemBarsRepository extends ChangeNotifier {
-  bool useWhiteStatusBarForeground = true;
-  bool useWhiteNavigationBarForeground = true;
+class SystemBarsRepository {
+  bool useWhiteStatusBarForeground;
+  bool useWhiteNavigationBarForeground;
 
-  Future<void> setNavigationBarColor(Color color) async {
-    try {
-      await FlutterStatusbarcolor.setNavigationBarColor(color);
-    } catch (e) {}
+  void setNavigationBarColor(Color color) {
+    FlutterStatusbarcolor.setNavigationBarColor(color);
   }
 
-  Future<void> setStatusBarColor(Color color) async {
-    try {
-      await FlutterStatusbarcolor.setStatusBarColor(color);
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(useWhiteStatusBarForeground);
-      FlutterStatusbarcolor.setNavigationBarWhiteForeground(useWhiteNavigationBarForeground);
-    } catch (e) {}
+  void setStatusBarColor(Color color) {
+    FlutterStatusbarcolor.setStatusBarColor(color);
   }
 
-  Future<void> setLightForeground() async {
+  void setLightForeground() {
     useWhiteStatusBarForeground = true;
     useWhiteNavigationBarForeground = true;
-    await setStatusBarColor(Colors.transparent);
+    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+    FlutterStatusbarcolor.setNavigationBarWhiteForeground(true);
   }
 
-  Future<void> setDarkForeground() async {
+  void setDarkForeground() {
     useWhiteStatusBarForeground = false;
     useWhiteNavigationBarForeground = false;
-    await setStatusBarColor(Colors.transparent);
+    FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    FlutterStatusbarcolor.setNavigationBarWhiteForeground(false);
   }
 }
 
@@ -76,6 +72,7 @@ class _SystemBarsObserverState extends State<SystemBarsObserver> with WidgetsBin
         FlutterStatusbarcolor.setNavigationBarWhiteForeground(
             _systembarsRepository.useWhiteNavigationBarForeground);
     }
+
     super.didChangeAppLifecycleState(state);
   }
 

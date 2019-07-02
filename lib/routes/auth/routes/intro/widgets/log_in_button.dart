@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/routes/auth/router_controller.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
+import 'package:provider/provider.dart';
 
 class LogInButton extends StatelessWidget {
   LogInButton({Key key, this.controller})
@@ -30,7 +32,7 @@ class LogInButton extends StatelessWidget {
             textDirection: TextDirection.ltr,
             style: TextStyle(
               fontSize: ResponsivityUtils.compute(16.0, context),
-              color: Color.fromARGB(255, 223, 61, 139),
+              color: Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
             ),
           ),
           onPressed: () {

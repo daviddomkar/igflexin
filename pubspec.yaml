@@ -11,10 +11,10 @@ description: Reach Instagram popularity rapidly!
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.0.23+23
+version: 0.0.24+24
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -25,27 +25,26 @@ dependencies:
   cupertino_icons: ^0.1.2
 
   flutter_statusbarcolor: any
-
   flutter_system_bars:
     git:
       url: https://github.com/DEXIT33/flutter_system_bars
 
-  gradient_widgets: ^0.5.0
+  # gradient_widgets: ^0.5.0
 
   url_launcher: ^5.0.2
-  provider: ^2.0.1+1
+  provider: ^3.0.0+1
 
   google_sign_in: ^4.0.2
   flutter_facebook_login: ^2.0.1
 
-  firebase_core: ^0.4.0+1
-  firebase_analytics: ^3.0.1
-  firebase_auth: ^0.11.1
-  firebase_crashlytics: ^0.0.4
-  firebase_messaging: ^5.0.1+1
+  firebase_core: ^0.4.0+6
+  firebase_analytics: ^3.0.3
+  firebase_auth: ^0.11.1+7
+  firebase_crashlytics: ^0.0.4+3
+  firebase_messaging: ^5.0.4
 
-  cloud_firestore: ^0.11.0+2
-  cloud_functions: ^0.3.0+1
+  cloud_firestore: ^0.12.5+2
+  cloud_functions: ^0.4.0+2
 
 dev_dependencies:
   flutter_test:

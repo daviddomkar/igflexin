@@ -27,7 +27,7 @@ class MainActivity: FlutterActivity(), ViewTreeObserver.OnGlobalLayoutListener {
     window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
     if (window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_STABLE != View.SYSTEM_UI_FLAG_LAYOUT_STABLE || window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION != View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-      window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+      window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
   }
 
   override fun onPause() {
@@ -35,14 +35,14 @@ class MainActivity: FlutterActivity(), ViewTreeObserver.OnGlobalLayoutListener {
     window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
     if (window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_STABLE != View.SYSTEM_UI_FLAG_LAYOUT_STABLE || window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION != View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-      window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+      window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
   }
 
   override fun onGlobalLayout() {
     window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
     if (window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_STABLE != View.SYSTEM_UI_FLAG_LAYOUT_STABLE || window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION != View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-      window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+      window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
   }
 
   override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -50,7 +50,7 @@ class MainActivity: FlutterActivity(), ViewTreeObserver.OnGlobalLayoutListener {
     window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
     if (window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_STABLE != View.SYSTEM_UI_FLAG_LAYOUT_STABLE || window.decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION != View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-      window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+      window.decorView.systemUiVisibility = (window.decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
   }
 
   override fun attachBaseContext(base: Context) {
