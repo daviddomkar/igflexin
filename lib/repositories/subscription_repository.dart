@@ -9,14 +9,14 @@ class SubscriptionRepository with ChangeNotifier {
   SubscriptionPlanTheme _planTheme = SubscriptionPlanTheme(SubscriptionPlanType.Standard);
 
   void setSelectedPlanType(SubscriptionPlanType type) {
+    if (_selectedPlanType == type) return;
+
     _selectedPlanType = type;
     _planTheme = SubscriptionPlanTheme(_selectedPlanType);
-    notifyListeners();
   }
 
   void setSelectedPlanInterval(SubscriptionPlanInterval interval) {
     _selectedPlanInterval = interval;
-    // TODO Probably call notifyListeners
   }
 
   SubscriptionPlanTheme get planTheme => _planTheme;
