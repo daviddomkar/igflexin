@@ -1,3 +1,4 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Route;
 
 import 'package:igflexin/repositories/auth_repository.dart';
@@ -10,7 +11,13 @@ import 'package:igflexin/router_controller.dart';
 
 import 'package:provider/provider.dart';
 
-void main() => runApp(IGFlexinApp());
+void main() {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    Crashlytics.instance.onError(details);
+  };
+
+  runApp(IGFlexinApp());
+}
 
 class IGFlexinApp extends StatelessWidget {
   @override
