@@ -21,7 +21,7 @@ PODS:
     - Flutter
   - Crashlytics (3.13.1):
     - Fabric (~> 1.10.1)
-  - Fabric (1.10.1)
+  - Fabric (1.10.2)
   - FBSDKCoreKit (4.39.1):
     - Bolts (~> 1.9)
   - FBSDKLoginKit (4.39.1):
@@ -278,7 +278,7 @@ SPEC CHECKSUMS:
   cloud_firestore: bea98f51ff83b368d2984d3a6b9a6ac8dd89bf63
   cloud_functions: 9ecdccbb914fb5ceaf8b73d867308a6afa14e084
   Crashlytics: 5aa8e90dcbf2f34898b4f5a0037787531246cca0
-  Fabric: f6f21452846788bb44595d73e9909d79d328e617
+  Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
   FBSDKCoreKit: f442aa96179cc9b382bb4abeb7e340a47cca8f91
   FBSDKLoginKit: c3079d9a4db27c492287b1eed7a4272b28cf8a59
   Firebase: 8d77bb33624ae9b62d745d82ec023de5f70f7e4f
