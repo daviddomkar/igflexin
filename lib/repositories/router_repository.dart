@@ -34,6 +34,26 @@ class RouterRepository {
     await Future.wait(futures);
   }
 
+  Future<void> reverseAnimationControllersExceptLast(RouterController controller) async {
+    var startIndex = _controllers.indexOf(controller);
+
+    List<Future<void>> futures = List<Future<void>>();
+
+    for (var i = startIndex; i < _controllers.length; i++) {
+      var index = 0;
+
+      _controllers[i].controllers.forEach((animationController) {
+        if (i != startIndex || index != _controllers[i].controllers.length - 1) {
+          futures.add(animationController.reverse());
+        }
+
+        index++;
+      });
+    }
+
+    await Future.wait(futures);
+  }
+
   Future<void> forwardAnimationControllers(RouterController controller) async {
     var startIndex = _controllers.indexOf(controller);
 
@@ -156,7 +176,9 @@ abstract class RouterController extends ChangeNotifier {
   void beforeBuild(BuildContext context) {}
 
   Future<void> push(String routeName,
-      {bool playExitAnimations = true, bool playOnlyLastAnimation = false}) async {
+      {bool playExitAnimations = true,
+      bool playOnlyLastAnimation = false,
+      bool playExceptLastAnimation = false}) async {
     if (currentRoute.name == routeName) return;
 
     if (playExitAnimations) {
@@ -167,6 +189,8 @@ abstract class RouterController extends ChangeNotifier {
       if (controllers.isNotEmpty) {
         await controllers.last.reverse();
       }
+    } else if (playExceptLastAnimation) {
+      await _routerRepository.reverseAnimationControllersExceptLast(this);
     }
 
     Route nextRoute = this.routes.firstWhere((route) => route.name == routeName);

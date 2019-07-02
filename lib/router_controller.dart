@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart' hide Route;
 
 import 'package:igflexin/repositories/router_repository.dart';
@@ -8,8 +9,9 @@ import 'package:igflexin/resources/user.dart';
 
 import 'package:igflexin/routes/app/index.dart';
 import 'package:igflexin/routes/auth/index.dart';
-import 'package:igflexin/routes/billing_setup/index.dart';
 import 'package:igflexin/routes/splash/index.dart';
+import 'package:igflexin/routes/subscription_plan_payment_flow/index.dart';
+import 'package:igflexin/routes/subscription_plan_selection/index.dart';
 
 import 'package:provider/provider.dart';
 
@@ -22,9 +24,12 @@ class MainRouterController extends RouterController {
       Route('auth', (context) {
         return Auth();
       }, clearsHistory: true),
-      Route('billing_setup', (context) {
-        return BillingSetup();
+      Route('subscription_plan_selection', (context) {
+        return SubscriptionPlanSelection();
       }, clearsHistory: true),
+      Route('subscription_plan_payment_flow', (context) {
+        return SubscriptionPlanPaymentFlow();
+      }, clearsHistory: false),
       Route('app', (context) {
         return App();
       }, clearsHistory: true),
@@ -57,7 +62,8 @@ class MainRouterController extends RouterController {
         push('auth');
         break;
       case UserState.Authenticated:
-        push('billing_setup', playExitAnimations: false, playOnlyLastAnimation: true);
+        push('subscription_plan_selection',
+            playExitAnimations: false, playExceptLastAnimation: true);
         break;
     }
   }
@@ -73,9 +79,13 @@ class MainRouterController extends RouterController {
         print('auth');
         _systembarsRepository.setLightForeground();
         break;
-      case 'billing_setup':
-        print('billing_setup');
+      case 'subscription_plan_selection':
+        print('subscription_plan_selection');
         _systembarsRepository.setDarkForeground();
+        break;
+      case '':
+        print('subscription_plan_payment_flow');
+        _systembarsRepository.setLightForeground();
         break;
       case 'app':
         print('app');

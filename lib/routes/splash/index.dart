@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
+import 'package:provider/provider.dart';
 
 class Splash extends StatelessWidget {
   @override
@@ -10,8 +12,8 @@ class Splash extends StatelessWidget {
           end: Alignment.bottomCenter,
           stops: [0.0, 1.0],
           colors: [
-            Color.fromARGB(255, 223, 61, 139),
-            Color.fromARGB(255, 255, 161, 94),
+            Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
+            Provider.of<SubscriptionRepository>(context).planTheme.gradientEndColor,
           ],
         ),
       ),
