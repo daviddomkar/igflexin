@@ -196,7 +196,7 @@ DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - cloud_functions (from `.symlinks/plugins/cloud_functions/ios`)
   - Crashlytics
-  - Fabric
+  - Fabric (~> 1.10.1)
   - Firebase/Analytics
   - Firebase/Auth
   - Firebase/Core
@@ -313,6 +313,6 @@ SPEC CHECKSUMS:
   Protobuf: 7a877b7f3e5964e3fce995e2eb323dbc6831bb5a
   url_launcher: 0067ddb8f10d36786672aa0722a21717dba3a298
 
-PODFILE CHECKSUM: 4565482fefca1c6628accc461cec0ed259eaf82b
+PODFILE CHECKSUM: 18040af1cf53e8b6a8bae629fc07c19828143924
 
 COCOAPODS: 1.6.1
