@@ -96,6 +96,15 @@ class MainRouterController extends RouterController {
 
   @override
   void afterPush(Route nextRoute) {
+    _changeSystemBarsAppearanceForToNextRoute(nextRoute);
+  }
+
+  @override
+  void afterPop(Route nextRoute) {
+    _changeSystemBarsAppearanceForToNextRoute(nextRoute);
+  }
+
+  void _changeSystemBarsAppearanceForToNextRoute(Route nextRoute) {
     switch (nextRoute.name) {
       case 'splash':
         print('splash');

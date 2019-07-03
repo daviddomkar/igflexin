@@ -221,11 +221,15 @@ abstract class RouterController extends ChangeNotifier {
 
     await _routerRepository.reverseAnimationControllers(this);
 
-    currentRoute = history.removeLast();
+    Route nextRoute = history.removeLast();
+    currentRoute = nextRoute;
+    afterPop(nextRoute);
     notifyListeners();
 
     return false;
   }
+
+  void afterPop(Route nextRoute) {}
 
   void registerAnimationController(AnimationController controller) {
     if (!this.controllers.contains(controller)) {
