@@ -5,6 +5,7 @@ platform :ios, '9.0'
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
 pod 'Firebase/Functions'
+pod 'Firebase/Firestore'
 
 project 'Runner', {
   'Debug' => :debug,
