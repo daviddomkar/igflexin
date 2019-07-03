@@ -195,9 +195,6 @@ PODS:
 DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - cloud_functions (from `.symlinks/plugins/cloud_functions/ios`)
-  - Firebase/Firestore (~> 6.0)
-  - Firebase/Functions (~> 6.0)
-  - Firebase/Messaging (~> 6.0)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -271,7 +268,7 @@ SPEC CHECKSUMS:
   Bolts: ac6567323eac61e203f6a9763667d0f711be34c8
   BoringSSL-GRPC: db8764df3204ccea016e1c8dd15d9a9ad63ff318
   cloud_firestore: bea98f51ff83b368d2984d3a6b9a6ac8dd89bf63
-  cloud_functions: a2b552290bd57a1d90f5f0df366b74d3de00a1b8
+  cloud_functions: 9ecdccbb914fb5ceaf8b73d867308a6afa14e084
   Crashlytics: 611738c7847f8291a1a51084e35987b86ba6b3ee
   Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
   FBSDKCoreKit: f442aa96179cc9b382bb4abeb7e340a47cca8f91
@@ -308,6 +305,6 @@ SPEC CHECKSUMS:
   Protobuf: 3f617b9a6e73605565086864c9bc26b2bf2dd5a3
   url_launcher: 0067ddb8f10d36786672aa0722a21717dba3a298
 
-PODFILE CHECKSUM: f2e4147550755778f3b8f082be50574c24825e21
+PODFILE CHECKSUM: b41eda09bfc2cee20e9bc250131632c0cf55170e
 
 COCOAPODS: 1.6.1
