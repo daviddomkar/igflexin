@@ -159,8 +159,6 @@ class SubscriptionPlanDetail extends StatelessWidget {
                             Provider.of<SubscriptionRepository>(context)
                                 .setSelectedPlanInterval(SubscriptionPlanInterval.Month);
 
-                            Server.createUserData();
-
                             Router.of<MainRouterController>(context)
                                 .push('subscription_plan_payment_flow');
                           },
