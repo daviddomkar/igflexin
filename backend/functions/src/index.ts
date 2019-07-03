@@ -1,17 +1,25 @@
-// @ts-ignore
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import * as crypto from 'crypto';
-// @ts-ignore
-import * as cryptojs from "crypto-js";
-import {cloudkms_v1, google} from 'googleapis';
-import {IgApiClient, IgCheckpointError} from 'instagram-private-api';
-// @ts-ignore
-import Timestamp = admin.firestore.Timestamp;
-import { stripe as stripeFunction } from "./stripe/index";
+// import * as crypto from 'crypto';
+//import * as cryptojs from "crypto-js";
+// import {cloudkms_v1, google} from 'googleapis';
+// import {IgApiClient, IgCheckpointError} from 'instagram-private-api';
+// import Timestamp = admin.firestore.Timestamp;
+import { pubSub, initialSubscriptionPurchase } from './stripe';
 
 admin.initializeApp();
 
+export const createUserData = functions.https.onCall(/* async */ (data, context) => {
+
+  console.log('Jsem broken hahaha');
+
+  // await (await import('./core/create_user_data')).default(data, context);
+});
+
+export const stripe = functions.pubsub.topic('stripe').onPublish(pubSub);
+export const stripeInitialSubscriptionPurchase = functions.https.onCall(initialSubscriptionPurchase);
+
+/*
 const firestore = admin.firestore();
 
 const KMS_MANAGER_SERVICE_ACCOUNT_FILE = './igflexin-5d2db-1b141234f3a2.json';
@@ -20,8 +28,7 @@ const IGFlexinKMSManagerServiceAccount = require(KMS_MANAGER_SERVICE_ACCOUNT_FIL
 const jwtKMSManagerClient = new google.auth.JWT(IGFlexinKMSManagerServiceAccount.client_email, KMS_MANAGER_SERVICE_ACCOUNT_FILE, IGFlexinKMSManagerServiceAccount.private_key, ['https://www.googleapis.com/auth/cloud-platform'], undefined, undefined);
 
 const kms = new cloudkms_v1.Cloudkms({auth: jwtKMSManagerClient});
-
-export const stripe = functions.pubsub.topic('stripe').onPublish(stripeFunction);
+*/
 
 /*
 export const runner = functions
@@ -57,6 +64,8 @@ export const runner = functions
   }
 );
 */
+
+/*
 // @ts-ignore
 async function processAccount(username: string, password: string) {
   const ig = new IgApiClient();
@@ -113,4 +122,4 @@ function hashString(string: string, salt: string) {
 
 function getRandomString(length: number) {
   return crypto.randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
-}
+}*/

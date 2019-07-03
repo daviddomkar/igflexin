@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:igflexin/core/server.dart';
 import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
-import 'package:igflexin/resources/subscription_plan.dart';
-import 'package:igflexin/resources/subscription_plan_theme.dart';
+import 'package:igflexin/models/subscription_plan.dart';
+import 'package:igflexin/models/subscription_plan_theme.dart';
 import 'package:igflexin/router_controller.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
@@ -157,8 +159,10 @@ class SubscriptionPlanDetail extends StatelessWidget {
                             Provider.of<SubscriptionRepository>(context)
                                 .setSelectedPlanInterval(SubscriptionPlanInterval.Month);
 
-                            //Router.of<MainRouterController>(context)
-                            //    .push('subscription_plan_payment_flow');
+                            Server.createUserData();
+
+                            Router.of<MainRouterController>(context)
+                                .push('subscription_plan_payment_flow');
                           },
                         ),
                       ],
@@ -186,8 +190,8 @@ class SubscriptionPlanDetail extends StatelessWidget {
                             Provider.of<SubscriptionRepository>(context)
                                 .setSelectedPlanInterval(SubscriptionPlanInterval.Year);
 
-                            //Router.of<MainRouterController>(context)
-                            //    .push('subscription_plan_payment_flow');
+                            Router.of<MainRouterController>(context)
+                                .push('subscription_plan_payment_flow');
                           },
                         ),
                       ],
