@@ -74,9 +74,11 @@ packages:
   firebase_crashlytics:
     dependency: "direct main"
     description:
-      name: firebase_crashlytics
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "packages/firebase_crashlytics"
+      ref: HEAD
+      resolved-ref: "02ff5689d23a9111d6d5da295a358db5198eef5f"
+      url: "git://github.com/flutter/plugins.git"
+    source: git
     version: "0.0.4+8"
   firebase_messaging:
     dependency: "direct main"
