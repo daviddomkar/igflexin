@@ -197,6 +197,7 @@ DEPENDENCIES:
   - cloud_functions (from `.symlinks/plugins/cloud_functions/ios`)
   - Firebase/Firestore
   - Firebase/Functions
+  - Firebase/Messaging
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -307,6 +308,6 @@ SPEC CHECKSUMS:
   Protobuf: 3f617b9a6e73605565086864c9bc26b2bf2dd5a3
   url_launcher: 0067ddb8f10d36786672aa0722a21717dba3a298
 
-PODFILE CHECKSUM: 7b48216ef3824a4cf2d8744cafd1c4c9b67cf836
+PODFILE CHECKSUM: e72e89beed0d0894329ebb1f2a5c9475261a0ef3
 
 COCOAPODS: 1.6.1
