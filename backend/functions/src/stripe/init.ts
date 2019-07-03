@@ -1,5 +1,6 @@
 import * as admin from 'firebase-admin';
 import * as Stripe from 'stripe';
+import {SubscriptionPlanInterval, SubscriptionPlanType} from '../types/subscription_plan';
 
 export default async function init(stripe: Stripe) {
   const product = await stripe.products.create({
@@ -13,68 +14,59 @@ export default async function init(stripe: Stripe) {
     merge: true
   });
 
-  const plansToCreate = [];
+  const planIDs: any = {};
 
-  plansToCreate.push([
-    stripe.plans.create({
-      product: product.id,
-      nickname: 'Monthly Basic Subscription',
-      currency: 'gbp',
-      interval: 'month',
-      amount: 999,
-    }),
-    stripe.plans.create({
-      product: product.id,
-      nickname: 'Monthly Standard Subscription',
-      currency: 'gbp',
-      interval: 'month',
-      amount: 1499,
-    }),
-    stripe.plans.create({
-      product: product.id,
-      nickname: 'Monthly Business Subscription',
-      currency: 'gbp',
-      interval: 'month',
-      amount: 1999,
-    }),
-    stripe.plans.create({
-      product: product.id,
-      nickname: 'Monthly Business PRO Subscription',
-      currency: 'gbp',
-      interval: 'month',
-      amount: 2999,
-    }),
-    stripe.plans.create({
-      product: product.id,
-      nickname: 'Yearly Basic Subscription',
-      currency: 'gbp',
-      interval: 'year',
-      amount: 9999,
-    }),
-    stripe.plans.create({
-      product: product.id,
-      nickname: 'Yearly Standard Subscription',
-      currency: 'gbp',
-      interval: 'year',
-      amount: 14999,
-    }),
-    stripe.plans.create({
-      product: product.id,
-      nickname: 'Yearly Business Subscription',
-      currency: 'gbp',
-      interval: 'year',
-      amount: 19999,
-    }),
-    stripe.plans.create({
-      product: product.id,
-      nickname: 'Yearly Business PRO Subscription',
-      currency: 'gbp',
-      interval: 'year',
-      amount: 29999,
-    })
-  ]);
+  planIDs['month'] = {} as any;
+  planIDs['year'] = {} as any;
 
-  await Promise.all(plansToCreate);
+  async function createPlan(interval: SubscriptionPlanInterval, type: SubscriptionPlanType) {
+    const plan = await stripe.plans.create({
+      product: product.id,
+      nickname: ((): string => {
+        switch (type) {
+          case 'basic':
+            return interval === 'month' ? 'Monthly Basic Subscription' : 'Yearly Basic Subscription';
+          case 'standard':
+            return interval === 'month' ? 'Monthly Standard Subscription' : 'Yearly Standard Subscription';
+          case 'business':
+            return interval === 'month' ? 'Monthly Business Subscription' : 'Yearly Business Subscription';
+          case 'business_pro':
+            return interval === 'month' ? 'Monthly Business PRO Subscription' : 'Yearly Business PRO Subscription';
+        }
+      })(),
+      currency: 'gbp',
+      interval: interval,
+      amount: ((): number => {
+        switch (type) {
+          case 'basic':
+            return interval === 'month' ? 999 : 9999;
+          case 'standard':
+            return interval === 'month' ? 1499 : 14999;
+          case 'business':
+            return interval === 'month' ? 1999 : 19999;
+          case 'business_pro':
+            return interval === 'month' ? 2999 : 29999;
+        }
+      })(),
+    });
+
+    planIDs[interval][type] = plan.id;
+  }
+
+  await createPlan('month', 'basic');
+  await createPlan('month', 'standard');
+  await createPlan('month', 'business');
+  await createPlan('month', 'business_pro');
+  await createPlan('year', 'basic');
+  await createPlan('year', 'standard');
+  await createPlan('year', 'business');
+  await createPlan('year', 'business_pro');
+
+  await admin.firestore().collection('system').doc('stripe').set({
+    plans_ids: planIDs
+  }, {
+    merge: true
+  });
 
   console.log('Init completed');
 }

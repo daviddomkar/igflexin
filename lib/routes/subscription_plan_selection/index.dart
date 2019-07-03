@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' hide Route, Title;
 import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
-import 'package:igflexin/resources/subscription_plan.dart';
+import 'package:igflexin/models/subscription_plan.dart';
 import 'package:igflexin/router_controller.dart';
 import 'package:igflexin/routes/subscription_plan_selection/widgets/sign_out_button.dart';
 import 'package:igflexin/routes/subscription_plan_selection/widgets/subscription_plans/index.dart';

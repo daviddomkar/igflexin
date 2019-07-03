@@ -13,7 +13,7 @@ class AuthRepository with ChangeNotifier {
     _authSubscription = _auth.onAuthStateChanged.listen(_onAuthStateChanged);
   }
 
-  FirebaseAuth _auth;
+  final FirebaseAuth _auth;
   AuthInfoResource _info;
   StreamSubscription<FirebaseUser> _authSubscription;
 

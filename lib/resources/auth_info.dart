@@ -1,4 +1,4 @@
-import 'package:igflexin/core/resource.dart';
+import 'package:igflexin/models/resource.dart';
 import 'package:meta/meta.dart';
 
 enum AuthError {
