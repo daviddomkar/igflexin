@@ -27,7 +27,6 @@ export default async function createUserData(data: any, context: CallableContext
   if (createNewData) {
     // Create user data
     await admin.firestore().collection('users').doc(uid).set({
-      activeSubscription: { interval: 'none', type: 'none'},
       eligibleForFreeTrial: true,
       userCompleted: true
     });

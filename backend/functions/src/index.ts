@@ -9,11 +9,8 @@ import { pubSub, initialSubscriptionPurchase } from './stripe';
 
 admin.initializeApp();
 
-export const createUserData = functions.https.onCall(/* async */ (data, context) => {
-
-  console.log('Jsem broken hahaha');
-
-  // await (await import('./core/create_user_data')).default(data, context);
+export const createUserData = functions.https.onCall(async (data, context) => {
+  await (await import('./core/create_user_data')).default(data, context);
 });
 
 export const stripe = functions.pubsub.topic('stripe').onPublish(pubSub);
