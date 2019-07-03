@@ -6,6 +6,7 @@ ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
 pod 'Firebase/Functions'
 pod 'Firebase/Firestore'
+pod 'Firebase/Messaging'
 
 project 'Runner', {
   'Debug' => :debug,
