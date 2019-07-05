@@ -29,6 +29,9 @@ dependencies:
     git:
       url: https://github.com/DEXIT33/flutter_system_bars
 
+  flutter_stripe:
+    path: ../flutter_stripe
+
   # gradient_widgets: ^0.5.0
 
   url_launcher: ^5.0.2

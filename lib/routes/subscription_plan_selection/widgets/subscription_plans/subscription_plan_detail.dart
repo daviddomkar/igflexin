@@ -5,12 +5,14 @@ import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/models/subscription_plan.dart';
 import 'package:igflexin/models/subscription_plan_theme.dart';
+import 'package:igflexin/repositories/user_repository.dart';
+import 'package:igflexin/resources/user.dart';
 import 'package:igflexin/router_controller.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 
-class SubscriptionPlanDetail extends StatelessWidget {
+class SubscriptionPlanDetail extends StatefulWidget {
   SubscriptionPlanDetail({Key key, this.active, this.planType, this.controller})
       : sideMargin = Tween(begin: 0.0, end: 10.0).animate(CurvedAnimation(
           parent: controller,
@@ -45,24 +47,56 @@ class SubscriptionPlanDetail extends StatelessWidget {
   final SubscriptionPlan plan;
   final SubscriptionPlanTheme planTheme;
 
+  @override
+  _SubscriptionPlanDetailState createState() => _SubscriptionPlanDetailState();
+}
+
+class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
+  UserRepository _userRepository;
+  bool _eligibleForFreeTrial = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _userRepository = Provider.of<UserRepository>(context);
+
+    _eligibleForFreeTrial = _userRepository.user.state == UserState.Authenticated &&
+        _userRepository.user.data.eligibleForFreeTrial;
+
+    _userRepository.addListener(_eligibleForFreeTrialListener);
+  }
+
+  void _eligibleForFreeTrialListener() {
+    if (_userRepository.user.state == UserState.Authenticated) {
+      _eligibleForFreeTrial = _userRepository.user.data.eligibleForFreeTrial;
+    }
+  }
+
+  @override
+  void dispose() {
+    _userRepository.removeListener(_eligibleForFreeTrialListener);
+    super.dispose();
+  }
+
   Widget _buildAnimation(BuildContext context, Widget child) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
       curve: Curves.easeOutQuint,
       margin: EdgeInsets.only(
-        top: active ? 0 : ResponsivityUtils.compute(40, context),
-        right: active ? ResponsivityUtils.compute(sideMargin.value, context) : 0,
-        left: active ? ResponsivityUtils.compute(sideMargin.value, context) : 0,
-        bottom: active ? 0 : ResponsivityUtils.compute(40, context),
+        top: widget.active ? 0 : ResponsivityUtils.compute(40, context),
+        right: widget.active ? ResponsivityUtils.compute(widget.sideMargin.value, context) : 0,
+        left: widget.active ? ResponsivityUtils.compute(widget.sideMargin.value, context) : 0,
+        bottom: widget.active ? 0 : ResponsivityUtils.compute(40, context),
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(
-            ResponsivityUtils.compute(active ? borderRadius.value : 30.0, context)),
+            ResponsivityUtils.compute(widget.active ? widget.borderRadius.value : 30.0, context)),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           stops: [0.0, 1.0],
-          colors: [planTheme.gradientStartColor, planTheme.gradientEndColor],
+          colors: [widget.planTheme.gradientStartColor, widget.planTheme.gradientEndColor],
         ),
       ),
       child: Column(
@@ -72,14 +106,14 @@ class SubscriptionPlanDetail extends StatelessWidget {
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutQuint,
             margin: EdgeInsets.only(
-                top: ResponsivityUtils.compute(active ? 20.0 : 10.0, context),
-                bottom: ResponsivityUtils.compute(active ? 15.0 : 5.0, context)),
+                top: ResponsivityUtils.compute(widget.active ? 20.0 : 10.0, context),
+                bottom: ResponsivityUtils.compute(widget.active ? 15.0 : 5.0, context)),
             child: Transform.translate(
-              offset: Offset(0.0, contentOffsetY.value),
+              offset: Offset(0.0, widget.contentOffsetY.value),
               child: Opacity(
-                opacity: contentOpacity.value,
+                opacity: widget.contentOpacity.value,
                 child: Text(
-                  plan.name,
+                  widget.plan.name,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: ResponsivityUtils.compute(30.0, context),
@@ -91,12 +125,12 @@ class SubscriptionPlanDetail extends StatelessWidget {
             ),
           ),
           Transform.translate(
-            offset: Offset(0.0, contentOffsetY.value),
+            offset: Offset(0.0, widget.contentOffsetY.value),
             child: Opacity(
-              opacity: contentOpacity.value,
+              opacity: widget.contentOpacity.value,
               child: Column(
                 children: [
-                  for (var feature in plan.features)
+                  for (var i = _eligibleForFreeTrial ? 0 : 1; i < widget.plan.features.length; i++)
                     Row(
                       children: [
                         Padding(
@@ -111,10 +145,11 @@ class SubscriptionPlanDetail extends StatelessWidget {
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.easeOutQuint,
                             padding: EdgeInsets.symmetric(
-                                vertical: ResponsivityUtils.compute(active ? 10.0 : 5.0, context),
+                                vertical:
+                                    ResponsivityUtils.compute(widget.active ? 10.0 : 5.0, context),
                                 horizontal: ResponsivityUtils.compute(10.0, context)),
                             child: Text(
-                              feature,
+                              widget.plan.features[i],
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
@@ -129,22 +164,22 @@ class SubscriptionPlanDetail extends StatelessWidget {
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutQuint,
             margin: EdgeInsets.only(
-              top: ResponsivityUtils.compute(active ? 10.0 : 5.0, context),
-              bottom: ResponsivityUtils.compute(active ? 20.0 : 5.0, context),
+              top: ResponsivityUtils.compute(widget.active ? 10.0 : 5.0, context),
+              bottom: ResponsivityUtils.compute(widget.active ? 20.0 : 5.0, context),
               left: ResponsivityUtils.compute(20.0, context),
               right: ResponsivityUtils.compute(20.0, context),
             ),
             child: Transform.translate(
-              offset: Offset(0.0, contentOffsetY.value),
+              offset: Offset(0.0, widget.contentOffsetY.value),
               child: Opacity(
-                opacity: contentOpacity.value,
+                opacity: widget.contentOpacity.value,
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          plan.monthlyPrice,
+                          widget.plan.monthlyPrice,
                           style: TextStyle(
                             fontSize: ResponsivityUtils.compute(20.0, context),
                             color: Colors.white,
@@ -152,8 +187,8 @@ class SubscriptionPlanDetail extends StatelessWidget {
                         ),
                         CurvedWhiteButton(
                           child: Text(
-                            'SELECT',
-                            style: TextStyle(color: planTheme.gradientStartColor),
+                            _eligibleForFreeTrial ? 'TRY FREE' : 'SELECT',
+                            style: TextStyle(color: widget.planTheme.gradientStartColor),
                           ),
                           onPressed: () {
                             Provider.of<SubscriptionRepository>(context)
@@ -173,7 +208,7 @@ class SubscriptionPlanDetail extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          plan.yearlyPrice,
+                          widget.plan.yearlyPrice,
                           style: TextStyle(
                             fontSize: ResponsivityUtils.compute(20.0, context),
                             color: Colors.white,
@@ -181,8 +216,8 @@ class SubscriptionPlanDetail extends StatelessWidget {
                         ),
                         CurvedWhiteButton(
                           child: Text(
-                            'SELECT',
-                            style: TextStyle(color: planTheme.gradientStartColor),
+                            _eligibleForFreeTrial ? 'TRY FREE' : 'SELECT',
+                            style: TextStyle(color: widget.planTheme.gradientStartColor),
                           ),
                           onPressed: () {
                             Provider.of<SubscriptionRepository>(context)
@@ -207,7 +242,7 @@ class SubscriptionPlanDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: controller,
+      animation: widget.controller,
       builder: _buildAnimation,
     );
   }

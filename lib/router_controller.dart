@@ -69,14 +69,20 @@ class MainRouterController extends RouterController {
       case UserState.Authenticated:
         switch (subscription.state) {
           case SubscriptionState.None:
-            push('splash');
-            break;
-          case SubscriptionState.Inactive:
             push(
-              'subscription_plan_selection',
+              'splash',
               playExitAnimations: false,
               playExceptLastAnimation: true,
             );
+            break;
+          case SubscriptionState.Inactive:
+            if (currentRoute.name != 'subscription_plan_payment_flow') {
+              push(
+                'subscription_plan_selection',
+                playExitAnimations: false,
+                playExceptLastAnimation: true,
+              );
+            }
             break;
           case SubscriptionState.Active:
             if (currentRoute.name == 'auth') {

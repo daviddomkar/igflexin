@@ -104,6 +104,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0"
+  flutter_stripe:
+    dependency: "direct main"
+    description:
+      path: "..\\flutter_stripe"
+      relative: true
+    source: path
+    version: "0.0.1"
   flutter_system_bars:
     dependency: "direct main"
     description:

@@ -1,11 +1,21 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/widgets.dart';
+import 'package:igflexin/core/server.dart';
+
 import 'package:igflexin/models/subscription_plan.dart';
 import 'package:igflexin/models/subscription_plan_theme.dart';
 import 'package:igflexin/resources/subscription.dart';
+
+import 'package:flutter_stripe/stripe.dart';
+import 'package:flutter_stripe/payment_configuration.dart';
+import 'package:flutter_stripe/customer_session.dart';
+import 'package:flutter_stripe/ephemeral_key_provider.dart';
+import 'package:flutter_stripe/ephemeral_key_update_listener.dart';
 
 class SubscriptionRepository with ChangeNotifier {
   SubscriptionRepository()
@@ -13,6 +23,9 @@ class SubscriptionRepository with ChangeNotifier {
         _auth = FirebaseAuth.instance,
         _firestore = Firestore.instance {
     _authSubscription = _auth.onAuthStateChanged.listen(_onAuthStateChanged);
+
+    PaymentConfiguration.init('pk_test_QzBEY7OA6yAJWkD9tEmTZI9900rEaBIVHK');
+    _stripe = Stripe(PaymentConfiguration.instance.publishableKey);
   }
 
   SubscriptionPlanType _selectedPlanType = SubscriptionPlanType.Standard;
@@ -29,6 +42,8 @@ class SubscriptionRepository with ChangeNotifier {
 
   FirebaseAuth _auth;
   Firestore _firestore;
+
+  Stripe _stripe;
 
   StreamSubscription<FirebaseUser> _authSubscription;
   StreamSubscription<DocumentSnapshot> _userDataSubscription;
@@ -87,6 +102,30 @@ class SubscriptionRepository with ChangeNotifier {
 
     _authSubscription.cancel();
     super.dispose();
+  }
+
+  Future<void> beginCustomerSession() async {
+    await CustomerSession.initCustomerSessionUsingFunction(
+        (String apiVersion, EphemeralKeyUpdateListener keyUpdateListener) async {
+      print('SubscriptionRepository 2');
+
+      try {
+        var rawKey = await Server.createEphemeralKey(
+          apiVersion: apiVersion,
+        );
+
+        print(rawKey);
+
+        keyUpdateListener.onKeyUpdate(rawKey);
+      } catch (e) {
+        keyUpdateListener.onKeyUpdateFailure(0, "Ephemeral key creation failed.");
+        throw e;
+      }
+    });
+  }
+
+  Future<void> endCustomerSession() async {
+    await CustomerSession.endCustomerSession();
   }
 
 /*

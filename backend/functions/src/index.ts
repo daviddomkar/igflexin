@@ -10,10 +10,15 @@ import { pubSub, initialSubscriptionPurchase } from './stripe';
 admin.initializeApp();
 
 export const createUserData = functions.https.onCall(async (data, context) => {
-  await (await import('./core/create_user_data')).default(data, context);
+  await (await import('./auth/create_user_data')).default(data, context);
 });
 
 export const stripe = functions.pubsub.topic('stripe').onPublish(pubSub);
+
+export const createEphemeralKey = functions.https.onCall(async (data, context) => {
+  return await (await import('./stripe/create_ephemeral_key')).default(data, context);
+});
+
 export const stripeInitialSubscriptionPurchase = functions.https.onCall(initialSubscriptionPurchase);
 
 /*

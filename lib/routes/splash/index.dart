@@ -8,8 +8,8 @@ class Splash extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           stops: [0.0, 1.0],
           colors: [
             Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,

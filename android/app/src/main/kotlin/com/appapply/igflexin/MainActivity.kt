@@ -1,5 +1,3 @@
-/* DISCLAIMER: STATEMENTS ARE COMENTED DUE TO OVERRIDE IN FLUTTERSTATUSBARCOLOR CUSTOM FORK AT https://github.com/DEXIT33/flutter_statusbarcolor */
-
 package com.appapply.igflexin
 
 import android.os.Bundle

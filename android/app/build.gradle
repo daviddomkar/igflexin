@@ -42,7 +42,7 @@ android {
 
     defaultConfig {
         applicationId "com.appapply.igflexin"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 28
         multiDexEnabled true
         versionCode flutterVersionCode.toInteger()
@@ -76,13 +76,6 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation 'androidx.multidex:multidex:2.0.1'
-
-    implementation "com.google.firebase:firebase-core:16.0.9"
-    implementation "com.google.firebase:firebase-auth:17.0.0"
-    implementation "com.crashlytics.sdk.android:crashlytics:2.10.0"
-    implementation "com.google.firebase:firebase-messaging:18.0.0"
-    implementation "com.google.firebase:firebase-firestore:19.0.0"
-    implementation "com.google.firebase:firebase-functions:17.0.0"
 }
 repositories {
     mavenCentral()
@@ -90,3 +83,5 @@ repositories {
 
 apply plugin: 'io.fabric'
 apply plugin: 'com.google.gms.google-services'
+
+
