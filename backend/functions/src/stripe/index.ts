@@ -1,8 +1,6 @@
 import * as functions from 'firebase-functions';
 import { CallableContext } from "firebase-functions/lib/providers/https";
-
-// TODO Change to production key
-const STRIPE_SECRET_KEY = 'sk_test_ScPVsTjy2QAildXltrlHzJU900L0e1QTYz';
+import {STRIPE_SECRET_KEY} from '../core/keys';
 
 export async function pubSub(message: any) {
   const stripe = new (await import("stripe"))(STRIPE_SECRET_KEY);
