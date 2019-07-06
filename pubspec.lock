@@ -107,7 +107,7 @@ packages:
   flutter_stripe:
     dependency: "direct main"
     description:
-      path: "..\\flutter_stripe"
+      path: "../flutter_stripe"
       relative: true
     source: path
     version: "0.0.1"
