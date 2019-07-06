@@ -11,11 +11,11 @@ import 'package:igflexin/models/subscription_plan.dart';
 import 'package:igflexin/models/subscription_plan_theme.dart';
 import 'package:igflexin/resources/subscription.dart';
 
-import 'package:flutter_stripe/stripe.dart';
-import 'package:flutter_stripe/payment_configuration.dart';
-import 'package:flutter_stripe/customer_session.dart';
-import 'package:flutter_stripe/ephemeral_key_provider.dart';
-import 'package:flutter_stripe/ephemeral_key_update_listener.dart';
+import 'package:flutter_stripe_sdk/stripe.dart';
+import 'package:flutter_stripe_sdk/payment_configuration.dart';
+import 'package:flutter_stripe_sdk/customer_session.dart';
+import 'package:flutter_stripe_sdk/ephemeral_key_provider.dart';
+import 'package:flutter_stripe_sdk/ephemeral_key_update_listener.dart';
 
 class SubscriptionRepository with ChangeNotifier {
   SubscriptionRepository()
