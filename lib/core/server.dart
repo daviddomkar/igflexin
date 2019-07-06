@@ -14,7 +14,7 @@ class Server {
     }
   }
 
-  static Future<String> createEphemeralKey({String apiVersion}) async {
+  static Future<dynamic> createEphemeralKey({String apiVersion}) async {
     try {
       print('Creating ephemeral key');
       var result = await CloudFunctions.instance

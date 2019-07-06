@@ -39,8 +39,8 @@ export default async function createEphemeralKey(data: any, context: CallableCon
     stripe_version: data.apiVersion
   });
 
-  console.log(JSON.stringify(key));
+  console.log(key);
 
   // Send key back to client
-  return JSON.stringify(key);
+  return key;
 }
