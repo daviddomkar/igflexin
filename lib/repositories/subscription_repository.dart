@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -139,7 +138,13 @@ class SubscriptionRepository with ChangeNotifier {
       await beginCustomerSession();
     }
 
-    return await _customerSession.retrieveCurrentCustomer();
+    try {
+      return await _customerSession.retrieveCurrentCustomer();
+    } catch (e) {
+      print('Catched');
+      print(e);
+      return Customer();
+    }
   }
 
   Future<void> endCustomerSession() async {
