@@ -214,7 +214,9 @@ class __SubscriptionPaymentFlowState extends State<_SubscriptionPaymentFlow> {
                   color: Colors.white,
                 ),
               ),
-              onPressed: () {},
+              onPressed: () {
+                _subscriptionRepository.getCustomer();
+              },
             ),
           ),
         ),

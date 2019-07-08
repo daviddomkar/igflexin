@@ -4,12 +4,8 @@ class Server {
   static Future<void> createUserData() async {
     try {
       await CloudFunctions.instance.getHttpsCallable(functionName: 'createUserData').call();
-    } on CloudFunctionsException catch (e) {
+    } catch (e) {
       print('createUserData call exception');
-      print(e.code);
-      print(e.message);
-      print(e.details);
-
       throw e;
     }
   }
@@ -24,12 +20,8 @@ class Server {
       });
       print(result.data);
       return result.data;
-    } on CloudFunctionsException catch (e) {
+    } catch (e) {
       print('createEphemeralKey call exception');
-      print(e.code);
-      print(e.message);
-      print(e.details);
-
       throw e;
     }
   }
