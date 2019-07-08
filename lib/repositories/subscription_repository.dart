@@ -28,10 +28,9 @@ class SubscriptionRepository with ChangeNotifier {
     _stripe = Stripe(PaymentConfiguration.instance.publishableKey);
   }
 
+  SubscriptionPlanTheme _planTheme = SubscriptionPlanTheme(SubscriptionPlanType.Standard);
   SubscriptionPlanType _selectedPlanType = SubscriptionPlanType.Standard;
   SubscriptionPlanInterval _selectedPlanInterval = SubscriptionPlanInterval.Month;
-
-  SubscriptionPlanTheme _planTheme = SubscriptionPlanTheme(SubscriptionPlanType.Standard);
 
   SubscriptionPlanTheme get planTheme => _planTheme;
   SubscriptionPlanType get selectedPlanType => _selectedPlanType;

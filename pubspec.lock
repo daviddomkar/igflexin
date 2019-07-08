@@ -100,10 +100,12 @@ packages:
   flutter_statusbarcolor:
     dependency: "direct main"
     description:
-      name: flutter_statusbarcolor
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.0"
+      path: "."
+      ref: HEAD
+      resolved-ref: e130538f8909a1febeb054db9f3c5da2f51de9fe
+      url: "https://github.com/DEXIT33/flutter_statusbarcolor"
+    source: git
+    version: "0.2.1"
   flutter_stripe_sdk:
     dependency: "direct main"
     description:
