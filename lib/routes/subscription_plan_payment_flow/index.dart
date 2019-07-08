@@ -250,7 +250,9 @@ class __SubscriptionPaymentFlowState extends State<_SubscriptionPaymentFlow> {
                         ),
                 ],
               ),
-              onPressed: () {},
+              onPressed: () {
+                _subscriptionRepository.endCustomerSession();
+              },
             ),
           ),
         ),
