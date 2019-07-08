@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -229,13 +231,21 @@ class __SubscriptionPaymentFlowState extends State<_SubscriptionPaymentFlow> {
                   Text(
                     'Buy with',
                   ),
-                  Container(
-                    margin: EdgeInsets.only(left: ResponsivityUtils.compute(5.0, context)),
-                    child: Image.asset(
-                      'assets/google_pay.png',
-                      height: ResponsivityUtils.compute(20.0, context),
-                    ),
-                  ),
+                  Platform.isIOS
+                      ? Container(
+                          margin: EdgeInsets.only(left: ResponsivityUtils.compute(3.0, context)),
+                          child: Image.asset(
+                            'assets/apple_pay.png',
+                            height: ResponsivityUtils.compute(20.0, context),
+                          ),
+                        )
+                      : Container(
+                          margin: EdgeInsets.only(left: ResponsivityUtils.compute(3.0, context)),
+                          child: Image.asset(
+                            'assets/google_pay.png',
+                            height: ResponsivityUtils.compute(20.0, context),
+                          ),
+                        ),
                 ],
               ),
               onPressed: () {},
