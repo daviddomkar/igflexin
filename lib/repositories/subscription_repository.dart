@@ -149,13 +149,16 @@ class SubscriptionRepository with ChangeNotifier {
   }
 
   Future<void> attachTestPaymentMethod() async {
-    await _customerSession.attachPaymentMethod(id: 'pm_card_visa');
+    await _customerSession.updateCurrentCustomer();
+    await _customerSession.attachPaymentMethod(id: 'pm_card_de');
     await _customerSession.updateCurrentCustomer();
   }
 
   Future<void> endCustomerSession() async {
-    await CustomerSession.endCustomerSession();
-    _customerSession = null;
+    if (_customerSession != null) {
+      await CustomerSession.endCustomerSession();
+      _customerSession = null;
+    }
   }
 
   Future<void> restartCustomerSession() async {
