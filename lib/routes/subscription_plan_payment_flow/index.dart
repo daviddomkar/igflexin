@@ -215,7 +215,30 @@ class __SubscriptionPaymentFlowState extends State<_SubscriptionPaymentFlow> {
                 ),
               ),
               onPressed: () {
-                _subscriptionRepository.getCustomer();
+                showDialog(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (BuildContext dialogContext) {
+                    return AlertDialog(
+                      title: Text('title'),
+                      content: Text('dialogBody'),
+                      actions: [
+                        FlatButton(
+                          child: Text('buttonText'),
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+                _subscriptionRepository.getPaymentMethods().then((paymentMethods) {
+                  print('Retrieved payment methods:');
+                  for (var paymentMethod in paymentMethods) {
+                    print(paymentMethod.type);
+                  }
+                });
               },
             ),
           ),
@@ -251,7 +274,7 @@ class __SubscriptionPaymentFlowState extends State<_SubscriptionPaymentFlow> {
                 ],
               ),
               onPressed: () {
-                _subscriptionRepository.endCustomerSession();
+                _subscriptionRepository.attachTestPaymentMethod();
               },
             ),
           ),

@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_stripe_sdk/model/customer.dart';
+import 'package:flutter_stripe_sdk/model/payment_method.dart';
 import 'package:igflexin/core/server.dart';
 
 import 'package:igflexin/models/subscription_plan.dart';
@@ -25,7 +26,7 @@ class SubscriptionRepository with ChangeNotifier {
         _customerSession = null {
     _authSubscription = _auth.onAuthStateChanged.listen(_onAuthStateChanged);
 
-    PaymentConfiguration.init('pk_test_QzBEY7OA6yAJWkD9tEmTZI9900rEaBIVHK');
+    PaymentConfiguration.init('rk_test_BwBJaUkalaHA1VZcSPsNFUUU00cZl3OZ2k');
     _stripe = Stripe(PaymentConfiguration.instance.publishableKey);
   }
 
@@ -133,23 +134,33 @@ class SubscriptionRepository with ChangeNotifier {
     _customerSession = CustomerSession.instance;
   }
 
-  Future<Customer> getCustomer() async {
+  Future<List<PaymentMethod>> getPaymentMethods() async {
     if (_customerSession == null) {
       await beginCustomerSession();
     }
 
-    try {
-      return await _customerSession.retrieveCurrentCustomer();
-    } catch (e) {
-      print('Catched');
-      print(e);
-      return Customer();
+    if ((await _customerSession.retrieveCurrentCustomer()).id !=
+        (await _firestore.collection('users').document((await _auth.currentUser()).uid).get())
+            .data['customerId']) {
+      await restartCustomerSession();
     }
+
+    return await _customerSession.getPaymentMethods(type: PaymentMethodType.Card);
+  }
+
+  Future<void> attachTestPaymentMethod() async {
+    await _customerSession.attachPaymentMethod(id: 'pm_card_visa');
+    await _customerSession.updateCurrentCustomer();
   }
 
   Future<void> endCustomerSession() async {
     await CustomerSession.endCustomerSession();
     _customerSession = null;
+  }
+
+  Future<void> restartCustomerSession() async {
+    await endCustomerSession();
+    await beginCustomerSession();
   }
 
 /*
