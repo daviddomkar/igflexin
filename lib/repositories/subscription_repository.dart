@@ -8,8 +8,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_stripe_sdk/model/payment_method.dart';
 import 'package:igflexin/core/server.dart';
 
-import 'package:igflexin/models/subscription_plan.dart';
-import 'package:igflexin/models/subscription_plan_theme.dart';
+import 'package:igflexin/model/subscription_plan.dart';
+import 'package:igflexin/model/subscription_plan_theme.dart';
 import 'package:igflexin/resources/subscription.dart';
 
 import 'package:flutter_stripe_sdk/stripe.dart';

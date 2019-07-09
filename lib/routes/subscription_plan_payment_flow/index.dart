@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
-import 'package:igflexin/models/subscription_plan.dart';
+import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/repositories/user_repository.dart';
