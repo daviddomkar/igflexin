@@ -5,7 +5,6 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_stripe_sdk/model/customer.dart';
 import 'package:flutter_stripe_sdk/model/payment_method.dart';
 import 'package:igflexin/core/server.dart';
 
@@ -149,7 +148,6 @@ class SubscriptionRepository with ChangeNotifier {
   }
 
   Future<void> attachTestPaymentMethod() async {
-    await _customerSession.updateCurrentCustomer();
     await _customerSession.attachPaymentMethod(id: 'pm_card_de');
     await _customerSession.updateCurrentCustomer();
   }

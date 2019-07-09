@@ -7,6 +7,7 @@ import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/models/subscription_plan.dart';
 import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
+import 'package:igflexin/repositories/user_repository.dart';
 import 'package:igflexin/router_controller.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
@@ -74,12 +75,14 @@ class _SubscriptionPaymentFlow extends StatefulWidget {
 
 class __SubscriptionPaymentFlowState extends State<_SubscriptionPaymentFlow> {
   SubscriptionRepository _subscriptionRepository;
+  UserRepository _userRepository;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     _subscriptionRepository = Provider.of<SubscriptionRepository>(context);
+    _userRepository = Provider.of<UserRepository>(context);
   }
 
   @override
