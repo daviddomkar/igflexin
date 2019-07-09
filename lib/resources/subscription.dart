@@ -1,5 +1,5 @@
-import 'package:igflexin/models/resource.dart';
-import 'package:igflexin/models/subscription_plan.dart';
+import 'package:igflexin/model/resource.dart';
+import 'package:igflexin/model/subscription_plan.dart';
 import 'package:meta/meta.dart';
 
 class Subscription {
