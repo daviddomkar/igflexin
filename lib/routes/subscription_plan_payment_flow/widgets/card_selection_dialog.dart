@@ -130,8 +130,12 @@ class _CardSelectionDialogState extends State<CardSelectionDialog>
       return RoundedAlertDialog(
         title: Text(
           'Network error',
+          textAlign: TextAlign.center,
           style: TextStyle(
-              color: Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor),
+            fontSize: ResponsivityUtils.compute(23.0, context),
+            fontWeight: FontWeight.bold,
+            color: Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
+          ),
         ),
         content: Text(
           'Check your internet connection!',
