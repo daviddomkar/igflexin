@@ -1,4 +1,3 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart' hide Route;
 
 import 'package:igflexin/repositories/router_repository.dart';

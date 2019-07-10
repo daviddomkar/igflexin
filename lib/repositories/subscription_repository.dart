@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -22,11 +23,23 @@ class SubscriptionRepository with ChangeNotifier {
       : _subscription = SubscriptionResource(state: SubscriptionState.None, data: null),
         _auth = FirebaseAuth.instance,
         _firestore = Firestore.instance,
-        _customerSession = null {
+        _customerSession = null,
+        _isApplePayAvailable = false,
+        _isGooglePayAvailable = false {
     _authSubscription = _auth.onAuthStateChanged.listen(_onAuthStateChanged);
 
-    PaymentConfiguration.init('rk_test_BwBJaUkalaHA1VZcSPsNFUUU00cZl3OZ2k');
+    PaymentConfiguration.init('pk_test_U7q3vkJbTG0ROvB1IHEznZ4s00haOEFHjX');
     _stripe = Stripe(PaymentConfiguration.instance.publishableKey);
+
+    // TODO make this actually true
+
+    if (Platform.isIOS) {
+      _isApplePayAvailable = true;
+    }
+
+    if (Platform.isAndroid) {
+      _isGooglePayAvailable = true;
+    }
   }
 
   SubscriptionPlanTheme _planTheme = SubscriptionPlanTheme(SubscriptionPlanType.Standard);
@@ -46,12 +59,18 @@ class SubscriptionRepository with ChangeNotifier {
   Stripe _stripe;
   CustomerSession _customerSession;
 
+  bool _isApplePayAvailable;
+  bool _isGooglePayAvailable;
+
+  bool get isApplePayAvailable => _isApplePayAvailable;
+  bool get isGooglePayAvailable => _isGooglePayAvailable;
+
   StreamSubscription<FirebaseUser> _authSubscription;
   StreamSubscription<DocumentSnapshot> _userDataSubscription;
 
   Future<void> _onAuthStateChanged(FirebaseUser firebaseUser) async {
     if (firebaseUser == null) {
-      endCustomerSession();
+      _endCustomerSession();
       _subscription = SubscriptionResource(state: SubscriptionState.None, data: null);
       notifyListeners();
     } else {
@@ -65,7 +84,7 @@ class SubscriptionRepository with ChangeNotifier {
 
   Future<void> _onUserDataChanged(DocumentSnapshot data) async {
     if (data.exists) {
-      beginCustomerSession();
+      _beginCustomerSession();
       if (data.data.containsKey('activeSubscription')) {
         _subscription = SubscriptionResource(
             state: SubscriptionState.Active,
@@ -107,7 +126,26 @@ class SubscriptionRepository with ChangeNotifier {
     super.dispose();
   }
 
-  Future<void> beginCustomerSession() async {
+  Future<List<PaymentMethod>> getPaymentMethods() async {
+    if (_customerSession == null) {
+      await _beginCustomerSession();
+    }
+
+    if ((await _customerSession.retrieveCurrentCustomer()).id !=
+        (await _firestore.collection('users').document((await _auth.currentUser()).uid).get())
+            .data['customerId']) {
+      await _restartCustomerSession();
+    }
+
+    return await _customerSession.getPaymentMethods(type: PaymentMethodType.Card);
+  }
+
+  Future<void> attachTestPaymentMethod() async {
+    await _customerSession.attachPaymentMethod(id: 'pm_card_de');
+    await _customerSession.updateCurrentCustomer();
+  }
+
+  Future<void> _beginCustomerSession() async {
     await CustomerSession.initCustomerSessionUsingFunction(
       (String apiVersion, EphemeralKeyUpdateListener keyUpdateListener) async {
         try {
@@ -133,35 +171,16 @@ class SubscriptionRepository with ChangeNotifier {
     _customerSession = CustomerSession.instance;
   }
 
-  Future<List<PaymentMethod>> getPaymentMethods() async {
-    if (_customerSession == null) {
-      await beginCustomerSession();
-    }
-
-    if ((await _customerSession.retrieveCurrentCustomer()).id !=
-        (await _firestore.collection('users').document((await _auth.currentUser()).uid).get())
-            .data['customerId']) {
-      await restartCustomerSession();
-    }
-
-    return await _customerSession.getPaymentMethods(type: PaymentMethodType.Card);
-  }
-
-  Future<void> attachTestPaymentMethod() async {
-    await _customerSession.attachPaymentMethod(id: 'pm_card_de');
-    await _customerSession.updateCurrentCustomer();
-  }
-
-  Future<void> endCustomerSession() async {
+  Future<void> _endCustomerSession() async {
     if (_customerSession != null) {
       await CustomerSession.endCustomerSession();
       _customerSession = null;
     }
   }
 
-  Future<void> restartCustomerSession() async {
-    await endCustomerSession();
-    await beginCustomerSession();
+  Future<void> _restartCustomerSession() async {
+    await _endCustomerSession();
+    await _beginCustomerSession();
   }
 
 /*

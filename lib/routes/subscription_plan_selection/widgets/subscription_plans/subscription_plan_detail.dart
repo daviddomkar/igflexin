@@ -1,6 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:igflexin/core/server.dart';
 import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/model/subscription_plan.dart';
@@ -61,22 +59,9 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
 
     _userRepository = Provider.of<UserRepository>(context);
 
-    _eligibleForFreeTrial = _userRepository.user.state == UserState.Authenticated &&
-        _userRepository.user.data.eligibleForFreeTrial;
-
-    _userRepository.addListener(_eligibleForFreeTrialListener);
-  }
-
-  void _eligibleForFreeTrialListener() {
     if (_userRepository.user.state == UserState.Authenticated) {
       _eligibleForFreeTrial = _userRepository.user.data.eligibleForFreeTrial;
     }
-  }
-
-  @override
-  void dispose() {
-    _userRepository.removeListener(_eligibleForFreeTrialListener);
-    super.dispose();
   }
 
   Widget _buildAnimation(BuildContext context, Widget child) {
