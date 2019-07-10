@@ -24,7 +24,7 @@ class RoundedAlertDialog extends StatelessWidget {
       ),
       shape: RoundedRectangleBorder(
           borderRadius:
-              BorderRadius.all(Radius.circular(ResponsivityUtils.compute(25.0, context)))),
+              BorderRadius.all(Radius.circular(ResponsivityUtils.compute(30.0, context)))),
       title: Align(
         alignment: Alignment.center,
         child: title,

@@ -10,7 +10,6 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
 
 import 'widgets/sign_up_form/index.dart';
-import 'widgets/problems_with_logging_in.dart';
 
 const double _BOTTOM_HEIGHT_ = 104.0;
 
