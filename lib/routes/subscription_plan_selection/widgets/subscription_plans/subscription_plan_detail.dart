@@ -131,7 +131,7 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
                             curve: Curves.easeOutQuint,
                             padding: EdgeInsets.symmetric(
                                 vertical:
-                                    ResponsivityUtils.compute(widget.active ? 10.0 : 5.0, context),
+                                    ResponsivityUtils.compute(widget.active ? 10.0 : 3.0, context),
                                 horizontal: ResponsivityUtils.compute(10.0, context)),
                             child: Text(
                               widget.plan.features[i],
@@ -149,8 +149,8 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutQuint,
             margin: EdgeInsets.only(
-              top: ResponsivityUtils.compute(widget.active ? 10.0 : 5.0, context),
-              bottom: ResponsivityUtils.compute(widget.active ? 20.0 : 5.0, context),
+              top: ResponsivityUtils.compute(widget.active ? 8.0 : 3.0, context),
+              bottom: ResponsivityUtils.compute(widget.active ? 8.0 : 3.0, context),
               left: ResponsivityUtils.compute(20.0, context),
               right: ResponsivityUtils.compute(20.0, context),
             ),

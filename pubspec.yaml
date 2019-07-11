@@ -35,6 +35,8 @@ dependencies:
   flutter_stripe_sdk:
     path: ../flutter_stripe_sdk
 
+  flutter_credit_card: 0.1.0
+
   # gradient_widgets: ^0.5.0
 
   url_launcher: ^5.0.2
