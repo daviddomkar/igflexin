@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
-import 'package:igflexin/routes/auth/widgets/text_form_field.dart';
 import 'package:igflexin/utils/keyboard_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
@@ -16,19 +15,13 @@ class AddNewCard extends StatefulWidget {
   }
 }
 
-/*
-LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints viewportConstraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: viewportConstraints.maxHeight,
-                ),
-                child: IntrinsicHeight(
-                  child: Container(),),);
-*/
-
 class _AddNewCardState extends State<AddNewCard> {
+  String _cardNumber = '';
+  String _expiryDate = '';
+  String _cvv = '';
+  String _cardHolderName = '';
+  bool _cvvFocused = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -69,11 +62,11 @@ class _AddNewCardState extends State<AddNewCard> {
                               child: CreditCardWidget(
                                 width: ResponsivityUtils.compute(400.0, context),
                                 height: ResponsivityUtils.compute(180.0, context),
-                                cardNumber: "4242 4242 4242 4242",
-                                expiryDate: "12/19",
-                                cardHolderName: "David Domkář",
-                                cvvCode: "852",
-                                showBackView: false,
+                                cardNumber: _cardNumber,
+                                expiryDate: _expiryDate,
+                                cvvCode: _cvv,
+                                cardHolderName: _cardHolderName,
+                                showBackView: _cvvFocused,
                                 textStyle: TextStyle(
                                   fontFamily: 'LatoLatin',
                                   fontSize: 16,
@@ -103,9 +96,14 @@ class _AddNewCardState extends State<AddNewCard> {
                         ),
                       ),
                     ),
-                    /*
-                    */
-                    CreditCardForm(),
+                    CreditCardForm(
+                      onCardNumber: (cardNumber) => setState(() => _cardNumber = cardNumber),
+                      onExpiryDate: (expiryDate) => setState(() => _expiryDate = expiryDate),
+                      onCVV: (cvv) => setState(() => _cvv = cvv),
+                      onCardHolderName: (cardHolderName) =>
+                          setState(() => _cardHolderName = cardHolderName),
+                      onCVVFocused: (cvvFocused) => setState(() => _cvvFocused = cvvFocused),
+                    ),
                   ],
                 ),
               );
@@ -118,6 +116,21 @@ class _AddNewCardState extends State<AddNewCard> {
 }
 
 class CreditCardForm extends StatefulWidget {
+  CreditCardForm({
+    Key key,
+    @required this.onCardNumber,
+    @required this.onExpiryDate,
+    @required this.onCardHolderName,
+    @required this.onCVV,
+    @required this.onCVVFocused,
+  }) : super(key: key);
+
+  final void Function(String) onCardNumber;
+  final void Function(String) onExpiryDate;
+  final void Function(String) onCardHolderName;
+  final void Function(String) onCVV;
+  final void Function(bool) onCVVFocused;
+
   @override
   _CreditCardFormState createState() {
     return _CreditCardFormState();
@@ -125,12 +138,88 @@ class CreditCardForm extends StatefulWidget {
 }
 
 class _CreditCardFormState extends State<CreditCardForm> {
+  ScrollController _scrollController;
+
   SubscriptionRepository _subscriptionRepository;
+
+  String _cardNumber = '';
+  String _expiryDate = '';
+  String _cvv = '';
+  String _cardHolderName = '';
+
+  final MaskedTextController _cardNumberController =
+      MaskedTextController(mask: '0000 0000 0000 0000');
+  final TextEditingController _expiryDateController = MaskedTextController(mask: '00/00');
+  final TextEditingController _cvvController = MaskedTextController(mask: '0000');
+  final TextEditingController _cardHolderNameController = TextEditingController();
+
+  FocusNode _cardNumberFocusNode = FocusNode();
+  FocusNode _expiryDateFocusNode = FocusNode();
+  FocusNode _cvvFocusNode = FocusNode();
+  FocusNode _cardHolderNameFocusNode = FocusNode();
+
+  bool _isCvvFocused = false;
+
+  void _textFieldFocusDidChange() {
+    setState(() {
+      _isCvvFocused = _cvvFocusNode.hasFocus;
+      widget.onCVVFocused(_isCvvFocused);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+
+    _cvvFocusNode.addListener(_textFieldFocusDidChange);
+
+    _cardNumberController.addListener(() {
+      setState(() {
+        _cardNumber = _cardNumberController.text;
+        widget.onCardNumber(_cardNumber);
+      });
+    });
+
+    _expiryDateController.addListener(() {
+      setState(() {
+        _expiryDate = _expiryDateController.text;
+        widget.onExpiryDate(_expiryDate);
+      });
+    });
+
+    _cvvController.addListener(() {
+      setState(() {
+        _cvv = _cvvController.text;
+        widget.onCVV(_cvv);
+      });
+    });
+
+    _cardHolderNameController.addListener(() {
+      setState(() {
+        _cardHolderName = _cardHolderNameController.text;
+        widget.onCardHolderName(_cardHolderName);
+      });
+    });
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _subscriptionRepository = Provider.of<SubscriptionRepository>(context);
+
+    if (!_cardNumberFocusNode.hasFocus &&
+        !_expiryDateFocusNode.hasFocus &&
+        !_cvvFocusNode.hasFocus &&
+        !_cardHolderNameFocusNode.hasFocus) {
+      FocusScope.of(context).requestFocus(_cardNumberFocusNode);
+    }
+  }
+
+  @override
+  void dispose() {
+    _cvvFocusNode.removeListener(_textFieldFocusDidChange);
+    super.dispose();
   }
 
   @override
@@ -142,6 +231,7 @@ class _CreditCardFormState extends State<CreditCardForm> {
       height: ResponsivityUtils.compute(80.0, context),
       child: Form(
         child: ListView(
+          controller: _scrollController,
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
           children: <Widget>[
@@ -152,7 +242,19 @@ class _CreditCardFormState extends State<CreditCardForm> {
               width: 180.0,
               child: Center(
                 child: TextFormField(
+                  focusNode: _cardNumberFocusNode,
+                  controller: _cardNumberController,
                   keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    _cardNumberFocusNode.unfocus();
+                    FocusScope.of(context).requestFocus(_expiryDateFocusNode);
+                    _scrollController.animateTo(
+                      ResponsivityUtils.compute(20.0, context) * 2 + 180.0,
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.ease,
+                    );
+                  },
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
                       vertical: ResponsivityUtils.compute(10.0, context),
@@ -175,7 +277,19 @@ class _CreditCardFormState extends State<CreditCardForm> {
               width: 80.0,
               child: Center(
                 child: TextFormField(
+                  focusNode: _expiryDateFocusNode,
+                  controller: _expiryDateController,
                   keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    _expiryDateFocusNode.unfocus();
+                    FocusScope.of(context).requestFocus(_cvvFocusNode);
+                    _scrollController.animateTo(
+                      ResponsivityUtils.compute(20.0, context) * 4 + 180.0 + 80.0,
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.ease,
+                    );
+                  },
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
                       vertical: ResponsivityUtils.compute(10.0, context),
@@ -198,7 +312,19 @@ class _CreditCardFormState extends State<CreditCardForm> {
               width: 50.0,
               child: Center(
                 child: TextFormField(
+                  focusNode: _cvvFocusNode,
+                  controller: _cvvController,
                   keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) {
+                    _cvvFocusNode.unfocus();
+                    FocusScope.of(context).requestFocus(_cardHolderNameFocusNode);
+                    _scrollController.animateTo(
+                      ResponsivityUtils.compute(20.0, context) * 6 + 180.0 + 80.0 + 50.0,
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.ease,
+                    );
+                  },
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
                       vertical: ResponsivityUtils.compute(10.0, context),
@@ -220,7 +346,13 @@ class _CreditCardFormState extends State<CreditCardForm> {
               width: 140.0,
               child: Center(
                 child: TextFormField(
+                  focusNode: _cardHolderNameFocusNode,
+                  controller: _cardHolderNameController,
                   keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_cardHolderNameFocusNode);
+                  },
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
                       vertical: ResponsivityUtils.compute(10.0, context),
@@ -266,54 +398,3 @@ class _CreditCardFormState extends State<CreditCardForm> {
     );
   }
 }
-
-/*
-                child: Form(
-                  child: Row(
-                    children: [
-                      TextFormField(
-                        decoration: InputDecoration(labelText: 'Card number'),
-                      ),
-                    ],
-                  ),
-                ),
-
-Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CreditCardWidget(
-              width: ResponsivityUtils.compute(400.0, context),
-              height: ResponsivityUtils.compute(180.0, context),
-              cardNumber: "4242 4242 4242 4242",
-              expiryDate: "12/19",
-              cardHolderName: "David Domkář",
-              cvvCode: "852",
-              showBackView: false,
-              textStyle: TextStyle(
-                fontFamily: 'LatoLatin',
-                fontSize: 16,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-              cvvTextStyle: TextStyle(
-                fontFamily: 'LatoLatin',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-              backgroundGradientColor: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
-                  Provider.of<SubscriptionRepository>(context).planTheme.gradientEndColor,
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-*/
