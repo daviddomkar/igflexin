@@ -119,7 +119,9 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
                     Row(
                       children: [
                         Padding(
-                          padding: EdgeInsets.only(left: ResponsivityUtils.compute(15.0, context)),
+                          padding: EdgeInsets.only(
+                            left: ResponsivityUtils.compute(15.0, context),
+                          ),
                           child: Icon(
                             Icons.check,
                             color: Colors.white,
@@ -130,9 +132,10 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.easeOutQuint,
                             padding: EdgeInsets.symmetric(
-                                vertical:
-                                    ResponsivityUtils.compute(widget.active ? 10.0 : 3.0, context),
-                                horizontal: ResponsivityUtils.compute(10.0, context)),
+                              vertical:
+                                  ResponsivityUtils.compute(widget.active ? 10.0 : 3.0, context),
+                              horizontal: ResponsivityUtils.compute(10.0, context),
+                            ),
                             child: Text(
                               widget.plan.features[i],
                               style: TextStyle(color: Colors.white),

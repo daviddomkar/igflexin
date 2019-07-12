@@ -162,29 +162,17 @@ class Dialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DialogTheme dialogTheme = DialogTheme.of(context);
-    return AnimatedPadding(
-      padding: MediaQuery.of(context).viewInsets + this.padding,
-      duration: insetAnimationDuration,
-      curve: insetAnimationCurve,
-      child: MediaQuery.removeViewInsets(
-        removeLeft: true,
-        removeTop: true,
-        removeRight: true,
-        removeBottom: true,
-        context: context,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 280.0),
-            child: Material(
-              color: backgroundColor ??
-                  dialogTheme.backgroundColor ??
-                  Theme.of(context).dialogBackgroundColor,
-              elevation: elevation ?? dialogTheme.elevation ?? _defaultElevation,
-              shape: shape ?? dialogTheme.shape ?? _defaultDialogShape,
-              type: MaterialType.card,
-              child: child,
-            ),
-          ),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 280.0),
+        child: Material(
+          color: backgroundColor ??
+              dialogTheme.backgroundColor ??
+              Theme.of(context).dialogBackgroundColor,
+          elevation: elevation ?? dialogTheme.elevation ?? _defaultElevation,
+          shape: shape ?? dialogTheme.shape ?? _defaultDialogShape,
+          type: MaterialType.card,
+          child: child,
         ),
       ),
     );
