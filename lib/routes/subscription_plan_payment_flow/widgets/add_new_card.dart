@@ -5,10 +5,15 @@ import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/utils/keyboard_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
+import 'package:igflexin/utils/validation_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 
 class AddNewCard extends StatefulWidget {
+  AddNewCard({Key key, @required this.controller}) : super(key: key);
+
+  final AnimationController controller;
+
   @override
   _AddNewCardState createState() {
     return _AddNewCardState();
@@ -22,90 +27,132 @@ class _AddNewCardState extends State<AddNewCard> {
   String _cardHolderName = '';
   bool _cvvFocused = false;
 
+  Animation<Offset> _creditCardFormOffset;
+  Animation<Color> _creditCardBackground;
+  Animation<double> _creditCardScale;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    _creditCardFormOffset =
+        Tween(begin: Offset(0.0, ResponsivityUtils.compute(80.0, context)), end: Offset.zero)
+            .animate(
+      CurvedAnimation(
+        parent: widget.controller,
+        curve: Interval(0.500, 1.000, curve: Curves.ease),
+      ),
+    );
+
+    _creditCardBackground =
+        ColorTween(begin: Colors.white, end: Color.fromARGB(255, 232, 232, 232)).animate(
+      CurvedAnimation(
+        parent: widget.controller,
+        curve: Interval(0.000, 0.500, curve: Curves.ease),
+      ),
+    );
+
+    _creditCardScale = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: widget.controller,
+        curve: Interval(0.000, 1.000, curve: Curves.elasticOut),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       resizeToAvoidBottomPadding: true,
+      backgroundColor: Colors.white,
       body: SystemBarsInfoProvider(
         builder: (context, child, systemBarsInfo, orientation) {
           return KeyboardInfoProvider(
             builder: (context, keyboardInfo) {
-              return Container(
-                color: Color.fromARGB(255, 232, 232, 232),
-                margin: EdgeInsets.only(
-                  bottom: (orientation == Orientation.portrait
-                          ? systemBarsInfo.navigationBarHeight
-                          : 0.0) +
-                      keyboardInfo.offsetY,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Center(
-                        child: SingleChildScrollView(
-                          child: Container(
-                            margin: EdgeInsets.only(
-                              top: systemBarsInfo.statusBarHeight,
-                              bottom: systemBarsInfo.statusBarHeight,
-                            ),
-                            width: MediaQuery.of(context).size.width,
-                            child: Center(
-                              child: CreditCardWidget(
-                                width: ResponsivityUtils.compute(400.0, context),
-                                height: ResponsivityUtils.compute(180.0, context),
-                                cardNumber: _cardNumber,
-                                expiryDate: _expiryDate,
-                                cvvCode: _cvv,
-                                cardHolderName: _cardHolderName,
-                                showBackView: _cvvFocused,
-                                textStyle: TextStyle(
-                                  fontFamily: 'LatoLatin',
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+              return AnimatedBuilder(
+                animation: widget.controller,
+                builder: (context, child) {
+                  return Container(
+                    color: _creditCardBackground.value,
+                    margin: EdgeInsets.only(
+                      bottom: keyboardInfo.offsetY,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: SingleChildScrollView(
+                              child: Container(
+                                margin: EdgeInsets.only(
+                                  top: systemBarsInfo.statusBarHeight,
+                                  bottom: systemBarsInfo.statusBarHeight,
                                 ),
-                                cvvTextStyle: TextStyle(
-                                  fontFamily: 'LatoLatin',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                backgroundGradientColor: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Provider.of<SubscriptionRepository>(context)
-                                        .planTheme
-                                        .gradientStartColor,
-                                    Provider.of<SubscriptionRepository>(context)
-                                        .planTheme
-                                        .gradientEndColor,
-                                  ],
+                                width: MediaQuery.of(context).size.width,
+                                child: Center(
+                                  child: Transform.scale(
+                                    scale: _creditCardScale.value,
+                                    child: CreditCardWidget(
+                                      width: ResponsivityUtils.compute(400.0, context),
+                                      height: ResponsivityUtils.compute(180.0, context),
+                                      cardNumber: _cardNumber,
+                                      expiryDate: _expiryDate,
+                                      cvvCode: _cvv,
+                                      cardHolderName: _cardHolderName,
+                                      showBackView: _cvvFocused,
+                                      textStyle: TextStyle(
+                                        fontFamily: 'LatoLatin',
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      cvvTextStyle: TextStyle(
+                                        fontFamily: 'LatoLatin',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      backgroundGradientColor: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Provider.of<SubscriptionRepository>(context)
+                                              .planTheme
+                                              .gradientStartColor,
+                                          Provider.of<SubscriptionRepository>(context)
+                                              .planTheme
+                                              .gradientEndColor,
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                        Transform.translate(
+                          offset: _creditCardFormOffset.value,
+                          child: CreditCardForm(
+                            onCardNumber: (cardNumber) => setState(() => _cardNumber = cardNumber),
+                            onExpiryDate: (expiryDate) => setState(() => _expiryDate = expiryDate),
+                            onCVV: (cvv) => setState(() => _cvv = cvv),
+                            onCardHolderName: (cardHolderName) =>
+                                setState(() => _cardHolderName = cardHolderName),
+                            onCVVFocused: (cvvFocused) => setState(() => _cvvFocused = cvvFocused),
+                          ),
+                        ),
+                      ],
                     ),
-                    CreditCardForm(
-                      onCardNumber: (cardNumber) => setState(() => _cardNumber = cardNumber),
-                      onExpiryDate: (expiryDate) => setState(() => _expiryDate = expiryDate),
-                      onCVV: (cvv) => setState(() => _cvv = cvv),
-                      onCardHolderName: (cardHolderName) =>
-                          setState(() => _cardHolderName = cardHolderName),
-                      onCVVFocused: (cvvFocused) => setState(() => _cvvFocused = cvvFocused),
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           );
@@ -176,28 +223,29 @@ class _CreditCardFormState extends State<CreditCardForm> {
 
     _cardNumberController.addListener(() {
       setState(() {
-        _cardNumber = _cardNumberController.text;
+        _cardNumber = ValidationUtils.trimLeadingAndTrailingWhitespace(_cardNumberController.text);
         widget.onCardNumber(_cardNumber);
       });
     });
 
     _expiryDateController.addListener(() {
       setState(() {
-        _expiryDate = _expiryDateController.text;
+        _expiryDate = ValidationUtils.trimLeadingAndTrailingWhitespace(_expiryDateController.text);
         widget.onExpiryDate(_expiryDate);
       });
     });
 
     _cvvController.addListener(() {
       setState(() {
-        _cvv = _cvvController.text;
+        _cvv = ValidationUtils.trimLeadingAndTrailingWhitespace(_cvvController.text);
         widget.onCVV(_cvv);
       });
     });
 
     _cardHolderNameController.addListener(() {
       setState(() {
-        _cardHolderName = _cardHolderNameController.text;
+        _cardHolderName =
+            ValidationUtils.trimLeadingAndTrailingWhitespace(_cardHolderNameController.text);
         widget.onCardHolderName(_cardHolderName);
       });
     });

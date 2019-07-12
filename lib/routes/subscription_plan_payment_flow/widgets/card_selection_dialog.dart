@@ -34,6 +34,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
   Animation<double> _contentOpacity;
   Animation<double> _buttonScale;
 
+  AnimationController _addNewCardController;
+
   BorderRadius _borderRadius;
 
   List<PaymentMethod> _paymentMethods;
@@ -48,41 +50,57 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
       vsync: this,
     );
 
-    _scale = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: new Interval(0.000, 1.000, curve: Curves.elasticOut),
-    ));
+    _scale = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: new Interval(0.000, 1.000, curve: Curves.elasticOut),
+      ),
+    );
 
     _zoomInController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
-    _titleOffsetY = Tween(begin: Offset(0.0, 0.0), end: Offset(0.0, 10.0)).animate(CurvedAnimation(
-      parent: _zoomInController,
-      curve: new Interval(0.250, 0.500, curve: Curves.ease),
-    ));
+    _addNewCardController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
 
-    _titleOpacity = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(
-      parent: _zoomInController,
-      curve: new Interval(0.250, 0.500, curve: Curves.ease),
-    ));
+    _titleOffsetY = Tween(begin: Offset(0.0, 0.0), end: Offset(0.0, 10.0)).animate(
+      CurvedAnimation(
+        parent: _zoomInController,
+        curve: new Interval(0.500, 0.750, curve: Curves.ease),
+      ),
+    );
 
-    _contentOffsetY =
-        Tween(begin: Offset(0.0, 0.0), end: Offset(0.0, 10.0)).animate(CurvedAnimation(
-      parent: _zoomInController,
-      curve: new Interval(0.000, 0.250, curve: Curves.ease),
-    ));
+    _titleOpacity = Tween(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _zoomInController,
+        curve: new Interval(0.500, 0.750, curve: Curves.ease),
+      ),
+    );
 
-    _contentOpacity = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(
-      parent: _zoomInController,
-      curve: new Interval(0.000, 0.250, curve: Curves.ease),
-    ));
+    _contentOffsetY = Tween(begin: Offset(0.0, 0.0), end: Offset(0.0, 10.0)).animate(
+      CurvedAnimation(
+        parent: _zoomInController,
+        curve: new Interval(0.250, 0.500, curve: Curves.ease),
+      ),
+    );
 
-    _buttonScale = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(
-      parent: _zoomInController,
-      curve: new Interval(0.000, 0.500, curve: Curves.elasticIn),
-    ));
+    _contentOpacity = Tween(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _zoomInController,
+        curve: new Interval(0.250, 0.500, curve: Curves.ease),
+      ),
+    );
+
+    _buttonScale = Tween(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _zoomInController,
+        curve: new Interval(0.000, 0.500, curve: Curves.elasticIn),
+      ),
+    );
 
     _borderRadius = BorderRadius.circular(30.0);
 
@@ -98,7 +116,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
             end: MediaQuery.of(context).size.width)
         .animate(CurvedAnimation(
       parent: _zoomInController,
-      curve: new Interval(0.500, 0.750, curve: Curves.easeInExpo),
+      curve: new Interval(0.750, 1.000, curve: Curves.easeInExpo),
     ));
 
     _height = Tween(
@@ -106,7 +124,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
             end: MediaQuery.of(context).size.height)
         .animate(CurvedAnimation(
       parent: _zoomInController,
-      curve: new Interval(0.500, 0.750, curve: Curves.easeInExpo),
+      curve: new Interval(0.750, 1.000, curve: Curves.easeInExpo),
     ));
 
     _subscriptionRepository = Provider.of<SubscriptionRepository>(context);
@@ -158,7 +176,9 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
   Widget _buildChild() {
     if (_paymentMethods != null) {
       if (_addingCard) {
-        return AddNewCard();
+        return AddNewCard(
+          controller: _addNewCardController,
+        );
       } else {
         return AnimatedBuilder(
           animation: _zoomInController,
@@ -211,7 +231,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                           ),
                           onTap: () async {
                             var borderRadiusFuture =
-                                Future.delayed(const Duration(milliseconds: 1250), () {
+                                Future.delayed(const Duration(milliseconds: 1750), () {
                               if (_zoomInController.status == AnimationStatus.forward) {
                                 _borderRadius = BorderRadius.zero;
                                 Provider.of<SystemBarsRepository>(context).setDarkForeground();
@@ -228,6 +248,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                             setState(() {
                               _addingCard = true;
                             });
+
+                            await _addNewCardController.forward();
                           },
                         );
                       } else {
@@ -320,6 +342,10 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
     return WillPopScope(
       onWillPop: () async {
         if (_addingCard || _zoomInController.isAnimating) {
+          if (_addNewCardController.isAnimating) return false;
+
+          await _addNewCardController.reverse();
+
           setState(() {
             _addingCard = false;
           });
@@ -327,17 +353,20 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
           var borderRadiusFuture = Future.delayed(
               Duration(
                   milliseconds: _zoomInController.lastElapsedDuration != null
-                      ? (500 - (2000 - _zoomInController.lastElapsedDuration.inMilliseconds) > 0
-                          ? 500 - (2000 - _zoomInController.lastElapsedDuration.inMilliseconds)
+                      ? (125 - (2000 - _zoomInController.lastElapsedDuration.inMilliseconds) > 0
+                          ? 125 - (2000 - _zoomInController.lastElapsedDuration.inMilliseconds)
                           : 0)
-                      : 500), () {
+                      : 125), () {
             if (_zoomInController.status == AnimationStatus.reverse) {
               _borderRadius = BorderRadius.circular(30.0);
               Provider.of<SystemBarsRepository>(context).setLightForeground();
             }
           });
 
-          List<Future> futures = [borderRadiusFuture, _zoomInController.reverse()];
+          List<Future> futures = [
+            borderRadiusFuture,
+            _zoomInController.reverse(),
+          ];
 
           await Future.wait(futures);
 
