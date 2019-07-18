@@ -16,6 +16,8 @@ class UserRepository with ChangeNotifier {
     _authSubscription = _auth.onAuthStateChanged.listen(_onAuthStateChanged);
   }
 
+  FirebaseUser _firebaseUser;
+
   UserResource _user;
   UserResource get user => _user;
 
@@ -33,6 +35,7 @@ class UserRepository with ChangeNotifier {
       _user = UserResource(state: UserState.Unauthenticated, data: null);
       notifyListeners();
     } else {
+      _firebaseUser = firebaseUser;
       _userDataSubscription = _firestore
           .collection('users')
           .document(firebaseUser.uid)
@@ -48,6 +51,7 @@ class UserRepository with ChangeNotifier {
       _user = UserResource(
           state: UserState.Authenticated,
           data: User(
+            email: _firebaseUser.email,
             eligibleForFreeTrial: data.data['eligibleForFreeTrial'],
             userCompleted: data.data['userCompleted'],
           ));

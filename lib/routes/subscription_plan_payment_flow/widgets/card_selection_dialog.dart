@@ -20,7 +20,9 @@ class CardSelectionDialog extends StatefulWidget {
 class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerProviderStateMixin {
   SubscriptionRepository _subscriptionRepository;
 
-  AnimationController _controller;
+  List<PaymentMethod> _paymentMethods;
+
+  AnimationController _animationController;
 
   Animation<double> _scale;
 
@@ -38,21 +40,23 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
 
   BorderRadius _borderRadius;
 
-  List<PaymentMethod> _paymentMethods;
   bool _networkError = false;
   bool _addingCard = false;
+
+  bool _addingCardState = false;
+  bool _dialogState = true;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _animationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
     _scale = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-        parent: _controller,
+        parent: _animationController,
         curve: new Interval(0.000, 1.000, curve: Curves.elasticOut),
       ),
     );
@@ -104,7 +108,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
 
     _borderRadius = BorderRadius.circular(30.0);
 
-    _controller.forward();
+    _animationController.forward();
   }
 
   @override
@@ -120,7 +124,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
     ));
 
     _height = Tween(
-            begin: ResponsivityUtils.compute(120.0, context),
+            begin: ResponsivityUtils.compute(200.0, context),
             end: MediaQuery.of(context).size.height)
         .animate(CurvedAnimation(
       parent: _zoomInController,
@@ -134,39 +138,39 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
   void fetchPaymentMethods() {
     if (_paymentMethods == null) {
       if (mounted)
-        _controller.reverse().whenComplete(() {
+        _animationController.reverse().whenComplete(() {
           if (mounted) {
             setState(() {
               _networkError = false;
             });
-            _controller.forward();
+            _animationController.forward();
           }
         });
       _subscriptionRepository.getPaymentMethods().then((paymentMethods) {
         if (mounted)
-          _controller.reverse().whenComplete(() {
+          _animationController.reverse().whenComplete(() {
             if (mounted) {
               setState(() {
                 _paymentMethods = paymentMethods;
               });
-              _controller.forward();
+              _animationController.forward();
             }
           });
       }).catchError((error) {
         if (mounted)
-          _controller.reverse().whenComplete(() {
+          _animationController.reverse().whenComplete(() {
             if (mounted) {
               setState(() {
                 _networkError = true;
               });
-              _controller.forward();
+              _animationController.forward();
             }
           });
       });
@@ -178,11 +182,53 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
       if (_addingCard) {
         return AddNewCard(
           controller: _addNewCardController,
+          refreshPaymentMethodsFunction: () async {
+            final paymentMethods = await _subscriptionRepository.getPaymentMethods();
+
+            if (mounted) {
+              setState(() {
+                _paymentMethods = paymentMethods;
+              });
+
+              await _addNewCardController.reverse();
+
+              if (mounted) {
+                setState(() {
+                  _addingCard = false;
+                });
+              }
+
+              await _zoomInController.reverse();
+            }
+          },
         );
       } else {
         return AnimatedBuilder(
           animation: _zoomInController,
           builder: (context, child) {
+            // Just don't touch this as long as it works xd
+            if (_zoomInController.lastElapsedDuration != null) {
+              if (_zoomInController.lastElapsedDuration.inMilliseconds >= 1750 &&
+                  _zoomInController.isAnimating &&
+                  _zoomInController.status == AnimationStatus.forward) {
+                if (!_addingCardState && _dialogState) {
+                  Provider.of<SystemBarsRepository>(context).setDarkForeground();
+                  _borderRadius = BorderRadius.zero;
+                  _dialogState = false;
+                  _addingCardState = true;
+                }
+              } else if (_zoomInController.lastElapsedDuration.inMilliseconds <= 1750 &&
+                  _zoomInController.isAnimating &&
+                  _zoomInController.status == AnimationStatus.reverse) {
+                if (!_dialogState && _addingCardState) {
+                  Provider.of<SystemBarsRepository>(context).setLightForeground();
+                  _borderRadius = BorderRadius.circular(30.0);
+                  _addingCardState = false;
+                  _dialogState = true;
+                }
+              }
+            }
+
             return RoundedAlertDialog(
               padding: EdgeInsets.zero,
               width: _width.value,
@@ -210,7 +256,6 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                   opacity: _contentOpacity.value,
                   child: ListView.builder(
                     padding: EdgeInsets.zero,
-                    shrinkWrap: true,
                     itemCount: _paymentMethods.length + 1,
                     itemBuilder: (context, index) {
                       if (index == _paymentMethods.length) {
@@ -230,20 +275,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                             ),
                           ),
                           onTap: () async {
-                            var borderRadiusFuture =
-                                Future.delayed(const Duration(milliseconds: 1750), () {
-                              if (_zoomInController.status == AnimationStatus.forward) {
-                                _borderRadius = BorderRadius.zero;
-                                Provider.of<SystemBarsRepository>(context).setDarkForeground();
-                              }
-                            });
-
-                            List<Future> futures = [
-                              borderRadiusFuture,
-                              _zoomInController.forward(),
-                            ];
-
-                            await Future.wait(futures);
+                            await _zoomInController.forward();
 
                             setState(() {
                               _addingCard = true;
@@ -258,7 +290,9 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                             Icons.credit_card,
                           ),
                           title: Text(
-                            'ID: ' + _paymentMethods[index].id,
+                            '${_paymentMethods[index].card.brand[0].toUpperCase()}${_paymentMethods[index].card.brand.substring(1)}' +
+                                ' card ending ' +
+                                _paymentMethods[index].card.last4,
                           ),
                           onTap: () {},
                         );
@@ -342,42 +376,21 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
     return WillPopScope(
       onWillPop: () async {
         if (_addingCard || _zoomInController.isAnimating) {
-          if (_addNewCardController.isAnimating) return false;
-
           await _addNewCardController.reverse();
 
           setState(() {
             _addingCard = false;
           });
 
-          var borderRadiusFuture = Future.delayed(
-              Duration(
-                  milliseconds: _zoomInController.lastElapsedDuration != null
-                      ? (125 - (2000 - _zoomInController.lastElapsedDuration.inMilliseconds) > 0
-                          ? 125 - (2000 - _zoomInController.lastElapsedDuration.inMilliseconds)
-                          : 0)
-                      : 125), () {
-            if (_zoomInController.status == AnimationStatus.reverse) {
-              _borderRadius = BorderRadius.circular(30.0);
-              Provider.of<SystemBarsRepository>(context).setLightForeground();
-            }
-          });
-
-          List<Future> futures = [
-            borderRadiusFuture,
-            _zoomInController.reverse(),
-          ];
-
-          await Future.wait(futures);
-
+          await _zoomInController.reverse();
           return false;
         } else {
-          await _controller.reverse();
+          await _animationController.reverse();
           return true;
         }
       },
       child: AnimatedBuilder(
-        animation: _controller,
+        animation: _animationController,
         builder: _buildAnimation,
       ),
     );

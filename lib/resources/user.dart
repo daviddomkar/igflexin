@@ -2,8 +2,9 @@ import 'package:igflexin/model/resource.dart';
 import 'package:meta/meta.dart';
 
 class User {
-  User({this.eligibleForFreeTrial, this.userCompleted});
+  User({this.email, this.eligibleForFreeTrial, this.userCompleted});
 
+  final String email;
   final bool eligibleForFreeTrial;
   final bool userCompleted;
 }
