@@ -6,7 +6,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_stripe_sdk/model/card.dart';
 import 'package:flutter_stripe_sdk/model/payment_method.dart';
+import 'package:flutter_stripe_sdk/model/payment_method_create_params.dart';
 import 'package:igflexin/core/server.dart';
 
 import 'package:igflexin/model/subscription_plan.dart';
@@ -34,11 +36,11 @@ class SubscriptionRepository with ChangeNotifier {
     // TODO make this actually true
 
     if (Platform.isIOS) {
-      _isApplePayAvailable = true;
+      _isApplePayAvailable = false;
     }
 
     if (Platform.isAndroid) {
-      _isGooglePayAvailable = true;
+      _isGooglePayAvailable = false;
     }
   }
 
@@ -140,8 +142,15 @@ class SubscriptionRepository with ChangeNotifier {
     return await _customerSession.getPaymentMethods(type: PaymentMethodType.Card);
   }
 
-  Future<void> attachTestPaymentMethod() async {
-    await _customerSession.attachPaymentMethod(id: 'pm_card_de');
+  Future<void> addCard(Card card, PaymentMethodBillingDetails billingDetails) async {
+    final paymentMethodCreateParams = PaymentMethodCreateParams.create(
+      card: card.toPaymentMethodParamsCard(),
+      billingDetails: billingDetails,
+    );
+
+    final paymentMethod = await _stripe.createPaymentMethod(paymentMethodCreateParams);
+
+    await _customerSession.attachPaymentMethod(id: paymentMethod.id);
     await _customerSession.updateCurrentCustomer();
   }
 

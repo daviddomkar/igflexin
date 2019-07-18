@@ -93,7 +93,9 @@ class GradientButton extends StatelessWidget {
           Positioned.fill(
             child: ClipRRect(
               borderRadius: borderRadius,
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOutExpo,
                 width: width,
                 height: height,
                 decoration: BoxDecoration(
@@ -109,7 +111,9 @@ class GradientButton extends StatelessWidget {
               ),
             ),
           ),
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOutExpo,
             width: width,
             height: height,
             child: FlatButton(
