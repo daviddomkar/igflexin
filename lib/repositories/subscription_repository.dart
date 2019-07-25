@@ -87,15 +87,15 @@ class SubscriptionRepository with ChangeNotifier {
   Future<void> _onUserDataChanged(DocumentSnapshot data) async {
     if (data.exists) {
       _beginCustomerSession();
-      if (data.data.containsKey('activeSubscription')) {
+      if (data.data.containsKey('subscription')) {
         _subscription = SubscriptionResource(
             state: SubscriptionState.Active,
             data: Subscription(
               interval: getSubscriptionPlanIntervalFromString(
-                data.data['activeSubscription']['interval'] as String,
+                data.data['subscription']['interval'] as String,
               ),
               type: getSubscriptionPlanTypeFromString(
-                data.data['activeSubscription']['type'] as String,
+                data.data['subscription']['type'] as String,
               ),
             ));
       } else {
