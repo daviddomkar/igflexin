@@ -90,6 +90,12 @@ class MainRouterController extends RouterController {
                 playExitAnimations: false,
                 playOnlyLastAnimation: true,
               );
+            } else if (currentRoute.name == 'subscription_plan_payment_flow') {
+              push(
+                'app',
+                playExitAnimations: false,
+                playLastTwoAnimationsForward: true,
+              );
             } else {
               push('app');
             }
