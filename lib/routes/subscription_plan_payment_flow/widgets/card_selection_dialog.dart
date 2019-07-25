@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_stripe_sdk/model/payment_method.dart';
+import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/repositories/system_bars_repository.dart';
 import 'package:igflexin/routes/subscription_plan_payment_flow/widgets/add_new_card.dart';
@@ -21,6 +22,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
   SubscriptionRepository _subscriptionRepository;
 
   List<PaymentMethod> _paymentMethods;
+  PaymentMethod _selectedPaymentMethod;
 
   AnimationController _animationController;
 
@@ -34,7 +36,6 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
   Animation<double> _titleOpacity;
   Animation<Offset> _contentOffsetY;
   Animation<double> _contentOpacity;
-  Animation<double> _buttonScale;
 
   AnimationController _addNewCardController;
 
@@ -42,6 +43,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
 
   bool _networkError = false;
   bool _addingCard = false;
+  bool _processingPayment = false;
 
   bool _addingCardState = false;
   bool _dialogState = true;
@@ -62,7 +64,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
     );
 
     _zoomInController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
@@ -74,35 +76,28 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
     _titleOffsetY = Tween(begin: Offset(0.0, 0.0), end: Offset(0.0, 10.0)).animate(
       CurvedAnimation(
         parent: _zoomInController,
-        curve: new Interval(0.500, 0.750, curve: Curves.ease),
+        curve: new Interval(1.0 / 3.0, 2.0 / 3.0, curve: Curves.ease),
       ),
     );
 
     _titleOpacity = Tween(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _zoomInController,
-        curve: new Interval(0.500, 0.750, curve: Curves.ease),
+        curve: new Interval(1.0 / 3.0, 2.0 / 3.0, curve: Curves.ease),
       ),
     );
 
     _contentOffsetY = Tween(begin: Offset(0.0, 0.0), end: Offset(0.0, 10.0)).animate(
       CurvedAnimation(
         parent: _zoomInController,
-        curve: new Interval(0.250, 0.500, curve: Curves.ease),
+        curve: new Interval(0.000, 1.0 / 3.0, curve: Curves.ease),
       ),
     );
 
     _contentOpacity = Tween(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _zoomInController,
-        curve: new Interval(0.250, 0.500, curve: Curves.ease),
-      ),
-    );
-
-    _buttonScale = Tween(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _zoomInController,
-        curve: new Interval(0.000, 0.500, curve: Curves.elasticIn),
+        curve: new Interval(0.000, 1.0 / 3.0, curve: Curves.ease),
       ),
     );
 
@@ -120,7 +115,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
             end: MediaQuery.of(context).size.width)
         .animate(CurvedAnimation(
       parent: _zoomInController,
-      curve: new Interval(0.750, 1.000, curve: Curves.easeInExpo),
+      curve: new Interval(2.0 / 3.0, 1.000, curve: Curves.easeInExpo),
     ));
 
     _height = Tween(
@@ -128,7 +123,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
             end: MediaQuery.of(context).size.height)
         .animate(CurvedAnimation(
       parent: _zoomInController,
-      curve: new Interval(0.750, 1.000, curve: Curves.easeInExpo),
+      curve: new Interval(2.0 / 3.0, 1.000, curve: Curves.easeInExpo),
     ));
 
     _subscriptionRepository = Provider.of<SubscriptionRepository>(context);
@@ -202,25 +197,111 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
             }
           },
         );
+      } else if (_selectedPaymentMethod != null) {
+        return RoundedAlertDialog(
+          title: Text(
+            'Confirm payment',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: ResponsivityUtils.compute(23.0, context),
+              fontWeight: FontWeight.bold,
+              color: Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
+            ),
+          ),
+          content: Text(
+            'Buy ' +
+                getStringFromSubscriptionPlanInterval(_subscriptionRepository.selectedPlanInterval)
+                    .toLowerCase() +
+                'ly ' +
+                getStringFromSubscriptionPlanType(_subscriptionRepository.selectedPlanType)
+                    .toLowerCase()
+                    .replaceAll(new RegExp(r'_'), ' ') +
+                ' plan' +
+                ' with ' +
+                '${_selectedPaymentMethod.card.brand[0].toUpperCase()}${_selectedPaymentMethod.card.brand.substring(1)}' +
+                ' card ending ' +
+                _selectedPaymentMethod.card.last4,
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            GradientButton(
+              width: ResponsivityUtils.compute(_processingPayment ? 40.0 : 100.0, context),
+              height: ResponsivityUtils.compute(40.0, context),
+              child: Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.ease,
+                      opacity: !_processingPayment ? 1.0 : 0.0,
+                      child: Text(
+                        'CONFIRM',
+                        style: TextStyle(
+                          fontSize: ResponsivityUtils.compute(15.0, context),
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.ease,
+                      opacity: _processingPayment ? 1.0 : 0.0,
+                      child: Container(
+                        width: 28.0,
+                        height: 28.0,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.0,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              onPressed: () async {
+                setState(() {
+                  _processingPayment = true;
+                });
+
+                try {
+                  await _subscriptionRepository
+                      .purchaseSelectedSubscriptionPlan(_selectedPaymentMethod);
+                } catch (e) {
+                  setState(() {
+                    _processingPayment = false;
+                  });
+                }
+              },
+            ),
+          ],
+        );
       } else {
         return AnimatedBuilder(
           animation: _zoomInController,
           builder: (context, child) {
             // Just don't touch this as long as it works xd
             if (_zoomInController.lastElapsedDuration != null) {
-              if (_zoomInController.lastElapsedDuration.inMilliseconds >= 1750 &&
+              if (_zoomInController.lastElapsedDuration.inMilliseconds >= 1000 &&
                   _zoomInController.isAnimating &&
                   _zoomInController.status == AnimationStatus.forward) {
                 if (!_addingCardState && _dialogState) {
+                  print('dark');
                   Provider.of<SystemBarsRepository>(context).setDarkForeground();
                   _borderRadius = BorderRadius.zero;
                   _dialogState = false;
                   _addingCardState = true;
                 }
-              } else if (_zoomInController.lastElapsedDuration.inMilliseconds <= 1750 &&
+              } else if (_zoomInController.lastElapsedDuration.inMilliseconds <= 1000 &&
                   _zoomInController.isAnimating &&
                   _zoomInController.status == AnimationStatus.reverse) {
                 if (!_dialogState && _addingCardState) {
+                  print('light');
                   Provider.of<SystemBarsRepository>(context).setLightForeground();
                   _borderRadius = BorderRadius.circular(30.0);
                   _addingCardState = false;
@@ -294,30 +375,23 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                                 ' card ending ' +
                                 _paymentMethods[index].card.last4,
                           ),
-                          onTap: () {},
+                          onTap: () {
+                            _animationController.reverse().whenComplete(() {
+                              if (mounted) {
+                                setState(() {
+                                  _selectedPaymentMethod = _paymentMethods[index];
+                                });
+                                _animationController.forward();
+                              }
+                            });
+                          },
                         );
                       }
                     },
                   ),
                 ),
               ),
-              actions: [
-                Transform.scale(
-                  scale: _buttonScale.value,
-                  child: GradientButton(
-                    width: ResponsivityUtils.compute(120.0, context),
-                    height: ResponsivityUtils.compute(40.0, context),
-                    child: Text(
-                      'BUY PLAN',
-                      style: TextStyle(
-                          fontSize: ResponsivityUtils.compute(15.0, context), color: Colors.white),
-                    ),
-                    onPressed: () {
-                      fetchPaymentMethods();
-                    },
-                  ),
-                ),
-              ],
+              actions: [],
             );
           },
         );
@@ -383,6 +457,19 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
           });
 
           await _zoomInController.reverse();
+          return false;
+        } else if (_selectedPaymentMethod != null) {
+          if (_processingPayment) {
+            return false;
+          }
+
+          await _animationController.reverse();
+
+          setState(() {
+            _selectedPaymentMethod = null;
+          });
+
+          await _animationController.forward();
           return false;
         } else {
           await _animationController.reverse();

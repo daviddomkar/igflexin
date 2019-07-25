@@ -129,15 +129,7 @@ class SubscriptionRepository with ChangeNotifier {
   }
 
   Future<List<PaymentMethod>> getPaymentMethods() async {
-    if (_customerSession == null) {
-      await _beginCustomerSession();
-    }
-
-    if ((await _customerSession.retrieveCurrentCustomer()).id !=
-        (await _firestore.collection('users').document((await _auth.currentUser()).uid).get())
-            .data['customerId']) {
-      await _restartCustomerSession();
-    }
+    await _checkCustomerSession();
 
     return await _customerSession.getPaymentMethods(type: PaymentMethodType.Card);
   }
@@ -150,8 +142,18 @@ class SubscriptionRepository with ChangeNotifier {
 
     final paymentMethod = await _stripe.createPaymentMethod(paymentMethodCreateParams);
 
+    await _checkCustomerSession();
     await _customerSession.attachPaymentMethod(id: paymentMethod.id);
     await _customerSession.updateCurrentCustomer();
+  }
+
+  Future<void> purchaseSelectedSubscriptionPlan(PaymentMethod paymentMethod) async {
+    await _checkCustomerSession();
+    await Server.purchaseSubscription(
+      paymentMethodId: paymentMethod.id,
+      subscriptionInterval: getStringFromSubscriptionPlanInterval(_selectedPlanInterval),
+      subscriptionType: getStringFromSubscriptionPlanType(_selectedPlanType),
+    );
   }
 
   Future<void> _beginCustomerSession() async {
@@ -190,6 +192,18 @@ class SubscriptionRepository with ChangeNotifier {
   Future<void> _restartCustomerSession() async {
     await _endCustomerSession();
     await _beginCustomerSession();
+  }
+
+  Future<void> _checkCustomerSession() async {
+    if (_customerSession == null) {
+      await _beginCustomerSession();
+    }
+
+    if ((await _customerSession.retrieveCurrentCustomer()).id !=
+        (await _firestore.collection('users').document((await _auth.currentUser()).uid).get())
+            .data['customerId']) {
+      await _restartCustomerSession();
+    }
   }
 
 /*
