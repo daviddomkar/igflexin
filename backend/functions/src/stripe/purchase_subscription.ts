@@ -47,16 +47,8 @@ export default async function purchaseSubscription(data: any, context: CallableC
     console.log(subscription);
 
     const subscriptionStatus = subscription.status;
-    const paymentIntentStatus = subscription.latest_invoice.payment_intent.status;
 
-    if (subscriptionStatus === 'active' && paymentIntentStatus === 'succeeded') {
-      await admin.firestore().collection('users').doc(uid).update({
-        subscription: {
-          interval: data.subscriptionInterval,
-          type: data.subscriptionType,
-        }
-      });
-    } else if (subscriptionStatus === 'trialing') {
+    if (subscriptionStatus === 'trialing') {
       await admin.firestore().collection('users').doc(uid).update({
         subscription: {
           interval: data.subscriptionInterval,
@@ -64,13 +56,24 @@ export default async function purchaseSubscription(data: any, context: CallableC
           trialEnds: subscription.trial_end,
         }
       });
-    } else if (subscriptionStatus === 'incomplete' && paymentIntentStatus === 'requires_payment_method') {
-      return {
-        status: 'requires_payment_method',
-      }
-    } else if (subscriptionStatus === 'incomplete' && paymentIntentStatus === 'requires_action') {
-      return {
-        status: 'requires_action',
+    } else {
+      const paymentIntentStatus = subscription.latest_invoice.payment_intent.status;
+
+      if (subscriptionStatus === 'active' && paymentIntentStatus === 'succeeded') {
+        await admin.firestore().collection('users').doc(uid).update({
+          subscription: {
+            interval: data.subscriptionInterval,
+            type: data.subscriptionType,
+          }
+        });
+      } else if (subscriptionStatus === 'incomplete' && paymentIntentStatus === 'requires_payment_method') {
+        return {
+          status: 'requires_payment_method',
+        }
+      } else if (subscriptionStatus === 'incomplete' && paymentIntentStatus === 'requires_action') {
+        return {
+          status: 'requires_action',
+        }
       }
     }
 

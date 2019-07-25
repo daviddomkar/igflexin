@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/router_controller.dart';
 import 'package:igflexin/routes/subscription_plan_payment_flow/widgets/card_selection_dialog.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
@@ -38,7 +40,9 @@ class _CreditOrDebitCardButtonState extends State<CreditOrDebitCardButton> {
               context: context,
               pageBuilder: (BuildContext buildContext, Animation<double> animation,
                   Animation<double> secondaryAnimation) {
-                return CardSelectionDialog();
+                return CardSelectionDialog(
+                  routerController: Router.of<MainRouterController>(context),
+                );
               },
               barrierDismissible: true,
               barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
