@@ -1,25 +1,28 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 // import * as crypto from 'crypto';
-//import * as cryptojs from "crypto-js";
+// import * as cryptojs from "crypto-js";
 // import {cloudkms_v1, google} from 'googleapis';
 // import {IgApiClient, IgCheckpointError} from 'instagram-private-api';
 // import Timestamp = admin.firestore.Timestamp;
-import { pubSub, initialSubscriptionPurchase } from './stripe';
 
 admin.initializeApp();
 
+// Auth functions
 export const createUserData = functions.https.onCall(async (data, context) => {
   await (await import('./auth/create_user_data')).default(data, context);
 });
 
-export const stripe = functions.pubsub.topic('stripe').onPublish(pubSub);
-
+// Stripe functions
 export const createEphemeralKey = functions.https.onCall(async (data, context) => {
   return await (await import('./stripe/create_ephemeral_key')).default(data, context);
 });
 
-export const stripeInitialSubscriptionPurchase = functions.https.onCall(initialSubscriptionPurchase);
+export const purchaseSubscription = functions.https.onCall(async (data, context) => {
+  await (await import('./stripe/purchase_subscription')).default(data, context);
+});
+
+// Instagram functions
 
 /*
 const firestore = admin.firestore();

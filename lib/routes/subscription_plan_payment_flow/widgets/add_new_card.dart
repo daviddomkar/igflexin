@@ -8,6 +8,7 @@ import 'package:flutter_stripe_sdk/model/payment_method.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/repositories/user_repository.dart';
+import 'package:igflexin/routes/subscription_plan_payment_flow/widgets/add_new_card_error_dialog.dart';
 import 'package:igflexin/utils/keyboard_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/utils/validation_utils.dart';
@@ -542,12 +543,31 @@ class _CreditCardFormState extends State<CreditCardForm> {
                         .then((_) {
                       widget.refreshPaymentMethodsFunction();
                     }).catchError((error) {
-                      // TODO Display error dialog
-                      print(error);
-
                       setState(() {
                         _addingCard = false;
                       });
+
+                      showGeneralDialog(
+                        context: context,
+                        pageBuilder: (BuildContext buildContext, Animation<double> animation,
+                            Animation<double> secondaryAnimation) {
+                          return AddNewCardErrorDialog();
+                        },
+                        barrierDismissible: true,
+                        barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+                        barrierColor: Colors.black54,
+                        transitionDuration: const Duration(milliseconds: 150),
+                        transitionBuilder: (BuildContext context, Animation<double> animation,
+                            Animation<double> secondaryAnimation, Widget child) {
+                          return FadeTransition(
+                            opacity: CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeOut,
+                            ),
+                            child: child,
+                          );
+                        },
+                      );
                     });
                   } else {
                     setState(() {
