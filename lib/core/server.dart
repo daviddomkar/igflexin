@@ -23,7 +23,9 @@ class Server {
 
   static Future<void> createUserData() async {
     try {
-      await CloudFunctions.instance.getHttpsCallable(functionName: 'createUserData').call();
+      await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'createUserData')
+          .call();
     } catch (e) {
       print('createUserData call exception');
       throw e;
@@ -44,6 +46,24 @@ class Server {
       return result.data;
     } catch (e) {
       print('createEphemeralKey call exception');
+      throw e;
+    }
+  }
+
+  static Future<void> addAccount({
+    String username,
+    String password,
+  }) async {
+    try {
+      await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'addAccount')
+          .call(<String, dynamic>{
+        'username': username,
+        'password': password,
+      });
+    } catch (e) {
+      print((e as CloudFunctionsException).code);
+      print('addAccount call exception');
       throw e;
     }
   }
