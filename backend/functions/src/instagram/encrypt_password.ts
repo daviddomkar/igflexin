@@ -54,10 +54,7 @@ export default async function encryptPassword(data: any, context: CallableContex
     key = Buffer.from(secureKey).toString('base64');
   }
 
-  console.log(key);
-  console.log(cryptojs.AES.encrypt(data.password, key!).toString(cryptojs.enc.Utf8));
-
-  return cryptojs.AES.encrypt(data.password, key!).toString(cryptojs.enc.Utf8);
+  return cryptojs.AES.encrypt(data.password, key!).toString();
 }
 
 function hashString(string: string, salt: string) {

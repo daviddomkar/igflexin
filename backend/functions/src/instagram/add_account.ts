@@ -75,10 +75,13 @@ export default async function addAccount(data: any, context: CallableContext) {
     await instagram.account.login(username, password);
   } catch (e) {
     if (e instanceof IgLoginBadPasswordError) {
+      console.log('Bad password');
       throw new functions.https.HttpsError('invalid-argument', 'Invalid Instagram password.');
     } else if (e instanceof IgLoginInvalidUserError) {
+      console.log('Invalid user');
       throw new functions.https.HttpsError('invalid-argument', 'Invalid Instagram user.');
     } else if (e instanceof IgCheckpointError) {
+      console.log('Checkpoint error');
       await addInstagramAccount(instagram, data, context);
 
       console.log(instagram.state.checkpoint);
@@ -88,6 +91,7 @@ export default async function addAccount(data: any, context: CallableContext) {
         message: 'checkpoint-required'
       }
     } else if (e instanceof IgLoginTwoFactorRequiredError) {
+      console.log('Two factor required');
       await addInstagramAccount(instagram, data, context);
 
       return {
