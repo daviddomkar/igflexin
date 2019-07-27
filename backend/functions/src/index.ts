@@ -23,6 +23,12 @@ export const purchaseSubscription = functions.https.onCall(async (data, context)
 });
 
 // Instagram functions
+export const addAccount = functions.https.onCall(async (data, context) => {
+  await (await import('./instagram/add_account')).default(data, context);
+});
+
+
+// Instagram functions
 
 /*
 const firestore = admin.firestore();
