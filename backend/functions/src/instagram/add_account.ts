@@ -82,7 +82,7 @@ export default async function addAccount(data: any, context: CallableContext) {
       throw new functions.https.HttpsError('invalid-argument', 'Invalid Instagram user.');
     } else if (e instanceof IgCheckpointError) {
       console.log('Checkpoint error');
-      await addInstagramAccount(instagram, data, context);
+      await addInstagramAccount(instagram, data, context, 'checkpoint-required');
 
       console.log(instagram.state.checkpoint);
       await instagram.challenge.auto(true);
@@ -92,7 +92,7 @@ export default async function addAccount(data: any, context: CallableContext) {
       }
     } else if (e instanceof IgLoginTwoFactorRequiredError) {
       console.log('Two factor required');
-      await addInstagramAccount(instagram, data, context);
+      await addInstagramAccount(instagram, data, context, 'two-factor-required');
 
       return {
         checkpoint: instagram.state.checkpoint,
@@ -105,7 +105,7 @@ export default async function addAccount(data: any, context: CallableContext) {
 
   await instagram.simulate.postLoginFlow();
 
-  await addInstagramAccount(instagram, data, context);
+  await addInstagramAccount(instagram, data, context, 'running');
 
   return {
     checkpoint: null,
@@ -113,7 +113,7 @@ export default async function addAccount(data: any, context: CallableContext) {
   }
 }
 
-async function addInstagramAccount(instagram: IgApiClient, data: { username: string, password: string }, context: CallableContext) {
+async function addInstagramAccount(instagram: IgApiClient, data: { username: string, password: string }, context: CallableContext, status: string) {
   const cookies = await instagram.state.serializeCookieJar();
 
   const state = {
@@ -133,6 +133,8 @@ async function addInstagramAccount(instagram: IgApiClient, data: { username: str
     username: data.username,
     encryptedPassword: encryptedPassword,
     cookies: cookies,
-    state: state
+    state: state,
+    paused: false,
+    status: status
   });
 }

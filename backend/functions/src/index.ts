@@ -1,10 +1,5 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-// import * as crypto from 'crypto';
-// import * as cryptojs from "crypto-js";
-// import {cloudkms_v1, google} from 'googleapis';
-// import {IgApiClient, IgCheckpointError} from 'instagram-private-api';
-// import Timestamp = admin.firestore.Timestamp;
 
 admin.initializeApp();
 
@@ -27,8 +22,9 @@ export const addAccount = functions.https.onCall(async (data, context) => {
   await (await import('./instagram/add_account')).default(data, context);
 });
 
-
-// Instagram functions
+export const processAccounts = functions.runWith({ memory: '2GB' }).pubsub.schedule('* * * * *').onRun(async () => {
+    await (await import('./instagram/process_accounts')).default();
+});
 
 /*
 const firestore = admin.firestore();
