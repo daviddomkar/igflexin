@@ -18,7 +18,8 @@ class CreditOrDebitCardButton extends StatefulWidget {
   final Animation<double> scale;
 
   @override
-  _CreditOrDebitCardButtonState createState() => _CreditOrDebitCardButtonState();
+  _CreditOrDebitCardButtonState createState() =>
+      _CreditOrDebitCardButtonState();
 }
 
 class _CreditOrDebitCardButtonState extends State<CreditOrDebitCardButton> {
@@ -38,18 +39,22 @@ class _CreditOrDebitCardButtonState extends State<CreditOrDebitCardButton> {
           onPressed: () {
             showGeneralDialog(
               context: context,
-              pageBuilder: (BuildContext buildContext, Animation<double> animation,
+              pageBuilder: (BuildContext buildContext,
+                  Animation<double> animation,
                   Animation<double> secondaryAnimation) {
                 return CardSelectionDialog(
                   routerController: Router.of<MainRouterController>(context),
                 );
               },
               barrierDismissible: true,
-              barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+              barrierLabel:
+                  MaterialLocalizations.of(context).modalBarrierDismissLabel,
               barrierColor: Colors.black54,
-              transitionDuration: const Duration(milliseconds: 150),
-              transitionBuilder: (BuildContext context, Animation<double> animation,
-                  Animation<double> secondaryAnimation, Widget child) {
+              transitionDuration: const Duration(milliseconds: 0),
+              transitionBuilder: (BuildContext context,
+                  Animation<double> animation,
+                  Animation<double> secondaryAnimation,
+                  Widget child) {
                 return FadeTransition(
                   opacity: CurvedAnimation(
                     parent: animation,
