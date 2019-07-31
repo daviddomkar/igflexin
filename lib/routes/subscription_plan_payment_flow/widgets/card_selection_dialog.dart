@@ -25,7 +25,8 @@ class CardSelectionDialog extends StatefulWidget {
   CardSelectionDialog({this.routerController});
 }
 
-class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerProviderStateMixin {
+class _CardSelectionDialogState extends State<CardSelectionDialog>
+    with TickerProviderStateMixin {
   SubscriptionRepository _subscriptionRepository;
   UserRepository _userRepository;
 
@@ -94,7 +95,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
       vsync: this,
     );
 
-    _titleOffsetYTitleContent = Tween(begin: Offset(0.0, 0.0), end: Offset(0.0, 10.0)).animate(
+    _titleOffsetYTitleContent =
+        Tween(begin: Offset(0.0, 0.0), end: Offset(0.0, 10.0)).animate(
       CurvedAnimation(
         parent: _zoomInControllerTitleContent,
         curve: new Interval(1.0 / 3.0, 2.0 / 3.0, curve: Curves.ease),
@@ -108,7 +110,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
       ),
     );
 
-    _contentOffsetYTitleContent = Tween(begin: Offset(0.0, 0.0), end: Offset(0.0, 10.0)).animate(
+    _contentOffsetYTitleContent =
+        Tween(begin: Offset(0.0, 0.0), end: Offset(0.0, 10.0)).animate(
       CurvedAnimation(
         parent: _zoomInControllerTitleContent,
         curve: new Interval(0.000, 1.0 / 3.0, curve: Curves.ease),
@@ -215,8 +218,10 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
       curve: new Interval(0.750, 1.000, curve: Curves.easeInExpo),
     ));
 
-    widget.routerController.registerAnimationController(_zoomInControllerTitleContent);
-    widget.routerController.registerAnimationController(_zoomInControllerTitleContentButton);
+    widget.routerController
+        .registerAnimationController(_zoomInControllerTitleContent);
+    widget.routerController
+        .registerAnimationController(_zoomInControllerTitleContentButton);
 
     widget.routerController.addListener(_routerListener);
 
@@ -224,7 +229,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
   }
 
   void _routerListener() {
-    if (widget.routerController.currentRoute.name != 'subscription_plan_payment_flow') {
+    if (widget.routerController.currentRoute.name !=
+        'subscription_plan_payment_flow') {
       if (!_disposeNow) {
         _disposeNow = true;
         Navigator.of(context).pop();
@@ -241,8 +247,10 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
 
     // widget.routerController.removeListener(_routerListener);
 
-    widget.routerController.unregisterAnimationController(_zoomInControllerTitleContent);
-    widget.routerController.unregisterAnimationController(_zoomInControllerTitleContentButton);
+    widget.routerController
+        .unregisterAnimationController(_zoomInControllerTitleContent);
+    widget.routerController
+        .unregisterAnimationController(_zoomInControllerTitleContentButton);
     super.dispose();
   }
 
@@ -287,7 +295,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
         return AddNewCard(
           controller: _addNewCardController,
           refreshPaymentMethodsFunction: () async {
-            final paymentMethods = await _subscriptionRepository.getPaymentMethods();
+            final paymentMethods =
+                await _subscriptionRepository.getPaymentMethods();
 
             if (mounted) {
               setState(() {
@@ -310,22 +319,30 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
         return AnimatedBuilder(
           animation: _zoomInControllerTitleContentButton,
           builder: (context, child) {
-            if (_zoomInControllerTitleContentButton.lastElapsedDuration != null) {
-              if (_zoomInControllerTitleContentButton.lastElapsedDuration.inMilliseconds >= 1500 &&
+            if (_zoomInControllerTitleContentButton.lastElapsedDuration !=
+                null) {
+              if (_zoomInControllerTitleContentButton
+                          .lastElapsedDuration.inMilliseconds >=
+                      1500 &&
                   _zoomInControllerTitleContentButton.isAnimating &&
-                  _zoomInControllerTitleContentButton.status == AnimationStatus.forward) {
+                  _zoomInControllerTitleContentButton.status ==
+                      AnimationStatus.forward) {
                 if (!_fullscreenState && _dialogState) {
-                  Provider.of<SystemBarsRepository>(context).setDarkForeground();
+                  Provider.of<SystemBarsRepository>(context)
+                      .setDarkForeground();
                   _borderRadius = BorderRadius.zero;
                   _dialogState = false;
                   _fullscreenState = true;
                 }
-              } else if (_zoomInControllerTitleContentButton.lastElapsedDuration.inMilliseconds <=
+              } else if (_zoomInControllerTitleContentButton
+                          .lastElapsedDuration.inMilliseconds <=
                       1500 &&
                   _zoomInControllerTitleContentButton.isAnimating &&
-                  _zoomInControllerTitleContentButton.status == AnimationStatus.reverse) {
+                  _zoomInControllerTitleContentButton.status ==
+                      AnimationStatus.reverse) {
                 if (!_dialogState && _fullscreenState) {
-                  Provider.of<SystemBarsRepository>(context).setLightForeground();
+                  Provider.of<SystemBarsRepository>(context)
+                      .setLightForeground();
                   _borderRadius = BorderRadius.circular(30.0);
                   _fullscreenState = false;
                   _dialogState = true;
@@ -348,8 +365,9 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                     style: TextStyle(
                       fontSize: ResponsivityUtils.compute(23.0, context),
                       fontWeight: FontWeight.bold,
-                      color:
-                          Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
+                      color: Provider.of<SubscriptionRepository>(context)
+                          .planTheme
+                          .gradientStartColor,
                     ),
                   ),
                 ),
@@ -364,7 +382,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                                 _subscriptionRepository.selectedPlanInterval)
                             .toLowerCase() +
                         'ly ' +
-                        getStringFromSubscriptionPlanType(_subscriptionRepository.selectedPlanType)
+                        getStringFromSubscriptionPlanType(
+                                _subscriptionRepository.selectedPlanType)
                             .toLowerCase()
                             .replaceAll(new RegExp(r'_'), ' ') +
                         ' plan' +
@@ -384,7 +403,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                 Transform.scale(
                   scale: _buttonScaleTitleContentButton.value,
                   child: GradientButton(
-                    width: ResponsivityUtils.compute(_processingPayment ? 40.0 : 100.0, context),
+                    width: ResponsivityUtils.compute(
+                        _processingPayment ? 40.0 : 100.0, context),
                     height: ResponsivityUtils.compute(40.0, context),
                     child: Stack(
                       children: [
@@ -397,7 +417,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                             child: Text(
                               'CONFIRM',
                               style: TextStyle(
-                                fontSize: ResponsivityUtils.compute(15.0, context),
+                                fontSize:
+                                    ResponsivityUtils.compute(15.0, context),
                                 color: Colors.white,
                               ),
                             ),
@@ -430,7 +451,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
 
                       try {
                         await _subscriptionRepository
-                            .purchaseSelectedSubscriptionPlan(_selectedPaymentMethod);
+                            .purchaseSelectedSubscriptionPlan(
+                                _selectedPaymentMethod);
                       } catch (e) {
                         setState(() {
                           _processingPayment = false;
@@ -448,20 +470,28 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
           animation: _zoomInControllerTitleContent,
           builder: (context, child) {
             if (_zoomInControllerTitleContent.lastElapsedDuration != null) {
-              if (_zoomInControllerTitleContent.lastElapsedDuration.inMilliseconds >= 1000 &&
+              if (_zoomInControllerTitleContent
+                          .lastElapsedDuration.inMilliseconds >=
+                      1000 &&
                   _zoomInControllerTitleContent.isAnimating &&
-                  _zoomInControllerTitleContent.status == AnimationStatus.forward) {
+                  _zoomInControllerTitleContent.status ==
+                      AnimationStatus.forward) {
                 if (!_fullscreenState && _dialogState) {
-                  Provider.of<SystemBarsRepository>(context).setDarkForeground();
+                  Provider.of<SystemBarsRepository>(context)
+                      .setDarkForeground();
                   _borderRadius = BorderRadius.zero;
                   _dialogState = false;
                   _fullscreenState = true;
                 }
-              } else if (_zoomInControllerTitleContent.lastElapsedDuration.inMilliseconds <= 1000 &&
+              } else if (_zoomInControllerTitleContent
+                          .lastElapsedDuration.inMilliseconds <=
+                      1000 &&
                   _zoomInControllerTitleContent.isAnimating &&
-                  _zoomInControllerTitleContent.status == AnimationStatus.reverse) {
+                  _zoomInControllerTitleContent.status ==
+                      AnimationStatus.reverse) {
                 if (!_dialogState && _fullscreenState) {
-                  Provider.of<SystemBarsRepository>(context).setLightForeground();
+                  Provider.of<SystemBarsRepository>(context)
+                      .setLightForeground();
                   _borderRadius = BorderRadius.circular(30.0);
                   _fullscreenState = false;
                   _dialogState = true;
@@ -484,8 +514,9 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                     style: TextStyle(
                       fontSize: ResponsivityUtils.compute(23.0, context),
                       fontWeight: FontWeight.bold,
-                      color:
-                          Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
+                      color: Provider.of<SubscriptionRepository>(context)
+                          .planTheme
+                          .gradientStartColor,
                     ),
                   ),
                 ),
@@ -509,9 +540,10 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                           title: Text(
                             'Add new card',
                             style: TextStyle(
-                              color: Provider.of<SubscriptionRepository>(context)
-                                  .planTheme
-                                  .gradientEndColor,
+                              color:
+                                  Provider.of<SubscriptionRepository>(context)
+                                      .planTheme
+                                      .gradientEndColor,
                             ),
                           ),
                           onTap: () async {
@@ -538,7 +570,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
                             _animationController.reverse().whenComplete(() {
                               if (mounted) {
                                 setState(() {
-                                  _selectedPaymentMethod = _paymentMethods[index];
+                                  _selectedPaymentMethod =
+                                      _paymentMethods[index];
                                 });
                                 _animationController.forward();
                               }
@@ -563,7 +596,9 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
           style: TextStyle(
             fontSize: ResponsivityUtils.compute(23.0, context),
             fontWeight: FontWeight.bold,
-            color: Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
+            color: Provider.of<SubscriptionRepository>(context)
+                .planTheme
+                .gradientStartColor,
           ),
         ),
         content: Text(
@@ -577,7 +612,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
             child: Text(
               'RETRY',
               style: TextStyle(
-                  fontSize: ResponsivityUtils.compute(15.0, context), color: Colors.white),
+                  fontSize: ResponsivityUtils.compute(15.0, context),
+                  color: Colors.white),
             ),
             onPressed: () {
               fetchPaymentMethods();
@@ -590,7 +626,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog> with TickerPr
         child: CircularProgressIndicator(
           strokeWidth: 2.0,
           valueColor: AlwaysStoppedAnimation<Color>(
-            _subscriptionRepository.planTheme.gradientEndColor,
+            _subscriptionRepository.planTheme.gradientStartColor,
           ),
         ),
       );
