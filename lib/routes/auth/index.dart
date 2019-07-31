@@ -12,15 +12,21 @@ class Auth extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       resizeToAvoidBottomPadding: true,
-      body: Container(
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.ease,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             stops: [0.0, 1.0],
             colors: [
-              Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
-              Provider.of<SubscriptionRepository>(context).planTheme.gradientEndColor
+              Provider.of<SubscriptionRepository>(context)
+                  .planTheme
+                  .gradientStartColor,
+              Provider.of<SubscriptionRepository>(context)
+                  .planTheme
+                  .gradientEndColor
             ],
           ),
         ),

@@ -22,7 +22,8 @@ import 'package:flutter_stripe_sdk/ephemeral_key_update_listener.dart';
 
 class SubscriptionRepository with ChangeNotifier {
   SubscriptionRepository()
-      : _subscription = SubscriptionResource(state: SubscriptionState.None, data: null),
+      : _subscription =
+            SubscriptionResource(state: SubscriptionState.None, data: null),
         _auth = FirebaseAuth.instance,
         _firestore = Firestore.instance,
         _customerSession = null,
@@ -44,9 +45,11 @@ class SubscriptionRepository with ChangeNotifier {
     }
   }
 
-  SubscriptionPlanTheme _planTheme = SubscriptionPlanTheme(SubscriptionPlanType.Standard);
+  SubscriptionPlanTheme _planTheme =
+      SubscriptionPlanTheme(SubscriptionPlanType.Standard);
   SubscriptionPlanType _selectedPlanType = SubscriptionPlanType.Standard;
-  SubscriptionPlanInterval _selectedPlanInterval = SubscriptionPlanInterval.Month;
+  SubscriptionPlanInterval _selectedPlanInterval =
+      SubscriptionPlanInterval.Month;
 
   SubscriptionPlanTheme get planTheme => _planTheme;
   SubscriptionPlanType get selectedPlanType => _selectedPlanType;
@@ -73,7 +76,8 @@ class SubscriptionRepository with ChangeNotifier {
   Future<void> _onAuthStateChanged(FirebaseUser firebaseUser) async {
     if (firebaseUser == null) {
       _endCustomerSession();
-      _subscription = SubscriptionResource(state: SubscriptionState.None, data: null);
+      _subscription =
+          SubscriptionResource(state: SubscriptionState.None, data: null);
       notifyListeners();
     } else {
       _userDataSubscription = _firestore
@@ -85,6 +89,7 @@ class SubscriptionRepository with ChangeNotifier {
   }
 
   Future<void> _onUserDataChanged(DocumentSnapshot data) async {
+    print('Ahoj');
     if (data.exists) {
       _beginCustomerSession();
       if (data.data.containsKey('subscription')) {
@@ -98,11 +103,17 @@ class SubscriptionRepository with ChangeNotifier {
                 data.data['subscription']['type'] as String,
               ),
             ));
+
+        _planTheme = SubscriptionPlanTheme(_subscription.data.type);
       } else {
-        _subscription = SubscriptionResource(state: SubscriptionState.Inactive, data: null);
+        _planTheme = SubscriptionPlanTheme(_selectedPlanType);
+        _subscription =
+            SubscriptionResource(state: SubscriptionState.Inactive, data: null);
       }
     } else {
-      _subscription = SubscriptionResource(state: SubscriptionState.None, data: null);
+      _subscription =
+          SubscriptionResource(state: SubscriptionState.None, data: null);
+      _planTheme = SubscriptionPlanTheme(_selectedPlanType);
     }
     notifyListeners();
   }
@@ -131,27 +142,32 @@ class SubscriptionRepository with ChangeNotifier {
   Future<List<PaymentMethod>> getPaymentMethods() async {
     await _checkCustomerSession();
 
-    return await _customerSession.getPaymentMethods(type: PaymentMethodType.Card);
+    return await _customerSession.getPaymentMethods(
+        type: PaymentMethodType.Card);
   }
 
-  Future<void> addCard(Card card, PaymentMethodBillingDetails billingDetails) async {
+  Future<void> addCard(
+      Card card, PaymentMethodBillingDetails billingDetails) async {
     final paymentMethodCreateParams = PaymentMethodCreateParams.create(
       card: card.toPaymentMethodParamsCard(),
       billingDetails: billingDetails,
     );
 
-    final paymentMethod = await _stripe.createPaymentMethod(paymentMethodCreateParams);
+    final paymentMethod =
+        await _stripe.createPaymentMethod(paymentMethodCreateParams);
 
     await _checkCustomerSession();
     await _customerSession.attachPaymentMethod(id: paymentMethod.id);
     await _customerSession.updateCurrentCustomer();
   }
 
-  Future<void> purchaseSelectedSubscriptionPlan(PaymentMethod paymentMethod) async {
+  Future<void> purchaseSelectedSubscriptionPlan(
+      PaymentMethod paymentMethod) async {
     await _checkCustomerSession();
     await Server.purchaseSubscription(
       paymentMethodId: paymentMethod.id,
-      subscriptionInterval: getStringFromSubscriptionPlanInterval(_selectedPlanInterval),
+      subscriptionInterval:
+          getStringFromSubscriptionPlanInterval(_selectedPlanInterval),
       subscriptionType: getStringFromSubscriptionPlanType(_selectedPlanType),
     );
   }
@@ -173,7 +189,8 @@ class SubscriptionRepository with ChangeNotifier {
             keyUpdateListener.onKeyUpdateFailure(1, "Internal server error.");
             print("Internal server error.");
           } else {
-            keyUpdateListener.onKeyUpdateFailure(2, "Ephemeral key creation failed.");
+            keyUpdateListener.onKeyUpdateFailure(
+                2, "Ephemeral key creation failed.");
             print("Ephemeral key creation failed.");
           }
         }
@@ -200,7 +217,10 @@ class SubscriptionRepository with ChangeNotifier {
     }
 
     if ((await _customerSession.retrieveCurrentCustomer()).id !=
-        (await _firestore.collection('users').document((await _auth.currentUser()).uid).get())
+        (await _firestore
+                .collection('users')
+                .document((await _auth.currentUser()).uid)
+                .get())
             .data['customerId']) {
       await _restartCustomerSession();
     }

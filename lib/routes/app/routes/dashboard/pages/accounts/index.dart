@@ -14,7 +14,7 @@ class Accounts extends StatelessWidget {
           elevation: 0,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
-          color: Colors.black,
+          color: Colors.white,
           child: Text(
             'Add test account',
             textDirection: TextDirection.ltr,
