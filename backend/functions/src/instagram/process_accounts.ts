@@ -145,7 +145,7 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
         throw new Error('Login error');
       }
 
-      await instagram.simulate.postLoginFlow();
+      process.nextTick(async () => await instagram.simulate.postLoginFlow());
     }
   }
 
