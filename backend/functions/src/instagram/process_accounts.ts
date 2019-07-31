@@ -68,7 +68,7 @@ export default async function processAccounts(uid: string | undefined = undefine
               } else {
                 await processAccount(user, account);
               }
-  
+
               index++;
             }
           }
