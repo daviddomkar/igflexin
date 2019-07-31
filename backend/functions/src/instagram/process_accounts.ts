@@ -20,71 +20,65 @@ export default async function processAccounts(uid: string | undefined = undefine
       return;
     }
 
-    const processes: Promise<void>[] = [];
+    const processes: (() => Promise<void>)[] = [];
 
     for (const user of users.docs) {
+      console.log(user.data());
 
       if (!user.data()!.userCompleted || !user.data()!.subscription) {
         continue;
       }
 
-      processes.push(
-        new Promise<void>(
-          async () => {
-            await admin.firestore().collection('users').doc(user.id).update({
-              lastAction: Timestamp.now()
-            });
+      processes.push(async () => {
+          await admin.firestore().collection('users').doc(user.id).update({
+            lastAction: Timestamp.now()
+          });
 
-            console.log('User ' + user.id);
+          if (user.data()!.subscription) {
+            const subscription = user.data().subscription;
 
-            if (user.data()!.subscription) {
-              const subscription = user.data().subscription;
+            let maxInstagramAccounts = 0;
 
-              let maxInstagramAccounts = 0;
+            const type: SubscriptionPlanType = subscription.type;
 
-              const type: SubscriptionPlanType = subscription.type;
+            switch (type) {
+              case 'basic':
+                maxInstagramAccounts = 1;
+                break;
+              case 'standard':
+                maxInstagramAccounts = 3;
+                break;
+              case 'business':
+                maxInstagramAccounts = 5;
+                break;
+              case 'business_pro':
+                maxInstagramAccounts = 10;
+                break;
+            }
 
-              switch (type) {
-                case 'basic':
-                  maxInstagramAccounts = 1;
-                  break;
-                case 'standard':
-                  maxInstagramAccounts = 3;
-                  break;
-                case 'business':
-                  maxInstagramAccounts = 5;
-                  break;
-                case 'business_pro':
-                  maxInstagramAccounts = 10;
-                  break;
+            const accounts = await admin.firestore().collection('users').doc(user.id).collection('accounts').where('paused', '==', false).get();
+
+            let index = 0;
+
+            for (const account of accounts.docs) {
+              if (index >= maxInstagramAccounts) {
+                await admin.firestore().collection('users').doc(user.id).collection('accounts').doc(account.id).update({
+                  status: 'limit-reached'
+                });
+              } else {
+                await processAccount(user, account);
               }
-
-              console.log('Subscription ' + type);
-
-              const accounts = await admin.firestore().collection('users').doc(user.id).collection('accounts').where('paused', '==', false).get();
-
-              let index = 0;
-
-              for (const account of accounts.docs) {
-                if (index >= maxInstagramAccounts) {
-                  await admin.firestore().collection('users').doc(user.id).collection('accounts').doc(account.id).update({
-                    status: 'limit-reached'
-                  });
-                } else {
-                  await processAccount(user, account);
-                }
-
-                index++;
-              }
+  
+              index++;
             }
           }
-        )
+        }
       );
     }
 
-    console.log('Execute jobs = ' + processes.length);
-
-    await Promise.all(processes);
+    await Promise.all(processes.map(process => {
+      return process();
+    }));
   }
 }
 
