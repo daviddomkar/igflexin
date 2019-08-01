@@ -116,6 +116,8 @@ export default async function addAccount(data: any, context: CallableContext) {
 async function addInstagramAccount(instagram: IgApiClient, data: { username: string, password: string }, context: CallableContext, status: string) {
   const cookies = await instagram.state.serializeCookieJar();
 
+  const user = await instagram.account.currentUser();
+
   const state = {
     deviceString: instagram.state.deviceString,
     deviceId: instagram.state.deviceId,
@@ -135,6 +137,7 @@ async function addInstagramAccount(instagram: IgApiClient, data: { username: str
     cookies: cookies,
     state: state,
     paused: false,
-    status: status
+    status: status,
+    profilePictureURL: user.profile_pic_url
   });
 }
