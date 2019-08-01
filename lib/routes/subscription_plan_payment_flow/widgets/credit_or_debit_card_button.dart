@@ -49,7 +49,8 @@ class _CreditOrDebitCardButtonState extends State<CreditOrDebitCardButton> {
               barrierDismissible: true,
               barrierLabel:
                   MaterialLocalizations.of(context).modalBarrierDismissLabel,
-              barrierColor: Colors.black54,
+              barrierColor: Colors
+                  .black54, // TODO make this part of dialog to allow transitions in dialog flow
               transitionDuration: const Duration(milliseconds: 0),
               transitionBuilder: (BuildContext context,
                   Animation<double> animation,

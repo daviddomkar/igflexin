@@ -78,6 +78,9 @@ class SubscriptionRepository with ChangeNotifier {
       _endCustomerSession();
       _subscription =
           SubscriptionResource(state: SubscriptionState.None, data: null);
+      if (_userDataSubscription != null) {
+        _userDataSubscription.cancel();
+      }
       notifyListeners();
     } else {
       _userDataSubscription = _firestore

@@ -126,25 +126,35 @@ class __DashboardState extends State<_Dashboard> {
               color: Colors.white,
               child: Row(
                 children: [
-                  Container(
-                    margin: EdgeInsets.only(
-                        left: ResponsivityUtils.compute(16.0, context)),
-                    child: Text(
-                      (() {
-                        switch (_selectedPageIndex) {
-                          case 0:
-                            return 'Accounts';
-                          case 1:
-                            return 'Overview';
-                          case 2:
-                            return 'Settings';
-                        }
-                        return 'Unknown';
-                      })(),
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w900,
-                        fontSize: ResponsivityUtils.compute(32.0, context),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    transitionBuilder: (child, animation) => ScaleTransition(
+                      child: child,
+                      scale: animation,
+                      alignment: Alignment.centerLeft,
+                    ),
+                    child: Container(
+                      key: ValueKey(_selectedPageIndex),
+                      margin: EdgeInsets.only(
+                          left: ResponsivityUtils.compute(16.0, context)),
+                      child: Text(
+                        (() {
+                          switch (_selectedPageIndex) {
+                            case 0:
+                              return 'Accounts';
+                            case 1:
+                              return 'Overview';
+                            case 2:
+                              return 'Settings';
+                          }
+                          return 'Unknown';
+                        })(),
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w900,
+                          fontSize: ResponsivityUtils.compute(32.0, context),
+                        ),
                       ),
                     ),
                   ),
