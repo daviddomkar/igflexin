@@ -113,17 +113,29 @@ class __DashboardState extends State<_Dashboard> {
 
   Widget _buildAnimation(BuildContext context, Widget child) {
     return Container(
+      padding: widget.orientation == Orientation.landscape &&
+              widget.systemBarsInfo.hasSoftwareNavigationBar
+          ? EdgeInsets.only(right: widget.systemBarsInfo.navigationBarHeight)
+          : EdgeInsets.zero,
       color: widget.contentBackgroundColor.value,
       child: Column(
         children: [
           Transform.translate(
             offset: Offset(0.0, _titleBarOffsetY.value),
             child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: widget.orientation == Orientation.landscape &&
+                        widget.systemBarsInfo.hasSoftwareNavigationBar
+                    ? BorderRadius.only(
+                        bottomRight: Radius.circular(
+                            ResponsivityUtils.compute(20.0, context)))
+                    : BorderRadius.zero,
+              ),
               padding:
                   EdgeInsets.only(top: widget.systemBarsInfo.statusBarHeight),
               height: ResponsivityUtils.compute(72.0, context) +
                   widget.systemBarsInfo.statusBarHeight,
-              color: Colors.white,
               child: Row(
                 children: [
                   AnimatedSwitcher(
@@ -181,7 +193,15 @@ class __DashboardState extends State<_Dashboard> {
           Transform.translate(
             offset: Offset(0.0, _bottomNavigationBarOffsetY.value),
             child: Container(
-              color: Colors.white,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: widget.orientation == Orientation.landscape &&
+                        widget.systemBarsInfo.hasSoftwareNavigationBar
+                    ? BorderRadius.only(
+                        topRight: Radius.circular(
+                            ResponsivityUtils.compute(20.0, context)))
+                    : BorderRadius.zero,
+              ),
               padding: EdgeInsets.only(
                   bottom: widget.orientation == Orientation.portrait
                       ? widget.systemBarsInfo.navigationBarHeight
@@ -192,7 +212,7 @@ class __DashboardState extends State<_Dashboard> {
                       : 0.0),
               child: BottomNavigationBar(
                 currentIndex: _selectedPageIndex,
-                backgroundColor: Colors.white,
+                backgroundColor: Colors.transparent,
                 elevation: 0.0,
                 unselectedItemColor: Colors.black,
                 selectedItemColor: Provider.of<SubscriptionRepository>(context)

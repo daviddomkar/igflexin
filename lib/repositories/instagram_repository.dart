@@ -49,6 +49,7 @@ class InstagramRepository with ChangeNotifier {
             profilePictureURL: document.data['profilePictureURL'],
           );
         }).toList());
+    notifyListeners();
   }
 
   @override
