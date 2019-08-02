@@ -1,6 +1,6 @@
-import { CallableContext } from "firebase-functions/lib/providers/https";
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
+import { CallableContext } from 'firebase-functions/lib/providers/https';
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
 import {
   IgApiClient,
   IgCheckpointError,
@@ -8,7 +8,9 @@ import {
   IgLoginInvalidUserError,
   IgLoginTwoFactorRequiredError
 } from 'instagram-private-api';
-import { SubscriptionPlanType } from "../types/subscription_plan";
+import { SubscriptionPlanType } from '../types/subscription_plan';
+// tslint:disable-next-line:no-implicit-dependencies
+import { Transaction } from '@google-cloud/firestore';
 
 export default async function addAccount(data: any, context: CallableContext) {
 
@@ -22,101 +24,103 @@ export default async function addAccount(data: any, context: CallableContext) {
 
   const uid = context.auth.uid;
 
-  const account = await admin.firestore().collectionGroup('accounts').where('username', '==', data.username).get();
+  await admin.firestore().runTransaction(async transaction => {
+    const account = await admin.firestore().collectionGroup('accounts').where('username', '==', data.username).get();
 
-  if (!account.empty) {
-    throw new functions.https.HttpsError('permission-denied', 'This account is already added to IGFlexin.');
-  }
-
-  const userData = await admin.firestore().collection('users').doc(uid).get();
-
-  let maxInstagramAccounts = 0;
-
-  if (userData.exists && userData.data()!.subscription) {
-
-    const subscription = userData.data()!.subscription;
-    const type: SubscriptionPlanType = subscription.type;
-
-    switch (type) {
-      case "basic":
-        maxInstagramAccounts = 1;
-        break;
-      case "standard":
-        maxInstagramAccounts = 3;
-        break;
-      case "business":
-        maxInstagramAccounts = 5;
-        break;
-      case "business_pro":
-        maxInstagramAccounts = 10;
-        break;
+    if (!account.empty) {
+      throw new functions.https.HttpsError('permission-denied', 'This account is already added to IGFlexin.');
     }
 
-  } else {
-    throw new functions.https.HttpsError('failed-precondition', 'User data must exist.');
-  }
+    const userData = await admin.firestore().collection('users').doc(uid).get();
 
-  const accounts = await admin.firestore().collection('users').doc(uid).collection('accounts').get();
+    let maxInstagramAccounts = 0;
 
-  if (accounts.size >= maxInstagramAccounts) {
-    throw new functions.https.HttpsError('permission-denied', 'Account limit reached.');
-  }
+    if (userData.exists && userData.data()!.subscription) {
 
-  const username = data.username;
-  const password = data.password;
+      const subscription = userData.data()!.subscription;
+      const type: SubscriptionPlanType = subscription.type;
 
-  const instagram = new IgApiClient();
-
-  instagram.state.generateDevice(username);
-
-  await instagram.simulate.preLoginFlow();
-
-  try {
-    await instagram.account.login(username, password);
-  } catch (e) {
-    if (e instanceof IgLoginBadPasswordError) {
-      console.log('Bad password');
-      throw new functions.https.HttpsError('invalid-argument', 'Invalid Instagram password.');
-    } else if (e instanceof IgLoginInvalidUserError) {
-      console.log('Invalid user');
-      throw new functions.https.HttpsError('invalid-argument', 'Invalid Instagram user.');
-    } else if (e instanceof IgCheckpointError) {
-      console.log('Checkpoint error');
-      await addInstagramAccount(instagram, data, context, 'checkpoint-required');
-
-      console.log(instagram.state.checkpoint);
-      await instagram.challenge.auto(true);
-      return {
-        checkpoint: instagram.state.checkpoint,
-        message: 'checkpoint-required'
-      }
-    } else if (e instanceof IgLoginTwoFactorRequiredError) {
-      console.log('Two factor required');
-      await addInstagramAccount(instagram, data, context, 'two-factor-required');
-
-      return {
-        checkpoint: instagram.state.checkpoint,
-        message: 'two-factor-required'
+      switch (type) {
+        case "basic":
+          maxInstagramAccounts = 1;
+          break;
+        case "standard":
+          maxInstagramAccounts = 3;
+          break;
+        case "business":
+          maxInstagramAccounts = 5;
+          break;
+        case "business_pro":
+          maxInstagramAccounts = 10;
+          break;
       }
     } else {
-      throw new functions.https.HttpsError('unknown', 'Unknown error.');
+      throw new functions.https.HttpsError('failed-precondition', 'User data must exist.');
     }
-  }
 
-  process.nextTick(async () => await instagram.simulate.postLoginFlow());
+    const accounts = await admin.firestore().collection('users').doc(uid).collection('accounts').get();
 
-  await addInstagramAccount(instagram, data, context, 'running');
+    if (accounts.size >= maxInstagramAccounts) {
+      throw new functions.https.HttpsError('permission-denied', 'Account limit reached.');
+    }
 
-  return {
-    checkpoint: null,
-    message: 'success'
-  }
+    const username = data.username;
+    const password = data.password;
+
+    const instagram = new IgApiClient();
+
+    instagram.state.generateDevice(username);
+
+    await instagram.simulate.preLoginFlow();
+
+    try {
+      await instagram.account.login(username, password);
+    } catch (e) {
+      if (e instanceof IgLoginBadPasswordError) {
+        console.log('Bad password');
+        throw new functions.https.HttpsError('invalid-argument', 'Invalid Instagram password.');
+      } else if (e instanceof IgLoginInvalidUserError) {
+        console.log('Invalid user');
+        throw new functions.https.HttpsError('invalid-argument', 'Invalid Instagram user.');
+      } else if (e instanceof IgCheckpointError) {
+        console.log('Checkpoint error');
+        await addInstagramAccount(transaction, instagram, data, context, 'checkpoint-required');
+
+        console.log(instagram.state.checkpoint);
+        await instagram.challenge.auto(true);
+        return {
+          checkpoint: instagram.state.checkpoint,
+          message: 'checkpoint-required'
+        }
+      } else if (e instanceof IgLoginTwoFactorRequiredError) {
+        console.log('Two factor required');
+        await addInstagramAccount(transaction, instagram, data, context, 'two-factor-required');
+
+        return {
+          checkpoint: instagram.state.checkpoint,
+          message: 'two-factor-required'
+        }
+      } else {
+        throw new functions.https.HttpsError('unknown', 'Unknown error.');
+      }
+    }
+
+    process.nextTick(async () => await instagram.simulate.postLoginFlow());
+
+    await addInstagramAccount(transaction, instagram, data, context, 'running');
+
+    return {
+      checkpoint: null,
+      message: 'success'
+    }
+
+  });
 }
 
-async function addInstagramAccount(instagram: IgApiClient, data: { username: string, password: string }, context: CallableContext, status: string) {
+async function addInstagramAccount(transaction: Transaction, instagram: IgApiClient, data: { username: string, password: string }, context: CallableContext, status: string) {
   const cookies = await instagram.state.serializeCookieJar();
 
-  const user = await instagram.account.currentUser();
+  const user = await instagram.user.searchExact(data.username);
 
   const state = {
     deviceString: instagram.state.deviceString,
@@ -131,7 +135,7 @@ async function addInstagramAccount(instagram: IgApiClient, data: { username: str
     password: data.password
   }, context);
 
-  await admin.firestore().collection('users').doc(context.auth!.uid).collection('accounts').add({
+  transaction.create(admin.firestore().collection('users').doc(context.auth!.uid).collection('accounts').doc(), {
     username: data.username,
     encryptedPassword: encryptedPassword,
     cookies: cookies,

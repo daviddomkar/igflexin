@@ -245,7 +245,7 @@ class _CardSelectionDialogState extends State<CardSelectionDialog>
     _zoomInControllerTitleContent.dispose();
     _zoomInControllerTitleContentButton.dispose();
 
-    // widget.routerController.removeListener(_routerListener);
+    widget.routerController.removeListener(_routerListener);
 
     widget.routerController
         .unregisterAnimationController(_zoomInControllerTitleContent);

@@ -42,11 +42,6 @@ class _AccountsState extends State<Accounts> {
 
   void _addInstagramAccount(BuildContext context) {
     showModalWidget(context, AddAccountDialog());
-    // showGeneralDialog(context: context, pageBuilder: null);
-    /*Server.addAccount(
-      username: 'testingigapp',
-      password: 'Merkur33',
-    );*/
   }
 
   @override

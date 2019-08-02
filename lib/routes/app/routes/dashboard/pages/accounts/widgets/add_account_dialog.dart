@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/add_account_form.dart';
 import 'package:igflexin/utils/keyboard_utils.dart';
 
 class AddAccountDialog extends StatefulWidget {
@@ -74,8 +76,11 @@ class _AddAccountDialogState extends State<AddAccountDialog>
                 child: SingleChildScrollView(
                   child: IntrinsicHeight(
                     child: Container(
+                      constraints: BoxConstraints(
+                        minHeight:
+                            MediaQuery.of(context).size.height - bottomMargin,
+                      ),
                       alignment: Alignment.center,
-                      height: MediaQuery.of(context).size.height - bottomMargin,
                       child: Stack(
                         children: [
                           GestureDetector(
@@ -95,12 +100,7 @@ class _AddAccountDialogState extends State<AddAccountDialog>
                               ),
                               child: Transform.scale(
                                 scale: _scaleContentInAnimation.value,
-                                child: Container(
-                                  key: ValueKey(0),
-                                  width: 200.0,
-                                  height: 200.0,
-                                  color: Colors.red,
-                                ),
+                                child: AddAccountForm(),
                               ),
                             ),
                           ),
