@@ -103,7 +103,7 @@ export default async function addAccount(data: any, context: CallableContext) {
     }
   }
 
-  await instagram.simulate.postLoginFlow();
+  process.nextTick(async () => await instagram.simulate.postLoginFlow());
 
   await addInstagramAccount(instagram, data, context, 'running');
 

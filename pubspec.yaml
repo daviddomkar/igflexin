@@ -38,6 +38,8 @@ dependencies:
   flutter_credit_card:
     path: ../flutter_credit_card
 
+  cached_network_image: ^1.1.1
+
   # gradient_widgets: ^0.5.0
 
   url_launcher: ^5.0.2

@@ -1,6 +1,33 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Dialog, AlertDialog;
+import 'package:igflexin/repositories/system_bars_repository.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
+import 'package:provider/provider.dart';
+
+void showModalWidget(BuildContext context, Widget child) {
+  bool switchToDarkAfterDispose =
+      !Provider.of<SystemBarsRepository>(context).useWhiteStatusBarForeground;
+
+  if (switchToDarkAfterDispose) {
+    Provider.of<SystemBarsRepository>(context).setLightForeground();
+  }
+
+  showGeneralDialog(
+    context: context,
+    pageBuilder: (BuildContext buildContext, Animation<double> animation,
+        Animation<double> secondaryAnimation) {
+      return child;
+    },
+    barrierDismissible: false,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: null,
+    transitionDuration: const Duration(milliseconds: 0),
+  ).then((_) {
+    if (switchToDarkAfterDispose) {
+      Provider.of<SystemBarsRepository>(context).setDarkForeground();
+    }
+  });
+}
 
 class RoundedAlertDialog extends StatefulWidget {
   const RoundedAlertDialog({
@@ -156,7 +183,8 @@ class Dialog extends StatelessWidget {
 
   // TODO(johnsonmh): Update default dialog border radius to 4.0 to match material spec.
   static const RoundedRectangleBorder _defaultDialogShape =
-      RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(2.0)));
+      RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(2.0)));
   static const double _defaultElevation = 24.0;
 
   @override
@@ -364,10 +392,12 @@ class AlertDialog extends StatelessWidget {
 
     if (title != null) {
       children.add(Padding(
-        padding:
-            titlePadding ?? EdgeInsets.fromLTRB(24.0, 24.0, 24.0, content == null ? 20.0 : 0.0),
+        padding: titlePadding ??
+            EdgeInsets.fromLTRB(24.0, 24.0, 24.0, content == null ? 20.0 : 0.0),
         child: DefaultTextStyle(
-          style: titleTextStyle ?? dialogTheme.titleTextStyle ?? theme.textTheme.title,
+          style: titleTextStyle ??
+              dialogTheme.titleTextStyle ??
+              theme.textTheme.title,
           child: Semantics(
             child: title,
             namesRoute: true,
@@ -382,7 +412,8 @@ class AlertDialog extends StatelessWidget {
           break;
         case TargetPlatform.android:
         case TargetPlatform.fuchsia:
-          label = semanticLabel ?? MaterialLocalizations.of(context)?.alertDialogLabel;
+          label = semanticLabel ??
+              MaterialLocalizations.of(context)?.alertDialogLabel;
       }
     }
 
@@ -391,7 +422,9 @@ class AlertDialog extends StatelessWidget {
         child: Padding(
           padding: contentPadding,
           child: DefaultTextStyle(
-            style: contentTextStyle ?? dialogTheme.contentTextStyle ?? theme.textTheme.subhead,
+            style: contentTextStyle ??
+                dialogTheme.contentTextStyle ??
+                theme.textTheme.subhead,
             child: content,
           ),
         ),

@@ -7,9 +7,7 @@ import 'package:provider/provider.dart';
 
 class Overview extends StatefulWidget {
   @override
-  _OverviewState createState() {
-    return _OverviewState();
-  }
+  _OverviewState createState() => _OverviewState();
 }
 
 class _OverviewState extends State<Overview> {
@@ -55,7 +53,7 @@ class _OverviewState extends State<Overview> {
   }
 
   Widget _buildChild() {
-    if (_cachedSubscription != null && _instagramRepository != null) {
+    if (_cachedSubscription != null && _cachedAccounts != null) {
       return Center(
         child: Text(_cachedSubscription.type.toString()),
       );
