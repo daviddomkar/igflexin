@@ -15,6 +15,16 @@ class InstagramAccount {
   final String profilePictureURL;
 }
 
+enum InstagramAccountState {
+  None,
+  Running,
+  Paused,
+  CheckpointRequired,
+  TwoFactorAuthRequired,
+  InvalidUser,
+  BadPassword,
+}
+
 enum AccountsState { None, Some }
 
 class AccountsResource extends Resource<AccountsState, List<InstagramAccount>> {

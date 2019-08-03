@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
+import 'package:igflexin/core/server.dart';
+import 'package:igflexin/model/add_account_response.dart';
 import 'package:igflexin/resources/accounts.dart';
 
 class InstagramRepository with ChangeNotifier {
@@ -50,6 +52,14 @@ class InstagramRepository with ChangeNotifier {
           );
         }).toList());
     notifyListeners();
+  }
+
+  Future<AddAccountResponse> addInstagramAccount(
+      {String username, String password}) async {
+    return await Server.addAccount(
+      username: username,
+      password: password,
+    );
   }
 
   @override

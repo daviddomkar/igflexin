@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:igflexin/core/server.dart';
 import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';

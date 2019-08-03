@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
+import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/add_account_form.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/error_message.dart';
 import 'package:igflexin/utils/keyboard_utils.dart';
 
 class AddAccountDialog extends StatefulWidget {
@@ -17,6 +19,12 @@ class _AddAccountDialogState extends State<AddAccountDialog>
 
   Animation<Color> _fadeInAnimation;
   Animation<double> _scaleContentInAnimation;
+
+  String _username = '';
+  String _password = '';
+
+  String _error = '';
+  InstagramAccountState _state = InstagramAccountState.None;
 
   @override
   void initState() {
@@ -51,6 +59,30 @@ class _AddAccountDialogState extends State<AddAccountDialog>
   @override
   void dispose() {
     super.dispose();
+  }
+
+  Widget _buildChild(BuildContext context) {
+    if (_error.isNotEmpty) {
+      return ErrorMessage(
+        message: _error,
+      );
+    } else if (_state == InstagramAccountState.None) {
+      return AddAccountForm(
+        username: _username,
+        password: _password,
+        onUsernameChange: (value) => setState(() => _username = value),
+        onPasswordChange: (value) => setState(() => _password = value),
+        onStateReceived: (value) => setState(() => _state = value),
+        onErrorReceived: (value) => setState(() => _error = value),
+      );
+    } else {
+      return Text(
+        _state.toString(),
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      );
+    }
   }
 
   Widget _buildAnimation(BuildContext context, Widget child) {
@@ -100,7 +132,7 @@ class _AddAccountDialogState extends State<AddAccountDialog>
                               ),
                               child: Transform.scale(
                                 scale: _scaleContentInAnimation.value,
-                                child: AddAccountForm(),
+                                child: _buildChild(context),
                               ),
                             ),
                           ),
