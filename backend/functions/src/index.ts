@@ -19,7 +19,7 @@ export const purchaseSubscription = functions.https.onCall(async (data, context)
 
 // Instagram functions
 export const addAccount = functions.runWith({ memory: '512MB', timeoutSeconds: 120 }).https.onCall(async (data, context) => {
-  await (await import('./instagram/add_account')).default(data, context);
+  return await (await import('./instagram/add_account')).default(data, context);
 });
 
 export const processAccounts = functions.runWith({ memory: '2GB', timeoutSeconds: 480 }).pubsub.schedule('* * * * *').onRun(async () => {

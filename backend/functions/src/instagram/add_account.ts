@@ -12,7 +12,7 @@ import { SubscriptionPlanType } from '../types/subscription_plan';
 // tslint:disable-next-line:no-implicit-dependencies
 import { Transaction } from '@google-cloud/firestore';
 
-export default async function addAccount(data: any, context: CallableContext) {
+export default async function addAccount(data: any, context: CallableContext): Promise<{ checkpoint: any, message: string } | null> {
 
   if (!context.auth) {
     throw new functions.https.HttpsError('failed-precondition', 'The function must be called while authenticated.');
@@ -23,6 +23,8 @@ export default async function addAccount(data: any, context: CallableContext) {
   }
 
   const uid = context.auth.uid;
+
+  let result: { checkpoint: any, message: string } | null = null;
 
   await admin.firestore().runTransaction(async transaction => {
     const account = await admin.firestore().collectionGroup('accounts').where('username', '==', data.username).get();
@@ -88,7 +90,7 @@ export default async function addAccount(data: any, context: CallableContext) {
 
         console.log(instagram.state.checkpoint);
         await instagram.challenge.auto(true);
-        return {
+        result = {
           checkpoint: instagram.state.checkpoint,
           message: 'checkpoint-required'
         }
@@ -96,7 +98,7 @@ export default async function addAccount(data: any, context: CallableContext) {
         console.log('Two factor required');
         await addInstagramAccount(transaction, instagram, data, context, 'two-factor-required');
 
-        return {
+        result = {
           checkpoint: instagram.state.checkpoint,
           message: 'two-factor-required'
         }
@@ -109,12 +111,15 @@ export default async function addAccount(data: any, context: CallableContext) {
 
     await addInstagramAccount(transaction, instagram, data, context, 'running');
 
-    return {
+    result = {
       checkpoint: null,
       message: 'success'
     }
-
   });
+
+  console.log(result);
+
+  return result;
 }
 
 async function addInstagramAccount(transaction: Transaction, instagram: IgApiClient, data: { username: string, password: string }, context: CallableContext, status: string) {

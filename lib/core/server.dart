@@ -1,4 +1,7 @@
+import 'dart:core';
+
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:igflexin/model/add_account_response.dart';
 
 class Server {
   static Future<void> purchaseSubscription({
@@ -50,18 +53,26 @@ class Server {
     }
   }
 
-  static Future<void> addAccount({
+  static Future<AddAccountResponse> addAccount({
     String username,
     String password,
   }) async {
     try {
-      await CloudFunctions.instance
+      final result = await CloudFunctions.instance
           .getHttpsCallable(functionName: 'addAccount')
           .call(<String, dynamic>{
         'username': username,
         'password': password,
       });
+
+      print(result.data);
+
+      return AddAccountResponse(
+        message: result.data['message'],
+        checkpoint: result.data['checkpoint'],
+      );
     } catch (e) {
+      print(e);
       print((e as CloudFunctionsException).code);
       print('addAccount call exception');
       throw e;
