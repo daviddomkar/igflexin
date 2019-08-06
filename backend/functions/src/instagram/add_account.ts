@@ -77,6 +77,13 @@ export default async function addAccount(data: any, context: CallableContext): P
 
     try {
       await instagram.account.login(username, password);
+      process.nextTick(async () => await instagram.simulate.postLoginFlow());
+      await addInstagramAccount(transaction, instagram, data, context, 'running');
+
+      result = {
+        checkpoint: null,
+        message: 'success'
+      }
     } catch (e) {
       if (e instanceof IgLoginBadPasswordError) {
         console.log('Bad password');
@@ -106,16 +113,9 @@ export default async function addAccount(data: any, context: CallableContext): P
         throw new functions.https.HttpsError('unknown', 'Unknown error.');
       }
     }
+  }, { maxAttempts: 1 });
 
-    process.nextTick(async () => await instagram.simulate.postLoginFlow());
-
-    await addInstagramAccount(transaction, instagram, data, context, 'running');
-
-    result = {
-      checkpoint: null,
-      message: 'success'
-    }
-  });
+  console.log('result');
 
   console.log(result);
 
@@ -123,10 +123,17 @@ export default async function addAccount(data: any, context: CallableContext): P
 }
 
 async function addInstagramAccount(transaction: Transaction, instagram: IgApiClient, data: { username: string, password: string }, context: CallableContext, status: string) {
+  console.log('Adding instagram account!');
   const cookies = await instagram.state.serializeCookieJar();
 
-  const user = await instagram.user.searchExact(data.username);
+  let profilePictureURL = null;
 
+  console.log('Getting profile picture!');
+  try {
+    profilePictureURL = (await instagram.user.searchExact(data.username)).profile_pic_url;
+  } catch (e) { }
+
+  console.log(profilePictureURL);
   const state = {
     deviceString: instagram.state.deviceString,
     deviceId: instagram.state.deviceId,
@@ -136,9 +143,13 @@ async function addInstagramAccount(transaction: Transaction, instagram: IgApiCli
     build: instagram.state.build,
   };
 
+  console.log('Password');
+
   const encryptedPassword = await (await import('./encrypt_password')).default({
     password: data.password
   }, context);
+
+  console.log('transaction create');
 
   transaction.create(admin.firestore().collection('users').doc(context.auth!.uid).collection('accounts').doc(), {
     username: data.username,
@@ -147,6 +158,8 @@ async function addInstagramAccount(transaction: Transaction, instagram: IgApiCli
     state: state,
     paused: false,
     status: status,
-    profilePictureURL: user.profile_pic_url
+    profilePictureURL: profilePictureURL,
   });
+
+  console.log('done');
 }

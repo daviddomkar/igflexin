@@ -139,13 +139,27 @@ class __DashboardState extends State<_Dashboard> {
               child: Row(
                 children: [
                   AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    transitionBuilder: (child, animation) => ScaleTransition(
-                      child: child,
-                      scale: animation,
-                      alignment: Alignment.centerLeft,
-                    ),
+                    duration: const Duration(milliseconds: 500),
+                    transitionBuilder: (child, animation) {
+                      final tween = Tween(begin: 0.0, end: 1.0).animate(
+                        CurvedAnimation(
+                          parent: animation,
+                          curve: Interval(
+                            0.500,
+                            1.000,
+                            curve: Curves.ease,
+                          ),
+                        ),
+                      );
+
+                      return ScaleTransition(
+                        child: child,
+                        scale: tween,
+                        alignment: Alignment.centerLeft,
+                      );
+                    },
                     child: Container(
+                      width: ResponsivityUtils.compute(200.0, context),
                       key: ValueKey(_selectedPageIndex),
                       margin: EdgeInsets.only(
                           left: ResponsivityUtils.compute(16.0, context)),

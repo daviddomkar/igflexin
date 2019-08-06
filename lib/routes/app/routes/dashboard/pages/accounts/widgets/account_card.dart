@@ -25,7 +25,8 @@ class AccountCard extends StatelessWidget {
       child: Row(
         children: [
           CachedNetworkImage(
-            imageUrl: account.profilePictureURL,
+            imageUrl: account.profilePictureURL ??
+                'https://scontent-mxp1-1.cdninstagram.com/vp/6e968c363d4874107ae4b2e9ae3abdcf/5DCB27F1/t51.2885-19/44884218_345707102882519_2446069589734326272_n.jpg?_nc_ht=scontent-mxp1-1.cdninstagram.com',
             imageBuilder: (context, imageProvider) => Container(
               margin: EdgeInsets.only(
                   left: ResponsivityUtils.compute(10.0, context)),
