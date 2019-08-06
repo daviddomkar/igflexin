@@ -39,13 +39,13 @@ class _AddAccountDialogState extends State<AddAccountDialog>
         ColorTween(begin: Colors.transparent, end: Colors.black54)
             .animate(CurvedAnimation(
       parent: _animationController,
-      curve: new Interval(0.000, 0.250, curve: Curves.easeOutExpo),
+      curve: Interval(0.000, 0.250, curve: Curves.easeOutExpo),
     ));
 
     _scaleContentInAnimation =
         Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
       parent: _animationController,
-      curve: new Interval(0.000, 1.000, curve: Curves.elasticOut),
+      curve: Interval(0.000, 1.000, curve: Curves.elasticOut),
     ));
 
     _animationController.forward();
@@ -65,6 +65,7 @@ class _AddAccountDialogState extends State<AddAccountDialog>
     if (_error.isNotEmpty) {
       return ErrorMessage(
         message: _error,
+        onErrorDismissed: () => setState(() => _error = ''),
       );
     } else if (_state == InstagramAccountState.None) {
       return AddAccountForm(
@@ -122,16 +123,28 @@ class _AddAccountDialogState extends State<AddAccountDialog>
                           ),
                           Align(
                             alignment: Alignment.center,
-                            child: AnimatedSwitcher(
-                              switchInCurve: Curves.elasticOut,
-                              duration: const Duration(milliseconds: 1000),
-                              transitionBuilder: (child, animation) =>
-                                  ScaleTransition(
-                                child: child,
-                                scale: animation,
-                              ),
-                              child: Transform.scale(
-                                scale: _scaleContentInAnimation.value,
+                            child: Transform.scale(
+                              scale: _scaleContentInAnimation.value,
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 2000),
+                                transitionBuilder: (child, animation) {
+                                  final tween =
+                                      Tween(begin: 0.0, end: 1.0).animate(
+                                    CurvedAnimation(
+                                      parent: animation,
+                                      curve: Interval(
+                                        0.500,
+                                        1.000,
+                                        curve: Curves.elasticOut,
+                                      ),
+                                    ),
+                                  );
+
+                                  return ScaleTransition(
+                                    child: child,
+                                    scale: tween,
+                                  );
+                                },
                                 child: _buildChild(context),
                               ),
                             ),

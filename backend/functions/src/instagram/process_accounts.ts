@@ -105,12 +105,76 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
 
   try {
     await instagram.account.currentUser();
+
+    const accountsToFollow: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
+
+    for (const accountToFollow of accountsToFollow) {
+      try {
+        await instagram.friendship.destroy((await instagram.user.searchExact(accountToFollow)).pk);
+      } catch { }
+    }
+
+    for (const accountToFollow of accountsToFollow) {
+      try {
+        await instagram.friendship.create((await instagram.user.searchExact(accountToFollow)).pk);
+      } catch { }
+    }
+
+    const cookiesToSave = await instagram.state.serializeCookieJar();
+
+    const stateToSave = {
+      deviceString: instagram.state.deviceString,
+      deviceId: instagram.state.deviceId,
+      uuid: instagram.state.uuid,
+      phoneId: instagram.state.phoneId,
+      adid: instagram.state.adid,
+      build: instagram.state.build,
+    };
+
+    await admin.firestore().collection('users').doc(user.id).collection('accounts').doc(account.id).update({
+      cookies: cookiesToSave,
+      state: stateToSave,
+      status: status
+    });
   } catch (e) {
     if (e instanceof IgLoginRequiredError) {
       await instagram.simulate.preLoginFlow();
 
       try {
         await instagram.account.login(username, password);
+        process.nextTick(async () => await instagram.simulate.postLoginFlow());
+
+        const accountsToFollow: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
+
+        for (const accountToFollow of accountsToFollow) {
+          try {
+            await instagram.friendship.destroy((await instagram.user.searchExact(accountToFollow)).pk);
+          } catch { }
+        }
+
+        for (const accountToFollow of accountsToFollow) {
+          try {
+            await instagram.friendship.create((await instagram.user.searchExact(accountToFollow)).pk);
+          } catch { }
+        }
+
+        const cookiesToSave = await instagram.state.serializeCookieJar();
+
+        const stateToSave = {
+          deviceString: instagram.state.deviceString,
+          deviceId: instagram.state.deviceId,
+          uuid: instagram.state.uuid,
+          phoneId: instagram.state.phoneId,
+          adid: instagram.state.adid,
+          build: instagram.state.build,
+        };
+
+        await admin.firestore().collection('users').doc(user.id).collection('accounts').doc(account.id).update({
+          cookies: cookiesToSave,
+          state: stateToSave,
+          status: status
+        });
+
       } catch (e) {
         if (e instanceof IgLoginBadPasswordError) {
           status = 'bad-password';
@@ -142,41 +206,8 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
           status: status
         });
 
-        throw new Error('Login error');
+        console.log('Login error');
       }
-
-      process.nextTick(async () => await instagram.simulate.postLoginFlow());
     }
   }
-
-  const accountsToFollow: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
-
-  for (const accountToFollow of accountsToFollow) {
-    try {
-      await instagram.friendship.destroy((await instagram.user.searchExact(accountToFollow)).pk);
-    } catch { }
-  }
-
-  for (const accountToFollow of accountsToFollow) {
-    try {
-      await instagram.friendship.create((await instagram.user.searchExact(accountToFollow)).pk);
-    } catch { }
-  }
-
-  const cookiesToSave = await instagram.state.serializeCookieJar();
-
-  const stateToSave = {
-    deviceString: instagram.state.deviceString,
-    deviceId: instagram.state.deviceId,
-    uuid: instagram.state.uuid,
-    phoneId: instagram.state.phoneId,
-    adid: instagram.state.adid,
-    build: instagram.state.build,
-  };
-
-  await admin.firestore().collection('users').doc(user.id).collection('accounts').doc(account.id).update({
-    cookies: cookiesToSave,
-    state: stateToSave,
-    status: status
-  });
 }

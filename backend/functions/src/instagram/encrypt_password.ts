@@ -29,32 +29,34 @@ export default async function encryptPassword(data: any, context: CallableContex
   let key;
 
   if (keyDoc.exists) {
-    const result = await kms.projects.locations.keyRings.cryptoKeys.decrypt({
+    return  kms.projects.locations.keyRings.cryptoKeys.decrypt({
       name: 'projects/igflexin-5d2db/locations/global/keyRings/igflexin/cryptoKeys/password',
       requestBody: {
         ciphertext: keyDoc.data()!.key
       }
-    });
+    }).then(result => {
+      key = result.data.plaintext;
 
-    key = result.data.plaintext;
+      return cryptojs.AES.encrypt(data.password, key!).toString();
+    });
   } else {
     const secureKey = hashString(uid, getRandomString(16));
 
-    const result = await kms.projects.locations.keyRings.cryptoKeys.encrypt({
+    return kms.projects.locations.keyRings.cryptoKeys.encrypt({
       name: 'projects/igflexin-5d2db/locations/global/keyRings/igflexin/cryptoKeys/password',
       requestBody: {
         plaintext: Buffer.from(secureKey).toString('base64')
       }
-    });
+    }).then(async result => {
+      await admin.firestore().collection('keys').doc(uid).set({
+        key: result.data.ciphertext
+      });
 
-    await admin.firestore().collection('keys').doc(uid).set({
-      key: result.data.ciphertext
-    });
+      key = Buffer.from(secureKey).toString('base64');
 
-    key = Buffer.from(secureKey).toString('base64');
+      return cryptojs.AES.encrypt(data.password, key!).toString();
+    });
   }
-
-  return cryptojs.AES.encrypt(data.password, key!).toString();
 }
 
 function hashString(string: string, salt: string) {

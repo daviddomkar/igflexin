@@ -11,14 +11,14 @@ export default async function decryptPassword(uid: string, encryptedPassword: st
 
   const keyDoc = await admin.firestore().collection('keys').doc(uid).get();
 
-  const result = await kms.projects.locations.keyRings.cryptoKeys.decrypt({
+  return kms.projects.locations.keyRings.cryptoKeys.decrypt({
     name: 'projects/igflexin-5d2db/locations/global/keyRings/igflexin/cryptoKeys/password',
     requestBody: {
       ciphertext: keyDoc.data()!.key
     }
+  }).then(result => {
+    const key = result.data.plaintext;
+
+    return cryptojs.AES.decrypt(encryptedPassword, key!).toString(cryptojs.enc.Utf8);
   });
-
-  const key = result.data.plaintext;
-
-  return cryptojs.AES.decrypt(encryptedPassword, key!).toString(cryptojs.enc.Utf8);
 }

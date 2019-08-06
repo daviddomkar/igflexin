@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
+import 'package:igflexin/widgets/buttons.dart';
+import 'package:provider/provider.dart';
 
 class ErrorMessage extends StatelessWidget {
-  ErrorMessage({@required this.message});
+  ErrorMessage({
+    @required this.message,
+    this.onErrorDismissed,
+  });
 
   final String message;
+  final void Function() onErrorDismissed;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +24,43 @@ class ErrorMessage extends StatelessWidget {
           ResponsivityUtils.compute(20.0, context),
         ),
       ),
-      child: Text(message),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Error',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: ResponsivityUtils.compute(23.0, context),
+              fontWeight: FontWeight.bold,
+              color: Provider.of<SubscriptionRepository>(context)
+                  .planTheme
+                  .gradientStartColor,
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(
+                vertical: ResponsivityUtils.compute(20.0, context)),
+            padding: EdgeInsets.symmetric(
+              horizontal: ResponsivityUtils.compute(10.0, context),
+            ),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          GradientButton(
+            width: ResponsivityUtils.compute(130.0, context),
+            height: ResponsivityUtils.compute(45.0, context),
+            child: Text(
+              'Ok',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: onErrorDismissed,
+          ),
+        ],
+      ),
     );
   }
 }

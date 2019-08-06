@@ -105,6 +105,7 @@ class _AddAccountFormState extends State<AddAccountForm> {
 
         if (response.message == 'success') {
           widget.onStateReceived(InstagramAccountState.Running);
+          Navigator.maybePop(context);
         } else if (response.message == 'checkpoint-required') {
           widget.onStateReceived(InstagramAccountState.CheckpointRequired);
         } else if (response.message == 'two-factor-required') {
@@ -113,16 +114,13 @@ class _AddAccountFormState extends State<AddAccountForm> {
       } on CloudFunctionsException catch (e) {
         print(e);
 
-        if (e.code == 'invalid-argument') {
+        if (e.code == 'INVALID_ARGUMENT') {
           widget.onErrorReceived('Invalid username and password combination!');
-        } else if (e.code == 'permission-denied') {
+        } else if (e.code == 'PERMISSION_DENIED') {
           widget.onErrorReceived('This user is already added to IGFlexin!');
         } else {
           widget.onErrorReceived('Unknown error occurred!');
         }
-        setState(() {
-          _addingAccount = false;
-        });
       }
     } else {
       setState(() {
