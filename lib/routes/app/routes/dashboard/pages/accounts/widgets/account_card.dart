@@ -99,7 +99,14 @@ class AccountCard extends StatelessWidget {
                             'Edit',
                             style: TextStyle(),
                           ),
-                          onPressed: (() {}),
+                          onPressed: (() {
+                            showModalWidget(
+                                context,
+                                AccountDialog(
+                                  account: account,
+                                  edit: true,
+                                ));
+                          }),
                         ),
                       ),
                     ],

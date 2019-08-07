@@ -3,15 +3,18 @@ import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/add_account_form.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/edit_account_form.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/edit_or_delete.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/error_message.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/security_code_form.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/two_factor_auth_form.dart';
 import 'package:igflexin/utils/keyboard_utils.dart';
 
 class AccountDialog extends StatefulWidget {
-  const AccountDialog({Key key, this.account}) : super(key: key);
+  const AccountDialog({Key key, this.account, this.edit = false})
+      : super(key: key);
 
   final InstagramAccount account;
+  final bool edit;
 
   @override
   _AccountDialogState createState() {
@@ -35,10 +38,15 @@ class _AccountDialogState extends State<AccountDialog>
 
   String _error = '';
   InstagramAccountState _state;
+  EditOrDeleteActionType _editAction;
 
   @override
   void initState() {
     super.initState();
+
+    if (widget.edit) {
+      _editAction = EditOrDeleteActionType.None;
+    }
 
     if (widget.account != null) {
       _state = getInstagramAccountStateFromString(widget.account.status);
@@ -79,7 +87,13 @@ class _AccountDialogState extends State<AccountDialog>
   }
 
   Widget _buildChild(BuildContext context) {
-    if (_error.isNotEmpty) {
+    if (_editAction != null) {
+      if (_editAction == EditOrDeleteActionType.None) {
+        return EditOrDelete(
+          account: widget.account,
+        );
+      }
+    } else if (_error.isNotEmpty) {
       return ErrorMessage(
         message: _error,
         onErrorDismissed: () => setState(() => _error = ''),
