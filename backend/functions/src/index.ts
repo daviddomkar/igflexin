@@ -22,6 +22,10 @@ export const addAccount = functions.runWith({ memory: '512MB', timeoutSeconds: 1
   return await (await import('./instagram/add_account')).default(data, context);
 });
 
+export const editAccount = functions.runWith({ memory: '512MB', timeoutSeconds: 120 }).https.onCall(async (data, context) => {
+  return await (await import('./instagram/edit_account')).default(data, context);
+});
+
 export const sendSecurityCode = functions.https.onCall(async (data, context) => {
   return await (await import('./instagram/send_security_code')).default(data, context);
 });
