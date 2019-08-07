@@ -93,9 +93,14 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
 
   const instagram = new IgApiClient();
 
+  instagram.state.generateDevice(username);
+
   let status = 'running';
+  let profilePictureURL = null;
+  let twoFactorIdentifier = null;
 
   await instagram.state.deserializeCookieJar(cookies);
+  instagram.state.checkpoint = state.checkpoint;
   instagram.state.deviceString = state.deviceString;
   instagram.state.deviceId = state.deviceId;
   instagram.state.uuid = state.uuid;
@@ -104,7 +109,7 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
   instagram.state.build = state.build;
 
   try {
-    await instagram.account.currentUser();
+    profilePictureURL = (await instagram.account.currentUser()).profile_pic_url;
 
     const accountsToFollow: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
 
@@ -123,6 +128,7 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
     const cookiesToSave = await instagram.state.serializeCookieJar();
 
     const stateToSave = {
+      checkpoint: instagram.state.checkpoint,
       deviceString: instagram.state.deviceString,
       deviceId: instagram.state.deviceId,
       uuid: instagram.state.uuid,
@@ -134,7 +140,8 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
     await admin.firestore().collection('users').doc(user.id).collection('accounts').doc(account.id).update({
       cookies: cookiesToSave,
       state: stateToSave,
-      status: status
+      status: status,
+      profilePictureURL: profilePictureURL
     });
   } catch (e) {
     if (e instanceof IgLoginRequiredError) {
@@ -142,7 +149,8 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
 
       try {
         await instagram.account.login(username, password);
-        process.nextTick(async () => await instagram.simulate.postLoginFlow());
+
+        profilePictureURL = (await instagram.account.currentUser()).profile_pic_url;
 
         const accountsToFollow: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
 
@@ -161,6 +169,7 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
         const cookiesToSave = await instagram.state.serializeCookieJar();
 
         const stateToSave = {
+          checkpoint: instagram.state.checkpoint,
           deviceString: instagram.state.deviceString,
           deviceId: instagram.state.deviceId,
           uuid: instagram.state.uuid,
@@ -172,7 +181,8 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
         await admin.firestore().collection('users').doc(user.id).collection('accounts').doc(account.id).update({
           cookies: cookiesToSave,
           state: stateToSave,
-          status: status
+          status: status,
+          profilePictureURL: profilePictureURL
         });
 
       } catch (e) {
@@ -184,6 +194,7 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
           status = 'checkpoint-required';
           await instagram.challenge.auto(true);
         } else if (e instanceof IgLoginTwoFactorRequiredError) {
+          twoFactorIdentifier = e.response.body.two_factor_info.two_factor_identifier;
           status = 'two-factor-required';
         } else {
           status = 'error';
@@ -192,6 +203,7 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
         const cookiesToSave = await instagram.state.serializeCookieJar();
 
         const stateToSave = {
+          checkpoint: instagram.state.checkpoint,
           deviceString: instagram.state.deviceString,
           deviceId: instagram.state.deviceId,
           uuid: instagram.state.uuid,
@@ -203,7 +215,8 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
         await admin.firestore().collection('users').doc(user.id).collection('accounts').doc(account.id).update({
           cookies: cookiesToSave,
           state: stateToSave,
-          status: status
+          status: status,
+          twoFactorIdentifier: twoFactorIdentifier,
         });
 
         console.log('Login error');

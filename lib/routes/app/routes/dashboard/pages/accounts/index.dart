@@ -4,7 +4,7 @@ import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/resources/subscription.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/account_card.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/add_account_dialog.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/account_dialog.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:igflexin/widgets/dialog.dart';
@@ -40,7 +40,7 @@ class _AccountsState extends State<Accounts> {
   }
 
   void _addInstagramAccount(BuildContext context) {
-    showModalWidget(context, AddAccountDialog());
+    showModalWidget(context, AccountDialog());
   }
 
   @override

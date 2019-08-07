@@ -22,6 +22,14 @@ export const addAccount = functions.runWith({ memory: '512MB', timeoutSeconds: 1
   return await (await import('./instagram/add_account')).default(data, context);
 });
 
+export const sendSecurityCode = functions.https.onCall(async (data, context) => {
+  return await (await import('./instagram/send_security_code')).default(data, context);
+});
+
+export const sendTwoFactorAuthCode = functions.https.onCall(async (data, context) => {
+  return await (await import('./instagram/send_two_factor_auth_code')).default(data, context);
+});
+
 export const processAccounts = functions.runWith({ memory: '2GB', timeoutSeconds: 480 }).pubsub.schedule('* * * * *').onRun(async () => {
   await (await import('./instagram/process_accounts')).default();
 });

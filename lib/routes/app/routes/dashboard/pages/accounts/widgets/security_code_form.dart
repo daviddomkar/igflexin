@@ -1,4 +1,3 @@
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
@@ -7,71 +6,57 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/utils/validation_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
-class AddAccountForm extends StatefulWidget {
-  AddAccountForm({
+class SecurityCodeForm extends StatefulWidget {
+  SecurityCodeForm({
     this.username,
-    this.password,
-    this.onUsernameChange,
-    this.onPasswordChange,
+    this.securityCode,
+    this.onSecurityCodeChange,
     this.onStateReceived,
     this.onErrorReceived,
   });
 
   final username;
-  final password;
-  final void Function(String) onUsernameChange;
-  final void Function(String) onPasswordChange;
+  final securityCode;
+  final void Function(String) onSecurityCodeChange;
   final void Function(InstagramAccountState) onStateReceived;
   final void Function(String) onErrorReceived;
 
   @override
-  _AddAccountFormState createState() {
-    return _AddAccountFormState();
+  _SecurityCodeFormState createState() {
+    return _SecurityCodeFormState();
   }
 }
 
-class _AddAccountFormState extends State<AddAccountForm> {
-  SubscriptionRepository _subscriptionRepository;
+class _SecurityCodeFormState extends State<SecurityCodeForm> {
   InstagramRepository _instagramRepository;
+  SubscriptionRepository _subscriptionRepository;
 
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _securityCodeController = TextEditingController();
 
   bool _autoValidate = false;
-  bool _addingAccount = false;
+  bool _fixing = false;
 
-  String _username;
-  String _password;
+  String _securityCode;
 
-  FocusNode _usernameFocusNode = FocusNode();
-  FocusNode _passwordFocusNode = FocusNode();
+  FocusNode _securityCodeFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
 
-    _username = widget.username;
-    _password = widget.password;
+    _securityCode = widget.securityCode;
 
-    _usernameController.text = _username;
-    _passwordController.text = _password;
+    _securityCodeController.text = _securityCode;
 
-    _usernameController.addListener(() {
+    _securityCodeController.addListener(() {
       setState(() {
-        _username = ValidationUtils.trimLeadingAndTrailingWhitespace(
-            _usernameController.text);
-        widget.onUsernameChange(_username);
-      });
-    });
-
-    _passwordController.addListener(() {
-      setState(() {
-        _password = ValidationUtils.trimLeadingAndTrailingWhitespace(
-            _passwordController.text);
-        widget.onPasswordChange(_password);
+        _securityCode = ValidationUtils.trimLeadingAndTrailingWhitespace(
+            _securityCodeController.text);
+        widget.onSecurityCodeChange(_securityCode);
       });
     });
   }
@@ -89,39 +74,40 @@ class _AddAccountFormState extends State<AddAccountForm> {
     super.dispose();
   }
 
-  void _addInstagramAccount() async {
+  void _fixSecurityCode() async {
     if (_formKey.currentState.validate()) {
-      if (_addingAccount) return;
+      if (_fixing) return;
 
       setState(() {
-        _addingAccount = true;
+        _fixing = true;
       });
 
       try {
-        final response = await _instagramRepository.addInstagramAccount(
-          username: _username,
-          password: _password,
+        final response = await _instagramRepository.sendSecurityCode(
+          securityCode: _securityCode,
+          username: widget.username,
         );
 
         if (response.message == 'success') {
           widget.onStateReceived(InstagramAccountState.Running);
           Navigator.maybePop(context);
-        } else if (response.message == 'checkpoint-required') {
-          widget.onStateReceived(InstagramAccountState.CheckpointRequired);
         } else if (response.message == 'two-factor-required') {
           widget.onStateReceived(InstagramAccountState.TwoFactorAuthRequired);
         }
       } on CloudFunctionsException catch (e) {
         print(e);
 
-        if (e.code == 'INVALID_ARGUMENT') {
-          widget.onErrorReceived('Invalid username and password combination!');
-        } else if (e.code == 'DEADLINE_EXCEEDED') {
-          Navigator.maybePop(context);
-        } else if (e.code == 'PERMISSION_DENIED') {
-          widget.onErrorReceived('This user is already added to IGFlexin!');
-        } else {
-          widget.onErrorReceived('Unknown error occurred!');
+        switch (e.code) {
+          case 'INVALID_ARGUMENT':
+            widget.onErrorReceived(
+                'Username or password has been changed recently, please edit added instagram account!');
+            break;
+          case 'DEADLINE_EXCEEDED':
+            Navigator.maybePop(context);
+            break;
+          default:
+            widget.onErrorReceived('Unknown error occurred!');
+            break;
         }
       }
     } else {
@@ -149,7 +135,7 @@ class _AddAccountFormState extends State<AddAccountForm> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Add Instagram account',
+              'Security code required',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: ResponsivityUtils.compute(23.0, context),
@@ -161,39 +147,43 @@ class _AddAccountFormState extends State<AddAccountForm> {
             ),
             Container(
               margin: EdgeInsets.only(
-                  top: ResponsivityUtils.compute(10.0, context)),
+                top: ResponsivityUtils.compute(10.0, context),
+                bottom: ResponsivityUtils.compute(20.0, context),
+              ),
               padding: EdgeInsets.symmetric(
                 horizontal: ResponsivityUtils.compute(10.0, context),
               ),
               child: Theme(
                 data: Theme.of(context).copyWith(
-                  cursorColor: _usernameController.text.isEmpty && _autoValidate
+                  cursorColor: _securityCodeController.text.isEmpty &&
+                          _autoValidate
                       ? Colors.red
                       : _subscriptionRepository.planTheme.gradientStartColor,
                   textSelectionColor:
-                      _usernameController.text.isEmpty && _autoValidate
+                      _securityCodeController.text.isEmpty && _autoValidate
                           ? Colors.red.withOpacity(0.5)
                           : _subscriptionRepository.planTheme.gradientStartColor
                               .withOpacity(0.5),
                 ),
                 child: TextFormField(
-                  focusNode: _usernameFocusNode,
-                  controller: _usernameController,
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.next,
+                  focusNode: _securityCodeFocusNode,
+                  controller: _securityCodeController,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) {
-                    _usernameFocusNode.unfocus();
-                    FocusScope.of(context).requestFocus(_passwordFocusNode);
+                    _securityCodeFocusNode.unfocus();
+                    _fixSecurityCode();
                   },
                   validator: _validateField,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
                       vertical: ResponsivityUtils.compute(10.0, context),
                     ),
-                    labelText: 'Username',
+                    labelText: '6-digit security code from email',
                     labelStyle: TextStyle(
-                        color: _usernameFocusNode.hasFocus
-                            ? _usernameController.text.isEmpty && _autoValidate
+                        color: _securityCodeFocusNode.hasFocus
+                            ? _securityCodeController.text.isEmpty &&
+                                    _autoValidate
                                 ? Colors.red
                                 : _subscriptionRepository
                                     .planTheme.gradientStartColor
@@ -213,59 +203,8 @@ class _AddAccountFormState extends State<AddAccountForm> {
                 ),
               ),
             ),
-            Container(
-              margin: EdgeInsets.only(
-                  bottom: ResponsivityUtils.compute(20.0, context)),
-              padding: EdgeInsets.symmetric(
-                horizontal: ResponsivityUtils.compute(10.0, context),
-              ),
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  cursorColor:
-                      _subscriptionRepository.planTheme.gradientStartColor,
-                  textSelectionColor: _subscriptionRepository
-                      .planTheme.gradientStartColor
-                      .withOpacity(0.5),
-                ),
-                child: TextFormField(
-                  focusNode: _passwordFocusNode,
-                  controller: _passwordController,
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) {
-                    _passwordFocusNode.unfocus();
-                    _addInstagramAccount();
-                  },
-                  obscureText: true,
-                  validator: _validateField,
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: ResponsivityUtils.compute(10.0, context),
-                    ),
-                    labelText: 'Password',
-                    labelStyle: TextStyle(
-                        color: _passwordFocusNode.hasFocus
-                            ? _subscriptionRepository
-                                .planTheme.gradientStartColor
-                            : null),
-                    errorStyle: TextStyle(color: Colors.black),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: _subscriptionRepository
-                            .planTheme.gradientStartColor,
-                        width: ResponsivityUtils.compute(2.0, context),
-                      ),
-                    ),
-                    focusColor:
-                        _subscriptionRepository.planTheme.gradientStartColor,
-                    alignLabelWithHint: true,
-                  ),
-                ),
-              ),
-            ),
             GradientButton(
-              width: ResponsivityUtils.compute(
-                  _addingAccount ? 45.0 : 130.0, context),
+              width: ResponsivityUtils.compute(_fixing ? 45.0 : 130.0, context),
               height: ResponsivityUtils.compute(45.0, context),
               child: Stack(
                 children: [
@@ -274,13 +213,13 @@ class _AddAccountFormState extends State<AddAccountForm> {
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.ease,
-                      opacity: !_addingAccount ? 1.0 : 0.0,
+                      opacity: !_fixing ? 1.0 : 0.0,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Flexible(
                             child: Text(
-                              'Add account',
+                              'Send',
                               textAlign: TextAlign.center,
                               style: TextStyle(color: Colors.white),
                             ),
@@ -294,7 +233,7 @@ class _AddAccountFormState extends State<AddAccountForm> {
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.ease,
-                      opacity: _addingAccount ? 1.0 : 0.0,
+                      opacity: _fixing ? 1.0 : 0.0,
                       child: Container(
                         width: 30.0,
                         height: 30.0,
@@ -310,7 +249,7 @@ class _AddAccountFormState extends State<AddAccountForm> {
                 ],
               ),
               onPressed: () {
-                _addInstagramAccount();
+                _fixSecurityCode();
               },
             ),
           ],
@@ -324,6 +263,8 @@ class _AddAccountFormState extends State<AddAccountForm> {
 
     if (value.isEmpty) {
       return 'This field is required!';
+    } else if (value.length != 6) {
+      return 'Security code must have 6 digits!';
     } else {
       return null;
     }
