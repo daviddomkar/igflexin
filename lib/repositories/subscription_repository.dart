@@ -228,21 +228,18 @@ class SubscriptionRepository with ChangeNotifier {
       await _restartCustomerSession();
     }
   }
+}
 
-/*
-  Future<void> purchaseSubscription() async {
-    HttpsCallable callable =
-        _functions.getHttpsCallable(functionName: 'stripeInitialSubscriptionPurchase');
-
-    try {
-      await callable.call(<String, String>{
-        'subscription_interval': getSubscriptionPlanIntervalString(_selectedPlanInterval),
-        'subscription_type': getSubscriptionPlanTypeString(_selectedPlanType),
-      });
-    } catch (exception) {
-      if (exception is CloudFunctionsException) {
-        print(exception.message);
-      }
-    }
-  }*/
+// ignore: missing_return
+int getMaxAccountLimitFromSubscriptionPlanType(SubscriptionPlanType type) {
+  switch (type) {
+    case SubscriptionPlanType.Basic:
+      return 1;
+    case SubscriptionPlanType.Standard:
+      return 3;
+    case SubscriptionPlanType.Business:
+      return 5;
+    case SubscriptionPlanType.BusinessPRO:
+      return 10;
+  }
 }
