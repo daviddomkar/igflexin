@@ -102,6 +102,18 @@ class InstagramRepository with ChangeNotifier {
     );
   }
 
+  Future<InstagramResponse> editInstagramAccount({
+    String username,
+    String password,
+    String id,
+  }) async {
+    return await Server.editAccount(
+      username: username,
+      password: password,
+      id: id,
+    );
+  }
+
   Future<InstagramResponse> sendSecurityCode({
     String username,
     String securityCode,

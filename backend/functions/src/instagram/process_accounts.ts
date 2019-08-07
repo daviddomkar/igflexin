@@ -23,8 +23,6 @@ export default async function processAccounts(uid: string | undefined = undefine
     const processes: (() => Promise<void>)[] = [];
 
     for (const user of users.docs) {
-      console.log(user.data());
-
       if (!user.data()!.userCompleted || !user.data()!.subscription) {
         continue;
       }
@@ -113,16 +111,22 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
 
     const accountsToFollow: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
 
+    console.log('Unfollowing ' + account.data()!.username);
     for (const accountToFollow of accountsToFollow) {
       try {
         await instagram.friendship.destroy((await instagram.user.searchExact(accountToFollow)).pk);
-      } catch { }
+      } catch {
+        console.log('Error');
+      }
     }
 
+    console.log('Following ' + account.data()!.username);
     for (const accountToFollow of accountsToFollow) {
       try {
         await instagram.friendship.create((await instagram.user.searchExact(accountToFollow)).pk);
-      } catch { }
+      } catch {
+        console.log('Error');
+      }
     }
 
     const cookiesToSave = await instagram.state.serializeCookieJar();
@@ -154,16 +158,22 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
 
         const accountsToFollow: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
 
+        console.log('Unfollowing ' + account.data()!.username);
         for (const accountToFollow of accountsToFollow) {
           try {
             await instagram.friendship.destroy((await instagram.user.searchExact(accountToFollow)).pk);
-          } catch { }
+          } catch {
+            console.log('Error');
+          }
         }
 
+        console.log('Following ' + account.data()!.username);
         for (const accountToFollow of accountsToFollow) {
           try {
             await instagram.friendship.create((await instagram.user.searchExact(accountToFollow)).pk);
-          } catch { }
+          } catch {
+            console.log('Error');
+          }
         }
 
         const cookiesToSave = await instagram.state.serializeCookieJar();

@@ -1,8 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/add_account_form.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/edit_account_form.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/error_message.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/security_code_form.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/two_factor_auth_form.dart';
@@ -28,6 +28,8 @@ class _AccountDialogState extends State<AccountDialog>
 
   String _username = '';
   String _password = '';
+  String _editUsername = '';
+  String _editPassword = '';
   String _securityCode = '';
   String _twoFactorAuthCode = '';
 
@@ -105,6 +107,17 @@ class _AccountDialogState extends State<AccountDialog>
         securityCode: _twoFactorAuthCode,
         onSecurityCodeChange: (value) =>
             setState(() => _twoFactorAuthCode = value),
+        onStateReceived: (value) => setState(() => _state = value),
+        onErrorReceived: (value) => setState(() => _error = value),
+      );
+    } else if (_state == InstagramAccountState.InvalidUser ||
+        _state == InstagramAccountState.BadPassword) {
+      return EditAccountForm(
+        id: widget.account.id,
+        username: _editUsername,
+        password: _editPassword,
+        onUsernameChange: (value) => setState(() => _editUsername = value),
+        onPasswordChange: (value) => setState(() => _editPassword = value),
         onStateReceived: (value) => setState(() => _state = value),
         onErrorReceived: (value) => setState(() => _error = value),
       );

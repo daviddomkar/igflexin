@@ -79,6 +79,34 @@ class Server {
     }
   }
 
+  static Future<InstagramResponse> editAccount({
+    String username,
+    String password,
+    String id,
+  }) async {
+    try {
+      final result = await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'editAccount')
+          .call(<String, dynamic>{
+        'username': username,
+        'password': password,
+        'id': id,
+      });
+
+      print(result.data);
+
+      return InstagramResponse(
+        message: result.data['message'],
+        checkpoint: result.data['checkpoint'],
+      );
+    } catch (e) {
+      print(e);
+      print((e as CloudFunctionsException).code);
+      print('editAccount call exception');
+      throw e;
+    }
+  }
+
   static Future<InstagramResponse> sendSecurityCode({
     String username,
     String securityCode,
