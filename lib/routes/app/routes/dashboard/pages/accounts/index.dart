@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
@@ -65,16 +66,32 @@ class _AccountsState extends State<Accounts> {
                 padding: EdgeInsets.symmetric(
                     vertical: ResponsivityUtils.compute(4.0, context)),
                 child: Center(
-                  child: GradientButton(
-                    width: ResponsivityUtils.compute(150.0, context),
-                    height: ResponsivityUtils.compute(45.0, context),
-                    child: Text(
-                      'Add new account',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () => _addInstagramAccount(context),
-                  ),
+                  child: _cachedAccounts.length <
+                          getMaxAccountLimitFromSubscriptionPlanType(
+                              _cachedSubscription.type)
+                      ? GradientButton(
+                          width: ResponsivityUtils.compute(150.0, context),
+                          height: ResponsivityUtils.compute(45.0, context),
+                          child: Text(
+                            'Add new account',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onPressed: () => _addInstagramAccount(context),
+                        )
+                      : Container(
+                          margin: EdgeInsets.symmetric(
+                              horizontal:
+                                  ResponsivityUtils.compute(20.0, context)),
+                          child: Text(
+                            'Max account limit reached.\n' +
+                                (_cachedSubscription.type !=
+                                        SubscriptionPlanType.BusinessPRO
+                                    ? ' Upgrade your subscription to add more accounts.'
+                                    : ''),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                 ),
               );
             } else {
