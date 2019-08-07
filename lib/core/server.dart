@@ -1,7 +1,7 @@
 import 'dart:core';
 
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:igflexin/model/add_account_response.dart';
+import 'package:igflexin/model/instagram_response.dart';
 
 class Server {
   static Future<void> purchaseSubscription({
@@ -53,7 +53,7 @@ class Server {
     }
   }
 
-  static Future<AddAccountResponse> addAccount({
+  static Future<InstagramResponse> addAccount({
     String username,
     String password,
   }) async {
@@ -67,7 +67,7 @@ class Server {
 
       print(result.data);
 
-      return AddAccountResponse(
+      return InstagramResponse(
         message: result.data['message'],
         checkpoint: result.data['checkpoint'],
       );
@@ -75,6 +75,58 @@ class Server {
       print(e);
       print((e as CloudFunctionsException).code);
       print('addAccount call exception');
+      throw e;
+    }
+  }
+
+  static Future<InstagramResponse> sendSecurityCode({
+    String username,
+    String securityCode,
+  }) async {
+    try {
+      final result = await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'sendSecurityCode')
+          .call(<String, dynamic>{
+        'username': username,
+        'securityCode': securityCode,
+      });
+
+      print(result.data);
+
+      return InstagramResponse(
+        message: result.data['message'],
+        checkpoint: result.data['checkpoint'],
+      );
+    } catch (e) {
+      print(e);
+      print((e as CloudFunctionsException).code);
+      print('sendSecurityCode call exception');
+      throw e;
+    }
+  }
+
+  static Future<InstagramResponse> sendTwoFactorAuthCode({
+    String username,
+    String securityCode,
+  }) async {
+    try {
+      final result = await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'sendTwoFactorAuthCode')
+          .call(<String, dynamic>{
+        'username': username,
+        'securityCode': securityCode,
+      });
+
+      print(result.data);
+
+      return InstagramResponse(
+        message: result.data['message'],
+        checkpoint: result.data['checkpoint'],
+      );
+    } catch (e) {
+      print(e);
+      print((e as CloudFunctionsException).code);
+      print('sendTwoFactorAuthCode call exception');
       throw e;
     }
   }

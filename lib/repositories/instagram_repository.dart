@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:igflexin/core/server.dart';
-import 'package:igflexin/model/add_account_response.dart';
+import 'package:igflexin/model/instagram_response.dart';
 import 'package:igflexin/resources/accounts.dart';
 
 class InstagramRepository with ChangeNotifier {
@@ -45,6 +45,7 @@ class InstagramRepository with ChangeNotifier {
         state: AccountsState.Some,
         data: snapshot.documents.map<InstagramAccount>((document) {
           return InstagramAccount(
+            id: document.documentID,
             username: document.data['username'],
             paused: document.data['paused'],
             status: document.data['status'],
@@ -54,11 +55,70 @@ class InstagramRepository with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<AddAccountResponse> addInstagramAccount(
-      {String username, String password}) async {
+  Future<void> pause({
+    String id,
+  }) async {
+    await _firestore
+        .collection('users')
+        .document((await _auth.currentUser()).uid)
+        .collection('accounts')
+        .document(id)
+        .updateData(<String, dynamic>{
+      'paused': true,
+    });
+  }
+
+  Future<void> resume({
+    String id,
+  }) async {
+    await _firestore
+        .collection('users')
+        .document((await _auth.currentUser()).uid)
+        .collection('accounts')
+        .document(id)
+        .updateData(<String, dynamic>{
+      'paused': false,
+    });
+  }
+
+  Future<void> delete({
+    String id,
+  }) async {
+    await _firestore
+        .collection('users')
+        .document((await _auth.currentUser()).uid)
+        .collection('accounts')
+        .document(id)
+        .delete();
+  }
+
+  Future<InstagramResponse> addInstagramAccount({
+    String username,
+    String password,
+  }) async {
     return await Server.addAccount(
       username: username,
       password: password,
+    );
+  }
+
+  Future<InstagramResponse> sendSecurityCode({
+    String username,
+    String securityCode,
+  }) async {
+    return await Server.sendSecurityCode(
+      username: username,
+      securityCode: securityCode,
+    );
+  }
+
+  Future<InstagramResponse> sendTwoFactorAuthCode({
+    String username,
+    String securityCode,
+  }) async {
+    return await Server.sendTwoFactorAuthCode(
+      username: username,
+      securityCode: securityCode,
     );
   }
 

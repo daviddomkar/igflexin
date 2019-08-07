@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/account_dialog.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
+import 'package:igflexin/widgets/dialog.dart';
 import 'package:provider/provider.dart';
 
 class AccountCard extends StatelessWidget {
@@ -13,6 +16,8 @@ class AccountCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = getInstagramAccountStateFromString(account.status);
+
     return Container(
       margin: EdgeInsets.symmetric(
           horizontal: ResponsivityUtils.compute(8.0, context),
@@ -103,16 +108,42 @@ class AccountCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Status: ' + account.status),
-                      GradientButton(
-                        width: ResponsivityUtils.compute(90, context),
-                        height: ResponsivityUtils.compute(35, context),
-                        child: Text(
-                          'Pause',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: (() {}),
+                      Flexible(
+                        child: Text('Status: ' +
+                            (account.paused
+                                ? 'Paused'
+                                : getPrettyStringFromAccountState(state))),
                       ),
+                      if (state != InstagramAccountState.UnknownError)
+                        GradientButton(
+                          width: ResponsivityUtils.compute(90, context),
+                          height: ResponsivityUtils.compute(35, context),
+                          child: Text(
+                            account.paused
+                                ? 'Resume'
+                                : state == InstagramAccountState.Running
+                                    ? 'Pause'
+                                    : 'Fix',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onPressed: (() {
+                            if (account.paused) {
+                              Provider.of<InstagramRepository>(context).resume(
+                                id: account.id,
+                              );
+                            } else if (state == InstagramAccountState.Running) {
+                              Provider.of<InstagramRepository>(context).pause(
+                                id: account.id,
+                              );
+                            } else {
+                              showModalWidget(
+                                  context,
+                                  AccountDialog(
+                                    account: account,
+                                  ));
+                            }
+                          }),
+                        ),
                     ],
                   ),
                 ],

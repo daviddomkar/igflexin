@@ -4,16 +4,22 @@ import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/add_account_form.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/error_message.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/security_code_form.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/two_factor_auth_form.dart';
 import 'package:igflexin/utils/keyboard_utils.dart';
 
-class AddAccountDialog extends StatefulWidget {
+class AccountDialog extends StatefulWidget {
+  const AccountDialog({Key key, this.account}) : super(key: key);
+
+  final InstagramAccount account;
+
   @override
-  _AddAccountDialogState createState() {
-    return _AddAccountDialogState();
+  _AccountDialogState createState() {
+    return _AccountDialogState();
   }
 }
 
-class _AddAccountDialogState extends State<AddAccountDialog>
+class _AccountDialogState extends State<AccountDialog>
     with SingleTickerProviderStateMixin {
   AnimationController _animationController;
 
@@ -22,13 +28,22 @@ class _AddAccountDialogState extends State<AddAccountDialog>
 
   String _username = '';
   String _password = '';
+  String _securityCode = '';
+  String _twoFactorAuthCode = '';
 
   String _error = '';
-  InstagramAccountState _state = InstagramAccountState.None;
+  InstagramAccountState _state;
 
   @override
   void initState() {
     super.initState();
+
+    if (widget.account != null) {
+      _state = getInstagramAccountStateFromString(widget.account.status);
+      _username = widget.account.username;
+    } else {
+      _state = InstagramAccountState.None;
+    }
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
@@ -73,6 +88,23 @@ class _AddAccountDialogState extends State<AddAccountDialog>
         password: _password,
         onUsernameChange: (value) => setState(() => _username = value),
         onPasswordChange: (value) => setState(() => _password = value),
+        onStateReceived: (value) => setState(() => _state = value),
+        onErrorReceived: (value) => setState(() => _error = value),
+      );
+    } else if (_state == InstagramAccountState.CheckpointRequired) {
+      return SecurityCodeForm(
+        username: _username,
+        securityCode: _securityCode,
+        onSecurityCodeChange: (value) => setState(() => _securityCode = value),
+        onStateReceived: (value) => setState(() => _state = value),
+        onErrorReceived: (value) => setState(() => _error = value),
+      );
+    } else if (_state == InstagramAccountState.TwoFactorAuthRequired) {
+      return TwoFactorAuthForm(
+        username: _username,
+        securityCode: _twoFactorAuthCode,
+        onSecurityCodeChange: (value) =>
+            setState(() => _twoFactorAuthCode = value),
         onStateReceived: (value) => setState(() => _state = value),
         onErrorReceived: (value) => setState(() => _error = value),
       );
