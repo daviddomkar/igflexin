@@ -222,6 +222,8 @@ class __DashboardState extends State<_Dashboard> {
                       ? widget.systemBarsInfo.navigationBarHeight
                       : 0.0),
               child: Container(
+                alignment: Alignment.topCenter,
+                color: Colors.white,
                 height: ResponsivityUtils.compute(120.0, context),
                 child: BottomNavigationBar(
                   currentIndex: _selectedPageIndex,
