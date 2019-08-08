@@ -33,10 +33,13 @@ dependencies:
       url: https://github.com/DEXIT33/flutter_system_bars
 
   flutter_stripe_sdk:
-    path: ../flutter_stripe_sdk
+    git:
+      url: https://github.com/DEXIT33/flutter_stripe_sdk
 
   flutter_credit_card:
-    path: ../flutter_credit_card
+    git:
+      url: https://github.com/DEXIT33/flutter_credit_card
+      ref: feature/creditcardfoam
 
   cached_network_image: ^1.1.1
 
