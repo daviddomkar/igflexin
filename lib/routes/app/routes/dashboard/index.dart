@@ -210,7 +210,6 @@ class __DashboardState extends State<_Dashboard> {
             offset: Offset(0.0, _bottomNavigationBarOffsetY.value),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.blue,
                 borderRadius: widget.orientation == Orientation.landscape &&
                         widget.systemBarsInfo.hasSoftwareNavigationBar
                     ? BorderRadius.only(
@@ -218,18 +217,15 @@ class __DashboardState extends State<_Dashboard> {
                             ResponsivityUtils.compute(20.0, context)))
                     : BorderRadius.zero,
               ),
-              padding: EdgeInsets.only(
-                  bottom: widget.orientation == Orientation.portrait
-                      ? widget.systemBarsInfo.navigationBarHeight
-                      : 0.0),
               height: ResponsivityUtils.compute(64.0, context) +
                   (widget.orientation == Orientation.portrait
                       ? widget.systemBarsInfo.navigationBarHeight
                       : 0.0),
               child: Container(
+                height: ResponsivityUtils.compute(120.0, context),
                 child: BottomNavigationBar(
                   currentIndex: _selectedPageIndex,
-                  backgroundColor: Colors.red,
+                  backgroundColor: Colors.white,
                   elevation: 0.0,
                   unselectedItemColor: Colors.black,
                   selectedItemColor:
