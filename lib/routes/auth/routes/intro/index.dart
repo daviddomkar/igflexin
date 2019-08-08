@@ -38,52 +38,55 @@ class _Intro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: Container(
-            constraints: orientation == Orientation.landscape
-                ? BoxConstraints.expand(
-                    height: ResponsivityUtils.compute(360, context),
-                  )
-                : BoxConstraints(),
-            margin: EdgeInsets.only(
-              top: (orientation == Orientation.portrait
-                  ? systemBarsInfo.navigationBarHeight +
-                      ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context)
-                  : 0.0),
-            ),
-            child: Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(40.0, context)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Title(controller: controller),
-                    Container(
-                      margin: EdgeInsets.only(top: ResponsivityUtils.compute(24.0, context)),
-                      width: ResponsivityUtils.compute(360.0, context),
-                      child: Subtitle(controller: controller),
-                    ),
-                    SignUpButton(controller: controller),
-                    LogInButton(controller: controller),
-                  ],
+    return Container(
+      margin: orientation == Orientation.landscape ? EdgeInsets.symmetric(vertical: systemBarsInfo.navigationBarHeight) : EdgeInsets.zero,
+      child: Column(
+        children: [
+          Expanded(
+            child: Container(
+              constraints: orientation == Orientation.landscape
+                  ? BoxConstraints.expand(
+                      height: ResponsivityUtils.compute(360, context),
+                    )
+                  : BoxConstraints(),
+              margin: EdgeInsets.only(
+                top: (orientation == Orientation.portrait
+                    ? systemBarsInfo.navigationBarHeight +
+                        ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context)
+                    : 0.0),
+              ),
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(40.0, context)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Title(controller: controller),
+                      Container(
+                        margin: EdgeInsets.only(top: ResponsivityUtils.compute(24.0, context)),
+                        width: ResponsivityUtils.compute(360.0, context),
+                        child: Subtitle(controller: controller),
+                      ),
+                      SignUpButton(controller: controller),
+                      LogInButton(controller: controller),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        Container(
-          height: ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context),
-          margin: EdgeInsets.only(
-              bottom:
-                  orientation == Orientation.portrait ? systemBarsInfo.navigationBarHeight : 0.0),
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: TermsOfServiceAndPrivacyPolicy(controller: controller),
+          Container(
+            height: ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context),
+            margin: EdgeInsets.only(
+                bottom:
+                    orientation == Orientation.portrait ? systemBarsInfo.navigationBarHeight : 0.0),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: TermsOfServiceAndPrivacyPolicy(controller: controller),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
