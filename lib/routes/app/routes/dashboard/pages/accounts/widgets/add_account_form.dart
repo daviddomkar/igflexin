@@ -296,8 +296,8 @@ class _AddAccountFormState extends State<AddAccountForm> {
                       curve: Curves.ease,
                       opacity: _addingAccount ? 1.0 : 0.0,
                       child: Container(
-                        width: 30.0,
-                        height: 30.0,
+                        width: ResponsivityUtils.compute(30.0, context),
+                        height: ResponsivityUtils.compute(30.0, context),
                         child: CircularProgressIndicator(
                           strokeWidth: 2.0,
                           valueColor: AlwaysStoppedAnimation<Color>(

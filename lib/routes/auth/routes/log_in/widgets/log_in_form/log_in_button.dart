@@ -116,8 +116,8 @@ class _LogInButtonState extends State<LogInButton>
                         ? 1.0
                         : 0.0,
                     child: Container(
-                      width: 40.0,
-                      height: 40.0,
+                      width: ResponsivityUtils.compute(40.0, context),
+                      height: ResponsivityUtils.compute(40.0, context),
                       child: CircularProgressIndicator(
                         strokeWidth: 2.0,
                         valueColor: AlwaysStoppedAnimation<Color>(

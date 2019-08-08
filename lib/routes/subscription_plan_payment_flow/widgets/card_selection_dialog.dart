@@ -431,8 +431,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog>
                             curve: Curves.ease,
                             opacity: _processingPayment ? 1.0 : 0.0,
                             child: Container(
-                              width: 28.0,
-                              height: 28.0,
+                              width: ResponsivityUtils.compute(28.0, context),
+                              height: ResponsivityUtils.compute(28.0, context),
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.0,
                                 valueColor: AlwaysStoppedAnimation<Color>(
