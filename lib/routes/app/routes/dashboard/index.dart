@@ -119,7 +119,7 @@ class __DashboardState extends State<_Dashboard> {
               widget.systemBarsInfo.hasSoftwareNavigationBar
           ? EdgeInsets.only(right: widget.systemBarsInfo.navigationBarHeight)
           : EdgeInsets.zero,
-      color: Colors.red, //widget.contentBackgroundColor.value,
+      color: widget.contentBackgroundColor.value,
       child: Column(
         children: [
           Transform.translate(
@@ -220,37 +220,40 @@ class __DashboardState extends State<_Dashboard> {
               ),
               padding: EdgeInsets.only(
                   bottom: widget.orientation == Orientation.portrait
-                      ? Platform.isAndroid ? widget.systemBarsInfo.navigationBarHeight : 0.0
+                      ? widget.systemBarsInfo.navigationBarHeight
                       : 0.0),
               height: ResponsivityUtils.compute(64.0, context) +
                   (widget.orientation == Orientation.portrait
                       ? widget.systemBarsInfo.navigationBarHeight
                       : 0.0),
-              child: BottomNavigationBar(
-                currentIndex: _selectedPageIndex,
-                backgroundColor: Colors.transparent,
-                elevation: 0.0,
-                unselectedItemColor: Colors.black,
-                selectedItemColor: Provider.of<SubscriptionRepository>(context)
-                    .planTheme
-                    .gradientStartColor,
-                onTap: (index) {
-                  _bottomTapped(index);
-                },
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.people),
-                    title: Text('Accounts'),
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.show_chart),
-                    title: Text('Overview'),
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.settings),
-                    title: Text('Settings'),
-                  ),
-                ],
+              child: Container(
+                child: BottomNavigationBar(
+                  currentIndex: _selectedPageIndex,
+                  backgroundColor: Colors.red,
+                  elevation: 0.0,
+                  unselectedItemColor: Colors.black,
+                  selectedItemColor:
+                      Provider.of<SubscriptionRepository>(context)
+                          .planTheme
+                          .gradientStartColor,
+                  onTap: (index) {
+                    _bottomTapped(index);
+                  },
+                  items: const <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.people),
+                      title: Text('Accounts'),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.show_chart),
+                      title: Text('Overview'),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.settings),
+                      title: Text('Settings'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
