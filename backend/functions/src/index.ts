@@ -1,116 +1,39 @@
-// @ts-ignore
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import * as crypto from 'crypto';
-// @ts-ignore
-import * as cryptojs from "crypto-js";
-import {cloudkms_v1, google} from 'googleapis';
-import {IgApiClient, IgCheckpointError} from 'instagram-private-api';
-// @ts-ignore
-import Timestamp = admin.firestore.Timestamp;
-import { stripe as stripeFunction } from "./stripe/index";
 
 admin.initializeApp();
 
-const firestore = admin.firestore();
+// Auth functions
+export const createUserData = functions.https.onCall(async (data, context) => {
+  await (await import('./auth/create_user_data')).default(data, context);
+});
 
-const KMS_MANAGER_SERVICE_ACCOUNT_FILE = './igflexin-5d2db-1b141234f3a2.json';
-const IGFlexinKMSManagerServiceAccount = require(KMS_MANAGER_SERVICE_ACCOUNT_FILE);
+// Stripe functions
+export const createEphemeralKey = functions.https.onCall(async (data, context) => {
+  return await (await import('./stripe/create_ephemeral_key')).default(data, context);
+});
 
-const jwtKMSManagerClient = new google.auth.JWT(IGFlexinKMSManagerServiceAccount.client_email, KMS_MANAGER_SERVICE_ACCOUNT_FILE, IGFlexinKMSManagerServiceAccount.private_key, ['https://www.googleapis.com/auth/cloud-platform'], undefined, undefined);
+export const purchaseSubscription = functions.https.onCall(async (data, context) => {
+  await (await import('./stripe/purchase_subscription')).default(data, context);
+});
 
-const kms = new cloudkms_v1.Cloudkms({auth: jwtKMSManagerClient});
+// Instagram functions
+export const addAccount = functions.runWith({ memory: '512MB', timeoutSeconds: 120 }).https.onCall(async (data, context) => {
+  return await (await import('./instagram/add_account')).default(data, context);
+});
 
-export const stripe = functions.pubsub.topic('stripe').onPublish(stripeFunction);
+export const editAccount = functions.runWith({ memory: '512MB', timeoutSeconds: 120 }).https.onCall(async (data, context) => {
+  return await (await import('./instagram/edit_account')).default(data, context);
+});
 
-/*
-export const runner = functions
-  .runWith({memory: '2GB'})
-  .pubsub.schedule('* * * * *')
-  .onRun(async () => {
-    const accounts = await firestore.collection('accounts')
-      .where('lastAction', '<', Timestamp.fromDate(new Date(Date.now() - (1000 * 60 * 20))))
-      .get();
+export const sendSecurityCode = functions.https.onCall(async (data, context) => {
+  return await (await import('./instagram/send_security_code')).default(data, context);
+});
 
-    const jobs: Promise<void>[] = [];
+export const sendTwoFactorAuthCode = functions.https.onCall(async (data, context) => {
+  return await (await import('./instagram/send_two_factor_auth_code')).default(data, context);
+});
 
-    if (!accounts.empty) {
-      accounts.docs.forEach((account) => {
-        if (account.exists) {
-          console.log(account.data()['userID']);
-
-          jobs.push(new Promise<void>(
-            async () => {
-              const key = await getUserKey(account.data()['userID']);
-
-              const username = account.data()['username'];
-              const password = cryptojs.AES.decrypt(account.data()['encryptedPassword'], key!).toString(cryptojs.enc.Utf8);
-
-              await processAccount(username, password);
-            }
-          ));
-        }
-      });
-    }
-
-    await Promise.all(jobs);
-  }
-);
-*/
-// @ts-ignore
-async function processAccount(username: string, password: string) {
-  const ig = new IgApiClient();
-  ig.state.generateDevice(username);
-  try {
-
-    const auth = await ig.account.login(username, password);
-    console.log(auth);
-  } catch (e) {
-    if (e instanceof IgCheckpointError) {
-      console.log(e.apiUrl);
-      console.log(e.url);
-    }
-  }
-}
-
-// @ts-ignore
-async function getUserKey(uid: string) {
-  const keyDoc = await firestore.collection('keys').doc(uid).get();
-
-  if (keyDoc.exists) {
-    return kms.projects.locations.keyRings.cryptoKeys.decrypt({
-      name: 'projects/igflexin-5d2db/locations/global/keyRings/igflexin/cryptoKeys/password',
-      requestBody: {
-        ciphertext: keyDoc.data()!['key']
-      }
-    }).then(async function (result) {
-      return result.data.plaintext;
-    });
-  } else {
-    const secureKey = hashString(uid, getRandomString(16));
-
-    return kms.projects.locations.keyRings.cryptoKeys.encrypt({
-      name: 'projects/igflexin-5d2db/locations/global/keyRings/igflexin/cryptoKeys/password',
-      requestBody: {
-        plaintext: Buffer.from(secureKey).toString('base64')
-      }
-    }).then(async function (result) {
-      await admin.firestore().collection('keys').doc(uid).set({
-        key: result.data.ciphertext
-      });
-
-      return Buffer.from(secureKey).toString('base64');
-    });
-  }
-}
-
-function hashString(string: string, salt: string) {
-  const hash = crypto.createHmac('sha512', salt);
-  hash.update(string);
-
-  return hash.digest('hex');
-}
-
-function getRandomString(length: number) {
-  return crypto.randomBytes(Math.ceil(length / 2)).toString('hex').slice(0, length);
-}
+export const processAccounts = functions.runWith({ memory: '2GB', timeoutSeconds: 480 }).pubsub.schedule('* * * * *').onRun(async () => {
+  await (await import('./instagram/process_accounts')).default();
+});

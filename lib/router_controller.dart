@@ -1,9 +1,10 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart' hide Route;
 
 import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/repositories/system_bars_repository.dart';
 import 'package:igflexin/repositories/user_repository.dart';
+import 'package:igflexin/resources/subscription.dart';
 
 import 'package:igflexin/resources/user.dart';
 
@@ -39,11 +40,13 @@ class MainRouterController extends RouterController {
   MainRouterController(BuildContext context) : super(context, _generateRoutes(), 'splash');
 
   UserRepository _userRepository;
+  SubscriptionRepository _subscriptionRepository;
   SystemBarsRepository _systembarsRepository;
 
   @override
   void didWidgetChangeDependencies(BuildContext context) {
     _userRepository = Provider.of<UserRepository>(context);
+    _subscriptionRepository = Provider.of<SubscriptionRepository>(context);
     _systembarsRepository = Provider.of<SystemBarsRepository>(context);
 
     _systembarsRepository.setNavigationBarColor(Colors.transparent);
@@ -53,6 +56,7 @@ class MainRouterController extends RouterController {
   @override
   void beforeBuild(BuildContext context) {
     UserResource user = _userRepository.user;
+    SubscriptionResource subscription = _subscriptionRepository.subscription;
 
     switch (user.state) {
       case UserState.None:
@@ -62,14 +66,56 @@ class MainRouterController extends RouterController {
         push('auth');
         break;
       case UserState.Authenticated:
-        push('subscription_plan_selection',
-            playExitAnimations: false, playExceptLastAnimation: true);
+        switch (subscription.state) {
+          case SubscriptionState.None:
+            push(
+              'splash',
+              playExitAnimations: false,
+              playExceptLastAnimation: true,
+            );
+            break;
+          case SubscriptionState.Inactive:
+            if (currentRoute.name != 'subscription_plan_payment_flow') {
+              push(
+                'subscription_plan_selection',
+                playExitAnimations: false,
+                playExceptLastAnimation: true,
+              );
+            }
+            break;
+          case SubscriptionState.Active:
+            if (currentRoute.name == 'auth') {
+              push(
+                'app',
+                playExitAnimations: false,
+                playOnlyLastAnimation: true,
+              );
+            } else if (currentRoute.name == 'subscription_plan_payment_flow') {
+              push(
+                'app',
+                playExitAnimations: false,
+                playLastTwoAnimationsForward: true,
+              );
+            } else {
+              push('app');
+            }
+            break;
+        }
         break;
     }
   }
 
   @override
   void afterPush(Route nextRoute) {
+    _changeSystemBarsAppearanceForToNextRoute(nextRoute);
+  }
+
+  @override
+  void afterPop(Route nextRoute) {
+    _changeSystemBarsAppearanceForToNextRoute(nextRoute);
+  }
+
+  void _changeSystemBarsAppearanceForToNextRoute(Route nextRoute) {
     switch (nextRoute.name) {
       case 'splash':
         print('splash');
@@ -83,7 +129,7 @@ class MainRouterController extends RouterController {
         print('subscription_plan_selection');
         _systembarsRepository.setDarkForeground();
         break;
-      case '':
+      case 'subscription_plan_payment_flow':
         print('subscription_plan_payment_flow');
         _systembarsRepository.setLightForeground();
         break;

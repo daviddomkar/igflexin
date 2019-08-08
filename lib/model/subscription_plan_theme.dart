@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:igflexin/resources/subscription_plan.dart';
+import 'package:igflexin/model/subscription_plan.dart';
 
 class SubscriptionPlanTheme {
   SubscriptionPlanTheme._internal(

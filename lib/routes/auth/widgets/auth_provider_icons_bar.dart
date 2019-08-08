@@ -19,7 +19,7 @@ class AuthProviderIconsBar extends StatelessWidget {
 
   Widget _buildAnimation(BuildContext context, Widget child) {
     return Container(
-      width: ResponsivityUtils.compute(250.0, context),
+      width: ResponsivityUtils.compute(200.0, context), // ResponsivityUtils.compute(250.0, context),
       height: ResponsivityUtils.compute(80.0, context),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -36,7 +36,7 @@ class AuthProviderIconsBar extends StatelessWidget {
               },
             ),
           ),
-          Transform.scale(
+          /* Transform.scale(
             scale: scale.value,
             child: IconButton(
               icon: Icon(AuthProviderIcons.instagram),
@@ -46,7 +46,7 @@ class AuthProviderIconsBar extends StatelessWidget {
                 Provider.of<AuthRepository>(context).logInWithFacebook();
               },
             ),
-          ),
+          ),*/ 
           Transform.scale(
             scale: scale.value,
             child: IconButton(

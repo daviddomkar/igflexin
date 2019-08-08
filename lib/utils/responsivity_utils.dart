@@ -14,11 +14,11 @@ class ResponsivityUtils {
     } else if (Platform.isIOS) {
       // iOS-specific code
       return devicePixelRatio < 3.0
-          ? value / (14.0 - devicePixelRatio) * (14.0 - 3.0)
+          ? value / (8.5 - devicePixelRatio) * (8.5 - 3.0)
           : value / devicePixelRatio * 3.0;
     } else {
       return devicePixelRatio < 2.625
-          ? value / (5.5 - devicePixelRatio) * (5.5 - 2.625)
+          ? value / (8.5 - devicePixelRatio) * (8.5 - 2.625)
           : value / devicePixelRatio * 2.625;
     }
   }
