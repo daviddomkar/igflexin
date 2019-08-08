@@ -86,7 +86,7 @@ class __DashboardState extends State<_Dashboard> {
             begin: ResponsivityUtils.compute(64.0, context) +
                 (widget.orientation == Orientation.portrait
                     ? widget.systemBarsInfo.navigationBarHeight
-                    : 0.0),
+                    : Platform.isIOS ? widget.systemBarsInfo.navigationBarHeight : 0.0),
             end: 0.0)
         .animate(CurvedAnimation(
       parent: widget.controller,
@@ -220,11 +220,10 @@ class __DashboardState extends State<_Dashboard> {
               height: ResponsivityUtils.compute(64.0, context) +
                   (widget.orientation == Orientation.portrait
                       ? widget.systemBarsInfo.navigationBarHeight
-                      : 0.0),
+                      : Platform.isIOS ? widget.systemBarsInfo.navigationBarHeight : 0.0),
               child: Container(
                 alignment: Alignment.topCenter,
                 color: Colors.white,
-                height: ResponsivityUtils.compute(120.0, context),
                 child: BottomNavigationBar(
                   currentIndex: _selectedPageIndex,
                   backgroundColor: Colors.white,
