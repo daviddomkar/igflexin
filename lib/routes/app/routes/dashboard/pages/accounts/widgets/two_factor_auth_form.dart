@@ -103,7 +103,8 @@ class _TwoFactorAuthFormState extends State<TwoFactorAuthForm> {
                 'Username or password has been changed recently, please edit added instagram account!');
             break;
           case 'DEADLINE_EXCEEDED':
-            Navigator.maybePop(context);
+            widget.onErrorReceived(
+                'Operation is taking a long time, but will be completed soon.');
             break;
           default:
             widget.onErrorReceived('Unknown error occurred!');

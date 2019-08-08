@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
@@ -6,9 +7,11 @@ import 'package:igflexin/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 
 class ConfirmDelete extends StatelessWidget {
-  const ConfirmDelete({Key key, this.account}) : super(key: key);
+  const ConfirmDelete({Key key, this.account, this.onDeleted})
+      : super(key: key);
 
   final InstagramAccount account;
+  final Function() onDeleted;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +57,12 @@ class ConfirmDelete extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white),
             ),
-            onPressed: () async {},
+            onPressed: () async {
+              onDeleted();
+              Navigator.maybePop(context);
+              await Provider.of<InstagramRepository>(context)
+                  .delete(id: account.id);
+            },
           ),
         ],
       ),

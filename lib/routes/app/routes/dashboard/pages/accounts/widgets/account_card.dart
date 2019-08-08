@@ -100,7 +100,7 @@ class AccountCard extends StatelessWidget {
                             style: TextStyle(),
                           ),
                           onPressed: (() {
-                            showModalWidget(
+                            showModalWidgetLight(
                                 context,
                                 AccountDialog(
                                   account: account,
@@ -143,7 +143,7 @@ class AccountCard extends StatelessWidget {
                                 id: account.id,
                               );
                             } else {
-                              showModalWidget(
+                              showModalWidgetLight(
                                   context,
                                   AccountDialog(
                                     account: account,

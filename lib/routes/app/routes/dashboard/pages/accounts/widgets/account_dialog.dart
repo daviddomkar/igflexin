@@ -88,7 +88,12 @@ class _AccountDialogState extends State<AccountDialog>
   }
 
   Widget _buildChild(BuildContext context) {
-    if (_editAction != null) {
+    if (_error.isNotEmpty) {
+      return ErrorMessage(
+        message: _error,
+        onErrorDismissed: () => setState(() => _error = ''),
+      );
+    } else if (_editAction != null) {
       if (_editAction == EditOrDeleteActionType.None) {
         return EditOrDelete(
           account: widget.account,
@@ -102,19 +107,26 @@ class _AccountDialogState extends State<AccountDialog>
           password: _editPassword,
           onUsernameChange: (value) => setState(() => _editUsername = value),
           onPasswordChange: (value) => setState(() => _editPassword = value),
-          onStateReceived: (value) => setState(() => _state = value),
-          onErrorReceived: (value) => setState(() => _error = value),
+          onStateReceived: (value) => setState(() {
+            _editAction = null;
+            _state = value;
+          }),
+          onErrorReceived: (value) => setState(() {
+            if (_error.contains('taking a long time')) {
+              Navigator.maybePop(context);
+            } else {
+              _error = value;
+            }
+          }),
         );
       } else {
         return ConfirmDelete(
           account: widget.account,
+          onDeleted: () {
+            _editAction = null;
+          },
         );
       }
-    } else if (_error.isNotEmpty) {
-      return ErrorMessage(
-        message: _error,
-        onErrorDismissed: () => setState(() => _error = ''),
-      );
     } else if (_state == InstagramAccountState.None) {
       return AddAccountForm(
         username: _username,
@@ -122,7 +134,13 @@ class _AccountDialogState extends State<AccountDialog>
         onUsernameChange: (value) => setState(() => _username = value),
         onPasswordChange: (value) => setState(() => _password = value),
         onStateReceived: (value) => setState(() => _state = value),
-        onErrorReceived: (value) => setState(() => _error = value),
+        onErrorReceived: (value) => setState(() {
+          if (_error.contains('taking a long time')) {
+            Navigator.maybePop(context);
+          } else {
+            _error = value;
+          }
+        }),
       );
     } else if (_state == InstagramAccountState.CheckpointRequired) {
       return SecurityCodeForm(
@@ -130,7 +148,13 @@ class _AccountDialogState extends State<AccountDialog>
         securityCode: _securityCode,
         onSecurityCodeChange: (value) => setState(() => _securityCode = value),
         onStateReceived: (value) => setState(() => _state = value),
-        onErrorReceived: (value) => setState(() => _error = value),
+        onErrorReceived: (value) => setState(() {
+          if (_error.contains('taking a long time')) {
+            Navigator.maybePop(context);
+          } else {
+            _error = value;
+          }
+        }),
       );
     } else if (_state == InstagramAccountState.TwoFactorAuthRequired) {
       return TwoFactorAuthForm(
@@ -139,7 +163,13 @@ class _AccountDialogState extends State<AccountDialog>
         onSecurityCodeChange: (value) =>
             setState(() => _twoFactorAuthCode = value),
         onStateReceived: (value) => setState(() => _state = value),
-        onErrorReceived: (value) => setState(() => _error = value),
+        onErrorReceived: (value) => setState(() {
+          if (_error.contains('taking a long time')) {
+            Navigator.maybePop(context);
+          } else {
+            _error = value;
+          }
+        }),
       );
     } else if (_state == InstagramAccountState.InvalidUser ||
         _state == InstagramAccountState.BadPassword) {
@@ -150,7 +180,13 @@ class _AccountDialogState extends State<AccountDialog>
         onUsernameChange: (value) => setState(() => _editUsername = value),
         onPasswordChange: (value) => setState(() => _editPassword = value),
         onStateReceived: (value) => setState(() => _state = value),
-        onErrorReceived: (value) => setState(() => _error = value),
+        onErrorReceived: (value) => setState(() {
+          if (_error.contains('taking a long time')) {
+            Navigator.maybePop(context);
+          } else {
+            _error = value;
+          }
+        }),
       );
     } else {
       return Text(

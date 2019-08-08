@@ -41,7 +41,7 @@ class _AccountsState extends State<Accounts> {
   }
 
   void _addInstagramAccount(BuildContext context) {
-    showModalWidget(context, AccountDialog());
+    showModalWidgetLight(context, AccountDialog());
   }
 
   @override
