@@ -4,13 +4,8 @@ import 'package:igflexin/repositories/system_bars_repository.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
-void showModalWidget(BuildContext context, Widget child) {
-  bool switchToDarkAfterDispose =
-      !Provider.of<SystemBarsRepository>(context).useWhiteStatusBarForeground;
-
-  if (switchToDarkAfterDispose) {
-    Provider.of<SystemBarsRepository>(context).setLightForeground();
-  }
+void showModalWidgetLight(BuildContext context, Widget child) {
+  Provider.of<SystemBarsRepository>(context).setLightForeground();
 
   showGeneralDialog(
     context: context,
@@ -23,9 +18,7 @@ void showModalWidget(BuildContext context, Widget child) {
     barrierColor: null,
     transitionDuration: const Duration(milliseconds: 0),
   ).then((_) {
-    if (switchToDarkAfterDispose) {
-      Provider.of<SystemBarsRepository>(context).setDarkForeground();
-    }
+    Provider.of<SystemBarsRepository>(context).setDarkForeground();
   });
 }
 

@@ -22,11 +22,13 @@ class SubscriptionPlanDetail extends StatefulWidget {
         )),
         contentOpacity = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
           parent: controller,
-          curve: new Interval(0.5 / 2.25 * 2, 0.5 / 2.25 * 3, curve: Curves.ease),
+          curve:
+              new Interval(0.5 / 2.25 * 2, 0.5 / 2.25 * 3, curve: Curves.ease),
         )),
         contentOffsetY = Tween(begin: 10.0, end: 0.0).animate(CurvedAnimation(
           parent: controller,
-          curve: new Interval(0.5 / 2.25 * 2, 0.5 / 2.25 * 3, curve: Curves.ease),
+          curve:
+              new Interval(0.5 / 2.25 * 2, 0.5 / 2.25 * 3, curve: Curves.ease),
         )),
         plan = SubscriptionPlan(planType),
         planTheme = SubscriptionPlanTheme(planType),
@@ -70,18 +72,25 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
       curve: Curves.easeOutQuint,
       margin: EdgeInsets.only(
         top: widget.active ? 0 : ResponsivityUtils.compute(40, context),
-        right: widget.active ? ResponsivityUtils.compute(widget.sideMargin.value, context) : 0,
-        left: widget.active ? ResponsivityUtils.compute(widget.sideMargin.value, context) : 0,
+        right: widget.active
+            ? ResponsivityUtils.compute(widget.sideMargin.value, context)
+            : 0,
+        left: widget.active
+            ? ResponsivityUtils.compute(widget.sideMargin.value, context)
+            : 0,
         bottom: widget.active ? 0 : ResponsivityUtils.compute(40, context),
       ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(
-            ResponsivityUtils.compute(widget.active ? widget.borderRadius.value : 30.0, context)),
+        borderRadius: BorderRadius.circular(ResponsivityUtils.compute(
+            widget.active ? widget.borderRadius.value : 30.0, context)),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           stops: [0.0, 1.0],
-          colors: [widget.planTheme.gradientStartColor, widget.planTheme.gradientEndColor],
+          colors: [
+            widget.planTheme.gradientStartColor,
+            widget.planTheme.gradientEndColor
+          ],
         ),
       ),
       child: Column(
@@ -91,8 +100,10 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutQuint,
             margin: EdgeInsets.only(
-                top: ResponsivityUtils.compute(widget.active ? 20.0 : 10.0, context),
-                bottom: ResponsivityUtils.compute(widget.active ? 15.0 : 5.0, context)),
+                top: ResponsivityUtils.compute(
+                    widget.active ? 20.0 : 10.0, context),
+                bottom: ResponsivityUtils.compute(
+                    widget.active ? 15.0 : 5.0, context)),
             child: Transform.translate(
               offset: Offset(0.0, widget.contentOffsetY.value),
               child: Opacity(
@@ -115,7 +126,9 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
               opacity: widget.contentOpacity.value,
               child: Column(
                 children: [
-                  for (var i = _eligibleForFreeTrial ? 0 : 1; i < widget.plan.features.length; i++)
+                  for (var i = _eligibleForFreeTrial ? 0 : 1;
+                      i < widget.plan.features.length;
+                      i++)
                     Row(
                       children: [
                         Padding(
@@ -132,9 +145,10 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
                             duration: const Duration(milliseconds: 500),
                             curve: Curves.easeOutQuint,
                             padding: EdgeInsets.symmetric(
-                              vertical:
-                                  ResponsivityUtils.compute(widget.active ? 10.0 : 3.0, context),
-                              horizontal: ResponsivityUtils.compute(10.0, context),
+                              vertical: ResponsivityUtils.compute(
+                                  widget.active ? 10.0 : 3.0, context),
+                              horizontal:
+                                  ResponsivityUtils.compute(10.0, context),
                             ),
                             child: Text(
                               widget.plan.features[i],
@@ -152,8 +166,10 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutQuint,
             margin: EdgeInsets.only(
-              top: ResponsivityUtils.compute(widget.active ? 8.0 : 3.0, context),
-              bottom: ResponsivityUtils.compute(widget.active ? 8.0 : 3.0, context),
+              top:
+                  ResponsivityUtils.compute(widget.active ? 8.0 : 3.0, context),
+              bottom:
+                  ResponsivityUtils.compute(widget.active ? 8.0 : 3.0, context),
               left: ResponsivityUtils.compute(20.0, context),
               right: ResponsivityUtils.compute(20.0, context),
             ),
@@ -176,14 +192,16 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
                         CurvedWhiteButton(
                           child: Text(
                             _eligibleForFreeTrial ? 'TRY FREE' : 'SELECT',
-                            style: TextStyle(color: widget.planTheme.gradientStartColor),
+                            style: TextStyle(
+                                color: widget.planTheme.gradientStartColor),
                           ),
                           onPressed: () {
                             Provider.of<SubscriptionRepository>(context)
-                                .setSelectedPlanInterval(SubscriptionPlanInterval.Month);
+                                .setSelectedPlanInterval(
+                                    SubscriptionPlanInterval.Month);
 
-                            Router.of<MainRouterController>(context)
-                                .push('subscription_plan_payment_flow');
+                            /*Router.of<MainRouterController>(context)
+                                .push('subscription_plan_payment_flow');*/
                           },
                         ),
                       ],
@@ -205,14 +223,16 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
                         CurvedWhiteButton(
                           child: Text(
                             _eligibleForFreeTrial ? 'TRY FREE' : 'SELECT',
-                            style: TextStyle(color: widget.planTheme.gradientStartColor),
+                            style: TextStyle(
+                                color: widget.planTheme.gradientStartColor),
                           ),
                           onPressed: () {
                             Provider.of<SubscriptionRepository>(context)
-                                .setSelectedPlanInterval(SubscriptionPlanInterval.Year);
+                                .setSelectedPlanInterval(
+                                    SubscriptionPlanInterval.Year);
 
-                            Router.of<MainRouterController>(context)
-                                .push('subscription_plan_payment_flow');
+                            /*Router.of<MainRouterController>(context)
+                                .push('subscription_plan_payment_flow');*/
                           },
                         ),
                       ],

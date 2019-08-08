@@ -133,7 +133,8 @@ class _EditAccountFormState extends State<EditAccountForm> {
             widget
                 .onErrorReceived('Invalid username and password combination!');
           } else if (e.code == 'DEADLINE_EXCEEDED') {
-            Navigator.maybePop(context);
+            widget.onErrorReceived(
+                'Operation is taking a long time, but will be completed soon.');
           } else if (e.code == 'PERMISSION_DENIED') {
             widget.onErrorReceived('This user is already Edited to IGFlexin!');
           } else {
