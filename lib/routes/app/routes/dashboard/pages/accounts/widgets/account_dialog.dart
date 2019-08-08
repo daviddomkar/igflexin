@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/add_account_form.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/confirm_delete.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/edit_account_form.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/edit_or_delete.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/error_message.dart';
@@ -90,6 +91,22 @@ class _AccountDialogState extends State<AccountDialog>
     if (_editAction != null) {
       if (_editAction == EditOrDeleteActionType.None) {
         return EditOrDelete(
+          account: widget.account,
+          onEditOrDeleteActionChange: (value) =>
+              setState(() => _editAction = value),
+        );
+      } else if (_editAction == EditOrDeleteActionType.Edit) {
+        return EditAccountForm(
+          id: widget.account.id,
+          username: _editUsername,
+          password: _editPassword,
+          onUsernameChange: (value) => setState(() => _editUsername = value),
+          onPasswordChange: (value) => setState(() => _editPassword = value),
+          onStateReceived: (value) => setState(() => _state = value),
+          onErrorReceived: (value) => setState(() => _error = value),
+        );
+      } else {
+        return ConfirmDelete(
           account: widget.account,
         );
       }
