@@ -35,57 +35,60 @@ class _SignUp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: KeyboardInfoProvider(
-            builder: (context, info) {
-              return Container(
-                constraints: orientation == Orientation.landscape
-                    ? BoxConstraints.expand(
-                        height: ResponsivityUtils.compute(360, context),
-                      )
-                    : BoxConstraints(),
-                margin: EdgeInsets.only(
-                    top: ((orientation == Orientation.portrait &&
-                            info.offsetY <= systemBarsInfo.navigationBarHeight
-                        ? systemBarsInfo.navigationBarHeight +
-                            ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context)
-                        : 0.0)),
-                    bottom: info.offsetY - ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context) > 0
-                        ? info.offsetY -
-                            (ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context) +
-                                (orientation == Orientation.portrait
-                                    ? systemBarsInfo.navigationBarHeight
-                                    : 0.0))
-                        : 0.0),
-                child: Center(
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(40.0, context)),
-                    child: SignUpForm(controller: controller),
+    return Container(
+      margin: orientation == Orientation.landscape ? EdgeInsets.symmetric(vertical: systemBarsInfo.navigationBarHeight) : EdgeInsets.zero,
+      child: Column(
+        children: [
+          Expanded(
+            child: KeyboardInfoProvider(
+              builder: (context, info) {
+                return Container(
+                  constraints: orientation == Orientation.landscape
+                      ? BoxConstraints.expand(
+                          height: ResponsivityUtils.compute(360, context),
+                        )
+                      : BoxConstraints(),
+                  margin: EdgeInsets.only(
+                      top: ((orientation == Orientation.portrait &&
+                              info.offsetY <= systemBarsInfo.navigationBarHeight
+                          ? systemBarsInfo.navigationBarHeight +
+                              ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context)
+                          : 0.0)),
+                      bottom: info.offsetY - ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context) > 0
+                          ? info.offsetY -
+                              (ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context) +
+                                  (orientation == Orientation.portrait
+                                      ? systemBarsInfo.navigationBarHeight
+                                      : 0.0))
+                          : 0.0),
+                  child: Center(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(40.0, context)),
+                      child: SignUpForm(controller: controller),
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-        ),
-        Container(
-          height: ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context),
-          margin: EdgeInsets.only(
-              bottom:
-                  orientation == Orientation.portrait ? systemBarsInfo.navigationBarHeight : 0.0),
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                AuthProviderIconsBar(controller: controller),
-              ],
+                );
+              },
             ),
           ),
-        ),
-      ],
+          Container(
+            height: ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context),
+            margin: EdgeInsets.only(
+                bottom:
+                    orientation == Orientation.portrait ? systemBarsInfo.navigationBarHeight : 0.0),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  AuthProviderIconsBar(controller: controller),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
