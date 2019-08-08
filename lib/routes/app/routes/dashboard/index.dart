@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/repositories/router_repository.dart';
@@ -117,7 +119,7 @@ class __DashboardState extends State<_Dashboard> {
               widget.systemBarsInfo.hasSoftwareNavigationBar
           ? EdgeInsets.only(right: widget.systemBarsInfo.navigationBarHeight)
           : EdgeInsets.zero,
-      color: widget.contentBackgroundColor.value,
+      color: Colors.red, //widget.contentBackgroundColor.value,
       child: Column(
         children: [
           Transform.translate(
@@ -208,7 +210,7 @@ class __DashboardState extends State<_Dashboard> {
             offset: Offset(0.0, _bottomNavigationBarOffsetY.value),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.blue,
                 borderRadius: widget.orientation == Orientation.landscape &&
                         widget.systemBarsInfo.hasSoftwareNavigationBar
                     ? BorderRadius.only(
@@ -218,7 +220,7 @@ class __DashboardState extends State<_Dashboard> {
               ),
               padding: EdgeInsets.only(
                   bottom: widget.orientation == Orientation.portrait
-                      ? widget.systemBarsInfo.navigationBarHeight
+                      ? Platform.isAndroid ? widget.systemBarsInfo.navigationBarHeight : 0.0
                       : 0.0),
               height: ResponsivityUtils.compute(64.0, context) +
                   (widget.orientation == Orientation.portrait
