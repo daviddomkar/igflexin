@@ -504,8 +504,8 @@ class _CreditCardFormState extends State<CreditCardForm> {
                         curve: Curves.ease,
                         opacity: _addingCard ? 1.0 : 0.0,
                         child: Container(
-                          width: 30.0,
-                          height: 30.0,
+                        width: ResponsivityUtils.compute(30.0, context),
+                        height: ResponsivityUtils.compute(30.0, context),
                           child: CircularProgressIndicator(
                             strokeWidth: 2.0,
                             valueColor: AlwaysStoppedAnimation<Color>(

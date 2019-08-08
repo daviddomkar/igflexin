@@ -220,7 +220,7 @@ class __DashboardState extends State<_Dashboard> {
                             ResponsivityUtils.compute(20.0, context)))
                     : BorderRadius.zero,
               ),
-              height: ResponsivityUtils.compute(64.0, context) +
+              height: ResponsivityUtils.compute(72.0, context) +
                   (widget.orientation == Orientation.portrait
                       ? widget.systemBarsInfo.navigationBarHeight
                       : Platform.isIOS
