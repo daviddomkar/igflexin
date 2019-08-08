@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
-import 'package:igflexin/resources/subscription_plan.dart';
+import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/routes/subscription_plan_selection/widgets/subscription_plans/subscription_plan_detail.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';

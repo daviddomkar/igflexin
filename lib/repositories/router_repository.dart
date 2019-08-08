@@ -178,6 +178,7 @@ abstract class RouterController extends ChangeNotifier {
   Future<void> push(String routeName,
       {bool playExitAnimations = true,
       bool playOnlyLastAnimation = false,
+      bool playLastTwoAnimationsForward = false,
       bool playExceptLastAnimation = false}) async {
     if (currentRoute.name == routeName) return;
 
@@ -188,6 +189,15 @@ abstract class RouterController extends ChangeNotifier {
     } else if (playOnlyLastAnimation) {
       if (controllers.isNotEmpty) {
         await controllers.last.reverse();
+      }
+    } else if (playLastTwoAnimationsForward) {
+      if (controllers.isNotEmpty) {
+        List<Future> futures = List();
+
+        futures.add(controllers[controllers.length - 1].forward());
+        futures.add(controllers[controllers.length - 2].forward());
+
+        await Future.wait(futures);
       }
     } else if (playExceptLastAnimation) {
       await _routerRepository.reverseAnimationControllersExceptLast(this);
@@ -200,7 +210,6 @@ abstract class RouterController extends ChangeNotifier {
     } else {
       history.add(currentRoute);
     }
-
     currentRoute = nextRoute;
     afterPush(nextRoute);
     notifyListeners();
@@ -221,11 +230,15 @@ abstract class RouterController extends ChangeNotifier {
 
     await _routerRepository.reverseAnimationControllers(this);
 
-    currentRoute = history.removeLast();
+    Route nextRoute = history.removeLast();
+    currentRoute = nextRoute;
+    afterPop(nextRoute);
     notifyListeners();
 
     return false;
   }
+
+  void afterPop(Route nextRoute) {}
 
   void registerAnimationController(AnimationController controller) {
     if (!this.controllers.contains(controller)) {

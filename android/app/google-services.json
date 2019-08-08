@@ -15,19 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "872203701032-2gg5ftjjqhtdj9hl6gjmboi2vugdkj56.apps.googleusercontent.com",
+          "client_id": "872203701032-1tukbiblbrcoj609e1qh4ellibeat1ft.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.appapply.igflexin",
-            "certificate_hash": "5055229c6bc4fb7e0504e81c77850e9e435c436a"
-          }
-        },
-        {
-          "client_id": "872203701032-ptelqod6t3bcmnv4id6jontkjmm45agd.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.appapply.igflexin",
-            "certificate_hash": "3210f145a849937845cf795fe262b18cf9532e52"
+            "certificate_hash": "4be8b6c085e0e42e5ac4013ae8b45603a3c1f1ee"
           }
         },
         {
@@ -62,6 +54,13 @@
             {
               "client_id": "872203701032-0rgkc6hr956qeai309rkosr30mdmf4sl.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "872203701032-en5mmgujvh4hgusvh5gftjnd1g5gc1sp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.appapply.igflexin"
+              }
             }
           ]
         }

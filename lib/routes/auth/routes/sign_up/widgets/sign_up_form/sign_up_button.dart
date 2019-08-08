@@ -29,7 +29,8 @@ class SignUpButton extends StatefulWidget {
   _SignUpButtonState createState() => _SignUpButtonState();
 }
 
-class _SignUpButtonState extends State<SignUpButton> with SingleTickerProviderStateMixin {
+class _SignUpButtonState extends State<SignUpButton>
+    with SingleTickerProviderStateMixin {
   AnimationController _buttonScaleController;
   Animation<double> _scale;
 
@@ -38,8 +39,8 @@ class _SignUpButtonState extends State<SignUpButton> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _buttonScaleController =
-        AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
+    _buttonScaleController = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this);
 
     _scale = Tween(begin: 50.0, end: 1.0).animate(CurvedAnimation(
       parent: _buttonScaleController,
@@ -74,10 +75,13 @@ class _SignUpButtonState extends State<SignUpButton> with SingleTickerProviderSt
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOutExpo,
           width: ResponsivityUtils.compute(
-              state == AuthInfoState.Pending || state == AuthInfoState.Success ? 50.0 : 300,
+              state == AuthInfoState.Pending || state == AuthInfoState.Success
+                  ? 50.0
+                  : 300,
               context),
           height: ResponsivityUtils.compute(50.0, context),
-          margin: EdgeInsets.only(top: ResponsivityUtils.compute(10.0, context)),
+          margin:
+              EdgeInsets.only(top: ResponsivityUtils.compute(10.0, context)),
           child: CurvedWhiteButton(
             padding: EdgeInsets.all(0),
             child: Stack(
@@ -87,8 +91,10 @@ class _SignUpButtonState extends State<SignUpButton> with SingleTickerProviderSt
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.ease,
-                    opacity:
-                        state == AuthInfoState.None || state == AuthInfoState.Error ? 1.0 : 0.0,
+                    opacity: state == AuthInfoState.None ||
+                            state == AuthInfoState.Error
+                        ? 1.0
+                        : 0.0,
                     child: Text(
                       'Sign Up',
                       style: TextStyle(
@@ -105,16 +111,19 @@ class _SignUpButtonState extends State<SignUpButton> with SingleTickerProviderSt
                   child: AnimatedOpacity(
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.ease,
-                    opacity: state == AuthInfoState.Pending || state == AuthInfoState.Success
+                    opacity: state == AuthInfoState.Pending ||
+                            state == AuthInfoState.Success
                         ? 1.0
                         : 0.0,
                     child: Container(
-                      width: 40.0,
-                      height: 40.0,
+                      width: ResponsivityUtils.compute(40.0, context),
+                      height: ResponsivityUtils.compute(40.0, context),
                       child: CircularProgressIndicator(
                         strokeWidth: 2.0,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          Provider.of<SubscriptionRepository>(context).planTheme.gradientEndColor,
+                          Provider.of<SubscriptionRepository>(context)
+                              .planTheme
+                              .gradientStartColor,
                         ),
                       ),
                     ),

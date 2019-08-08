@@ -2,6 +2,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Route;
 
 import 'package:igflexin/repositories/auth_repository.dart';
+import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/repositories/system_bars_repository.dart';
 import 'package:igflexin/repositories/user_repository.dart';
@@ -39,6 +40,9 @@ class IGFlexinApp extends StatelessWidget {
         ChangeNotifierProvider<SubscriptionRepository>(
           builder: (_) => SubscriptionRepository(),
         ),
+        ChangeNotifierProvider<InstagramRepository>(
+          builder: (_) => InstagramRepository(),
+        ),
       ],
       child: SystemBarsObserver(
         child: MaterialApp(
@@ -64,7 +68,8 @@ class IGFlexinApp extends StatelessWidget {
 
 class IGFlexinScrollBehavior extends ScrollBehavior {
   @override
-  Widget buildViewportChrome(BuildContext context, Widget child, AxisDirection axisDirection) {
+  Widget buildViewportChrome(
+      BuildContext context, Widget child, AxisDirection axisDirection) {
     return child;
   }
 }

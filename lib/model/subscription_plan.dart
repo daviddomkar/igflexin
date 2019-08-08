@@ -5,11 +5,59 @@ enum SubscriptionPlanInterval {
   Year,
 }
 
+// ignore: missing_return
+String getStringFromSubscriptionPlanInterval(SubscriptionPlanInterval interval) {
+  switch (interval) {
+    case SubscriptionPlanInterval.Month:
+      return 'month';
+    case SubscriptionPlanInterval.Year:
+      return 'year';
+  }
+}
+
+// ignore: missing_return
+SubscriptionPlanInterval getSubscriptionPlanIntervalFromString(String interval) {
+  switch (interval) {
+    case 'month':
+      return SubscriptionPlanInterval.Month;
+    case 'year':
+      return SubscriptionPlanInterval.Year;
+  }
+}
+
 enum SubscriptionPlanType {
   Basic,
   Standard,
   Business,
   BusinessPRO,
+}
+
+// ignore: missing_return
+String getStringFromSubscriptionPlanType(SubscriptionPlanType type) {
+  switch (type) {
+    case SubscriptionPlanType.Basic:
+      return 'basic';
+    case SubscriptionPlanType.Standard:
+      return 'standard';
+    case SubscriptionPlanType.Business:
+      return 'business';
+    case SubscriptionPlanType.BusinessPRO:
+      return 'business_pro';
+  }
+}
+
+// ignore: missing_return
+SubscriptionPlanType getSubscriptionPlanTypeFromString(String type) {
+  switch (type) {
+    case 'basic':
+      return SubscriptionPlanType.Basic;
+    case 'standard':
+      return SubscriptionPlanType.Standard;
+    case 'business':
+      return SubscriptionPlanType.Business;
+    case 'business_pro':
+      return SubscriptionPlanType.BusinessPRO;
+  }
 }
 
 class SubscriptionPlan {

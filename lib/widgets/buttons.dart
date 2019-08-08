@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
-import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
 class CurvedWhiteBorderedTransparentButton extends StatelessWidget {
-  CurvedWhiteBorderedTransparentButton({@required this.onPressed, @required this.child});
+  CurvedWhiteBorderedTransparentButton(
+      {@required this.onPressed, @required this.child});
 
   final GestureTapCallback onPressed;
   final Widget child;
@@ -25,7 +25,8 @@ class CurvedWhiteBorderedTransparentButton extends StatelessWidget {
 }
 
 class CurvedBlackBorderedTransparentButton extends StatelessWidget {
-  CurvedBlackBorderedTransparentButton({@required this.onPressed, @required this.child});
+  CurvedBlackBorderedTransparentButton(
+      {@required this.onPressed, @required this.child});
 
   final GestureTapCallback onPressed;
   final Widget child;
@@ -45,8 +46,31 @@ class CurvedBlackBorderedTransparentButton extends StatelessWidget {
   }
 }
 
+class CurvedRedBorderedTransparentButton extends StatelessWidget {
+  CurvedRedBorderedTransparentButton(
+      {@required this.onPressed, @required this.child});
+
+  final GestureTapCallback onPressed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlatButton(
+      color: Colors.transparent,
+      child: child,
+      onPressed: onPressed,
+      shape: const StadiumBorder(
+        side: const BorderSide(
+          color: Colors.red,
+        ),
+      ),
+    );
+  }
+}
+
 class CurvedWhiteButton extends StatelessWidget {
-  CurvedWhiteButton({@required this.onPressed, @required this.child, this.padding});
+  CurvedWhiteButton(
+      {@required this.onPressed, @required this.child, this.padding});
 
   final GestureTapCallback onPressed;
   final Widget child;
@@ -94,23 +118,31 @@ class GradientButton extends StatelessWidget {
           Positioned.fill(
             child: ClipRRect(
               borderRadius: borderRadius,
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOutExpo,
                 width: width,
                 height: height,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
-                      Provider.of<SubscriptionRepository>(context).planTheme.gradientEndColor,
+                      Provider.of<SubscriptionRepository>(context)
+                          .planTheme
+                          .gradientStartColor,
+                      Provider.of<SubscriptionRepository>(context)
+                          .planTheme
+                          .gradientEndColor,
                     ],
-                    begin: FractionalOffset.centerLeft,
-                    end: FractionalOffset.centerRight,
+                    begin: FractionalOffset.topLeft,
+                    end: FractionalOffset.bottomRight,
                   ),
                 ),
               ),
             ),
           ),
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOutExpo,
             width: width,
             height: height,
             child: FlatButton(

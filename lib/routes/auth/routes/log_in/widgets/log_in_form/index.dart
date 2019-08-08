@@ -11,7 +11,7 @@ import 'package:igflexin/routes/auth/widgets/text_form_field.dart';
 import 'package:igflexin/utils/keyboard_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/utils/validation_utils.dart';
-import 'package:igflexin/widgets/alert_dialog.dart';
+import 'package:igflexin/widgets/dialog.dart';
 import 'package:igflexin/widgets/buttons.dart';
 
 import 'package:provider/provider.dart';

@@ -1,7 +1,13 @@
-import 'package:igflexin/core/resource.dart';
+import 'package:igflexin/model/resource.dart';
 import 'package:meta/meta.dart';
 
-class User {}
+class User {
+  User({this.email, this.eligibleForFreeTrial, this.userCompleted});
+
+  final String email;
+  final bool eligibleForFreeTrial;
+  final bool userCompleted;
+}
 
 enum UserState {
   None,
@@ -10,6 +16,5 @@ enum UserState {
 }
 
 class UserResource extends Resource<UserState, User> {
-  UserResource({@required UserState state, User data})
-      : super(state: state, data: data);
+  UserResource({@required UserState state, User data}) : super(state: state, data: data);
 }
