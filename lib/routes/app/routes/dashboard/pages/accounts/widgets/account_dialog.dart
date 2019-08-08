@@ -242,8 +242,16 @@ class _AccountDialogState extends State<AccountDialog>
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        await _animationController.reverse();
-        return true;
+        if (_editAction != null &&
+            (_editAction != EditOrDeleteActionType.None)) {
+          setState(() {
+            _editAction = EditOrDeleteActionType.None;
+          });
+          return false;
+        } else {
+          await _animationController.reverse();
+          return true;
+        }
       },
       child: AnimatedBuilder(
         animation: _animationController,
