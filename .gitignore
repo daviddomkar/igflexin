@@ -75,4 +75,4 @@ Platforms/Android/IGFlexin/local\.properties
 
 android/app/release/
 
-ios/Podfile\.lock
+# ios/Podfile\.lock
