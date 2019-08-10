@@ -8,76 +8,76 @@ import {
   IgLoginBadPasswordError,
   IgLoginInvalidUserError,
   IgLoginRequiredError,
-  IgLoginTwoFactorRequiredError
+  IgLoginTwoFactorRequiredError,
 } from "instagram-private-api";
 
-export default async function processAccounts(uid: string | undefined = undefined) {
+export default async function processAccounts() {
 
-  if (!uid) {
-    const users = await admin.firestore().collection('users').where('lastAction', '<',  Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * 20))).get();
+  const users = await admin.firestore().collection('users').where('lastAction', '<',  Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * 20))).get();
 
-    if (users.empty) {
-      return;
+  if (users.empty) {
+    return;
+  }
+
+  const processes: (() => Promise<void>)[] = [];
+
+  for (const user of users.docs) {
+    if (!user.data()!.userCompleted || !user.data()!.subscription) {
+      continue;
     }
 
-    const processes: (() => Promise<void>)[] = [];
+    console.log('User ' + user.id);
 
-    for (const user of users.docs) {
-      if (!user.data()!.userCompleted || !user.data()!.subscription) {
-        continue;
-      }
+    processes.push(async () => {
+        await admin.firestore().collection('users').doc(user.id).update({
+          lastAction: Timestamp.now()
+        });
 
-      processes.push(async () => {
-          await admin.firestore().collection('users').doc(user.id).update({
-            lastAction: Timestamp.now()
-          });
+        if (user.data()!.subscription) {
+          const subscription = user.data().subscription;
 
-          if (user.data()!.subscription) {
-            const subscription = user.data().subscription;
+          let maxInstagramAccounts = 0;
 
-            let maxInstagramAccounts = 0;
+          const type: SubscriptionPlanType = subscription.type;
 
-            const type: SubscriptionPlanType = subscription.type;
+          switch (type) {
+            case 'basic':
+              maxInstagramAccounts = 1;
+              break;
+            case 'standard':
+              maxInstagramAccounts = 3;
+              break;
+            case 'business':
+              maxInstagramAccounts = 5;
+              break;
+            case 'business_pro':
+              maxInstagramAccounts = 10;
+              break;
+          }
 
-            switch (type) {
-              case 'basic':
-                maxInstagramAccounts = 1;
-                break;
-              case 'standard':
-                maxInstagramAccounts = 3;
-                break;
-              case 'business':
-                maxInstagramAccounts = 5;
-                break;
-              case 'business_pro':
-                maxInstagramAccounts = 10;
-                break;
+          const accounts = await admin.firestore().collection('users').doc(user.id).collection('accounts').where('paused', '==', false).get();
+
+          let index = 0;
+
+          for (const account of accounts.docs) {
+            if (index >= maxInstagramAccounts) {
+              await admin.firestore().collection('users').doc(user.id).collection('accounts').doc(account.id).update({
+                status: 'limit-reached'
+              });
+            } else {
+              await processAccount(user, account);
             }
 
-            const accounts = await admin.firestore().collection('users').doc(user.id).collection('accounts').where('paused', '==', false).get();
-
-            let index = 0;
-
-            for (const account of accounts.docs) {
-              if (index >= maxInstagramAccounts) {
-                await admin.firestore().collection('users').doc(user.id).collection('accounts').doc(account.id).update({
-                  status: 'limit-reached'
-                });
-              } else {
-                await processAccount(user, account);
-              }
-
-              index++;
-            }
+            index++;
           }
         }
-      );
-    }
-
-    await Promise.all(processes.map(process => {
-      return process();
-    }));
+      }
+    );
   }
+
+  await Promise.all(processes.map(process => {
+    return process();
+  }));
 }
 
 async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot) {
@@ -115,18 +115,14 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
     for (const accountToFollow of accountsToFollow) {
       try {
         await instagram.friendship.destroy((await instagram.user.searchExact(accountToFollow)).pk);
-      } catch {
-        console.log('Error');
-      }
+      } catch {}
     }
 
     console.log('Following ' + account.data()!.username);
     for (const accountToFollow of accountsToFollow) {
       try {
         await instagram.friendship.create((await instagram.user.searchExact(accountToFollow)).pk);
-      } catch {
-        console.log('Error');
-      }
+      } catch {}
     }
 
     const cookiesToSave = await instagram.state.serializeCookieJar();
@@ -202,7 +198,14 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
           status = 'invalid-user';
         } else if (e instanceof IgCheckpointError) {
           status = 'checkpoint-required';
+          const challangeState = await instagram.challenge.state();
+
+          if (challangeState.step_name === 'select_verify_method') {
+            await instagram.challenge.selectVerifyMethod('1');
+          }
+
           await instagram.challenge.auto(true);
+
         } else if (e instanceof IgLoginTwoFactorRequiredError) {
           twoFactorIdentifier = e.response.body.two_factor_info.two_factor_identifier;
           status = 'two-factor-required';
