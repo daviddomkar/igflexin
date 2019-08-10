@@ -4,6 +4,8 @@ import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/resources/subscription.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/overview/widgets/subscription_info.dart';
+import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 
@@ -56,15 +58,14 @@ class _OverviewState extends State<Overview> {
 
   Widget _buildChild() {
     if (_cachedSubscription != null && _cachedAccounts != null) {
-      return Center(
-        child: CurvedBlackBorderedTransparentButton(
-          child: Text('Test'),
-          onPressed: () {
-            CloudFunctions.instance
-                .getHttpsCallable(functionName: 'accountTest')
-                .call();
-          },
-        ),
+      return ListView(
+        padding: EdgeInsets.symmetric(
+            vertical: ResponsivityUtils.compute(4.0, context)),
+        children: [
+          SubscriptionInfo(
+            subscription: _cachedSubscription,
+          ),
+        ],
       );
     } else {
       return Center(
