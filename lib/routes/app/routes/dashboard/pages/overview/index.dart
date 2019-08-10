@@ -1,8 +1,10 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/resources/subscription.dart';
+import 'package:igflexin/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 
 class Overview extends StatefulWidget {
@@ -55,7 +57,14 @@ class _OverviewState extends State<Overview> {
   Widget _buildChild() {
     if (_cachedSubscription != null && _cachedAccounts != null) {
       return Center(
-        child: Text(_cachedSubscription.type.toString()),
+        child: CurvedBlackBorderedTransparentButton(
+          child: Text('Test'),
+          onPressed: () {
+            CloudFunctions.instance
+                .getHttpsCallable(functionName: 'accountTest')
+                .call();
+          },
+        ),
       );
     } else {
       return Center(
