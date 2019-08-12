@@ -9,11 +9,13 @@ import {
   IgLoginInvalidUserError,
   IgLoginRequiredError,
   IgLoginTwoFactorRequiredError,
-} from "instagram-private-api";
+} from 'instagram-private-api';
+
+const shttps = require('socks5-https-client/lib/Agent')
 
 export default async function processAccounts() {
 
-  const users = await admin.firestore().collection('users').where('lastAction', '<',  Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * 20))).get();
+  const users = await admin.firestore().collection('users').where('lastAction', '<',  Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * 30))).get();
 
   if (users.empty) {
     return;
@@ -89,9 +91,50 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
   const cookies = account.data()!.cookies;
   const state = account.data()!.state;
 
+  let lastIpUsed: string | null = null;
+
+  if (account.data()!.lastIpUsed) {
+    lastIpUsed = account.data()!.lastIpUsed;
+  }
+
+  // TODO Change this
+  let ip = '23.89.245.9';
+  let port = 53112;
+
+  if (lastIpUsed !== null) {
+    const ips = await admin.firestore().collection('proxies').get();
+
+    const validIps = ips.docs.filter(doc => {
+      return lastIpUsed !== doc.data().ip;
+    });
+
+    const newIp = validIps[Math.floor(Math.random() * validIps.length)];
+
+    ip = newIp.data().ip;
+    port = Number(newIp.data().port);
+
+    await account.ref.update({
+      lastIpUsed: ip,
+    });
+  } else {
+    await account.ref.update({
+      lastIpUsed: ip,
+    });
+  }
+
+  let signOut = false;
+
   const instagram = new IgApiClient();
 
   instagram.state.generateDevice(username);
+  instagram.request.defaults.agentClass = shttps;
+  instagram.request.defaults.agentOptions = {
+    // @ts-ignore
+    socksHost: ip,
+    socksPort: port,
+    socksUsername: 'domkard',
+    socksPassword: 'CO8VYJWUEQFWXAY4657QJZ76'
+  };
 
   let status = 'running';
   let profilePictureURL = null;
@@ -115,14 +158,27 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
     for (const accountToFollow of accountsToFollow) {
       try {
         await instagram.friendship.destroy((await instagram.user.searchExact(accountToFollow)).pk);
-      } catch {}
+        await new Promise( resolve => setTimeout(resolve, 2000));
+      } catch(e) {
+        signOut = true;
+      }
     }
 
     console.log('Following ' + account.data()!.username);
     for (const accountToFollow of accountsToFollow) {
       try {
         await instagram.friendship.create((await instagram.user.searchExact(accountToFollow)).pk);
-      } catch {}
+        await new Promise( resolve => setTimeout(resolve, 2000));
+      } catch(e) {
+        signOut = true;
+      }
+    }
+
+    const igUser = await instagram.user.info((await instagram.account.currentUser()).pk);
+    await recordStats(account, igUser.follower_count);
+
+    if (signOut) {
+      await instagram.account.logout();
     }
 
     const cookiesToSave = await instagram.state.serializeCookieJar();
@@ -158,8 +214,9 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
         for (const accountToFollow of accountsToFollow) {
           try {
             await instagram.friendship.destroy((await instagram.user.searchExact(accountToFollow)).pk);
-          } catch {
-            console.log('Error');
+            await new Promise( resolve => setTimeout(resolve, 2000));
+          } catch(e) {
+            signOut = true;
           }
         }
 
@@ -167,9 +224,17 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
         for (const accountToFollow of accountsToFollow) {
           try {
             await instagram.friendship.create((await instagram.user.searchExact(accountToFollow)).pk);
-          } catch {
-            console.log('Error');
+            await new Promise( resolve => setTimeout(resolve, 2000));
+          } catch(e) {
+            signOut = true;
           }
+        }
+
+        const igUser = await instagram.user.info((await instagram.account.currentUser()).pk);
+        await recordStats(account, igUser.follower_count);
+
+        if (signOut) {
+          await instagram.account.logout();
         }
 
         const cookiesToSave = await instagram.state.serializeCookieJar();
@@ -234,6 +299,46 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
 
         console.log('Login error');
       }
+    }
+  }
+}
+
+async function recordStats(account: DocumentSnapshot, followers: number) {
+  const currentMonth = new Date();
+
+  currentMonth.setTime(0);
+  currentMonth.setMonth(new Date().getMonth());
+  currentMonth.setFullYear(new Date().getFullYear());
+
+  const currentMonthDoc = await account.ref.collection('stats').where('time', '==', Timestamp.fromDate(currentMonth)).limit(1).get();
+
+  if (currentMonthDoc.empty) {
+    await account.ref.collection('stats').add({
+      time: Timestamp.fromDate(currentMonth),
+      lastTime: Timestamp.now(),
+      data: [
+        {
+          time: Timestamp.now(),
+          value: followers,
+        }
+      ]
+    });
+  } else {
+    const id = currentMonthDoc.docs[0].id;
+    const doc = currentMonthDoc.docs[0].data()!;
+    if (doc.lastTime < Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * 60))) {
+      const data: { time: Timestamp, value: number}[] = doc.data;
+      data.push({
+        time: Timestamp.now(),
+        value: followers,
+      });
+
+      await account.ref.collection('stats').doc(id).update({
+        lastTime: Timestamp.now(),
+        data: data,
+      });
+    } else {
+      console.log('Too early to record data.');
     }
   }
 }
