@@ -21,6 +21,7 @@
     "firebase-functions": "^3.0.1",
     "googleapis": "^40.0.0",
     "instagram-private-api": "^1.21.1",
+    "socks5-https-client": "^1.2.1",
     "stripe": "^7.2.0"
   },
   "devDependencies": {

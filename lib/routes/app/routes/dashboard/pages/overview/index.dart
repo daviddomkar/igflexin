@@ -1,12 +1,11 @@
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/resources/subscription.dart';
 import 'package:igflexin/routes/app/routes/dashboard/pages/overview/widgets/subscription_info.dart';
+import 'package:igflexin/routes/app/routes/dashboard/pages/overview/widgets/total_followers_graph.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
-import 'package:igflexin/widgets/buttons.dart';
 import 'package:provider/provider.dart';
 
 class Overview extends StatefulWidget {
@@ -65,6 +64,7 @@ class _OverviewState extends State<Overview> {
           SubscriptionInfo(
             subscription: _cachedSubscription,
           ),
+          TotalFollowersGraph(),
         ],
       );
     } else {
