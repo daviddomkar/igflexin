@@ -24,7 +24,7 @@ export default async function processAccounts() {
   const processes: (() => Promise<void>)[] = [];
 
   for (const user of users.docs) {
-    if (!user.data()!.userCompleted || !user.data()!.subscription) {
+    if (!user.data()!.userCompleted || !user.data()!.subscription || user.data()!.eligibleForFreeTrial) {
       continue;
     }
 
