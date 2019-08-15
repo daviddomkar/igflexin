@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/resources/accounts.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/add_account_form.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/confirm_delete.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/edit_account_form.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/edit_or_delete.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/error_message.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/security_code_form.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/two_factor_auth_form.dart';
+import 'package:igflexin/routes/dashboard/pages/accounts/widgets/security_code_form.dart';
+import 'package:igflexin/routes/dashboard/pages/accounts/widgets/two_factor_auth_form.dart';
 import 'package:igflexin/utils/keyboard_utils.dart';
+
+import 'add_account_form.dart';
+import 'confirm_delete.dart';
+import 'edit_account_form.dart';
+import 'edit_or_delete.dart';
+import 'error_message.dart';
 
 class AccountDialog extends StatefulWidget {
   const AccountDialog({Key key, this.account, this.edit = false})
@@ -278,7 +279,10 @@ class _AccountDialogState extends State<AccountDialog>
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (_editAction != null &&
+        if (_error.contains('taking a long time')) {
+          await _animationController.reverse();
+          return true;
+        } else if (_editAction != null &&
             (_editAction != EditOrDeleteActionType.None)) {
           setState(() {
             _editAction = EditOrDeleteActionType.None;

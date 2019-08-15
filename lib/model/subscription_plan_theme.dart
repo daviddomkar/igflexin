@@ -13,7 +13,7 @@ class SubscriptionPlanTheme {
       case SubscriptionPlanType.Basic:
         return SubscriptionPlanTheme._internal(
           gradientStartColor: Color.fromARGB(255, 5, 117, 230),
-          gradientEndColor: Color.fromARGB(255, 0, 242, 96),
+          gradientEndColor: Color.fromARGB(255, 70, 199, 0),
         );
         break;
       case SubscriptionPlanType.Standard:

@@ -3,14 +3,16 @@ import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/resources/subscription.dart';
+import 'package:igflexin/routes/dashboard/pages/settings/widgets/account_settings_group.dart';
+import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
-class Overview extends StatefulWidget {
+class Settings extends StatefulWidget {
   @override
-  _OverviewState createState() => _OverviewState();
+  _SettingsState createState() => _SettingsState();
 }
 
-class _OverviewState extends State<Overview> {
+class _SettingsState extends State<Settings> {
   SubscriptionRepository _subscriptionRepository;
   InstagramRepository _instagramRepository;
 
@@ -54,8 +56,12 @@ class _OverviewState extends State<Overview> {
 
   Widget _buildChild() {
     if (_cachedSubscription != null && _cachedAccounts != null) {
-      return Center(
-        child: Text(_cachedSubscription.type.toString()),
+      return ListView(
+        padding: EdgeInsets.symmetric(
+            vertical: ResponsivityUtils.compute(4.0, context)),
+        children: [
+          AccountSettingsGroup(),
+        ],
       );
     } else {
       return Center(

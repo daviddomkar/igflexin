@@ -2,11 +2,11 @@ import { CallableContext } from 'firebase-functions/lib/providers/https';
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import {
-  IgApiClient, IgCheckpointError, IgLoginBadPasswordError, IgLoginInvalidUserError, IgLoginTwoFactorRequiredError,
-  /*IgCheckpointError,
+  IgApiClient,
+  IgCheckpointError,
   IgLoginBadPasswordError,
   IgLoginInvalidUserError,
-  IgLoginTwoFactorRequiredError*/
+  IgLoginTwoFactorRequiredError,
 } from 'instagram-private-api';
 import { SubscriptionPlanType } from '../types/subscription_plan';
 
@@ -89,10 +89,18 @@ export default async function addAccount(data: any, context: CallableContext): P
       throw new functions.https.HttpsError('invalid-argument', 'Invalid Instagram user.');
     } else if (e instanceof IgCheckpointError) {
       console.log('Checkpoint error');
+      try {
+        const challangeState = await instagram.challenge.state();
+
+        if (challangeState.step_name === 'select_verify_method') {
+          await instagram.challenge.selectVerifyMethod('1');
+        }
+
+        await instagram.challenge.auto(true);
+      } catch (e) { }
+
       await addInstagramAccount(instagram, data, context, 'checkpoint-required');
 
-      console.log(instagram.state.checkpoint);
-      await instagram.challenge.auto(true);
       result = {
         checkpoint: instagram.state.checkpoint,
         message: 'checkpoint-required'
