@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/widgets/account_dialog.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:igflexin/widgets/dialog.dart';
 import 'package:provider/provider.dart';
+
+import 'account_dialog.dart';
 
 class AccountCard extends StatelessWidget {
   AccountCard({this.account});

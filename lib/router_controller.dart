@@ -8,8 +8,8 @@ import 'package:igflexin/resources/subscription.dart';
 
 import 'package:igflexin/resources/user.dart';
 
-import 'package:igflexin/routes/app/index.dart';
 import 'package:igflexin/routes/auth/index.dart';
+import 'package:igflexin/routes/dashboard/index.dart';
 import 'package:igflexin/routes/splash/index.dart';
 import 'package:igflexin/routes/subscription_plan_payment_flow/index.dart';
 import 'package:igflexin/routes/subscription_plan_selection/index.dart';
@@ -31,13 +31,14 @@ class MainRouterController extends RouterController {
       Route('subscription_plan_payment_flow', (context) {
         return SubscriptionPlanPaymentFlow();
       }, clearsHistory: false),
-      Route('app', (context) {
-        return App();
+      Route('dashboard', (context) {
+        return Dashboard();
       }, clearsHistory: true),
     ];
   }
 
-  MainRouterController(BuildContext context) : super(context, _generateRoutes(), 'splash');
+  MainRouterController(BuildContext context)
+      : super(context, _generateRoutes(), 'splash');
 
   UserRepository _userRepository;
   SubscriptionRepository _subscriptionRepository;
@@ -86,18 +87,18 @@ class MainRouterController extends RouterController {
           case SubscriptionState.Active:
             if (currentRoute.name == 'auth') {
               push(
-                'app',
+                'dashboard',
                 playExitAnimations: false,
                 playOnlyLastAnimation: true,
               );
             } else if (currentRoute.name == 'subscription_plan_payment_flow') {
               push(
-                'app',
+                'dashboard',
                 playExitAnimations: false,
                 playLastTwoAnimationsForward: true,
               );
             } else {
-              push('app');
+              push('dashboard');
             }
             break;
         }
@@ -133,8 +134,8 @@ class MainRouterController extends RouterController {
         print('subscription_plan_payment_flow');
         _systembarsRepository.setLightForeground();
         break;
-      case 'app':
-        print('app');
+      case 'dashboard':
+        print('dashboard');
         _systembarsRepository.setDarkForeground();
         break;
     }

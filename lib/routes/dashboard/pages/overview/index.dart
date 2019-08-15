@@ -3,18 +3,18 @@ import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/resources/subscription.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/overview/widgets/subscription_info.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/overview/widgets/total_followers_graph.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/settings/widgets/account_settings_group.dart';
+import 'package:igflexin/routes/dashboard/pages/overview/widgets/account_selection.dart';
+import 'package:igflexin/routes/dashboard/pages/overview/widgets/followers_graph.dart';
+import 'package:igflexin/routes/dashboard/pages/overview/widgets/subscription_info.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
-class Settings extends StatefulWidget {
+class Overview extends StatefulWidget {
   @override
-  _SettingsState createState() => _SettingsState();
+  _OverviewState createState() => _OverviewState();
 }
 
-class _SettingsState extends State<Settings> {
+class _OverviewState extends State<Overview> {
   SubscriptionRepository _subscriptionRepository;
   InstagramRepository _instagramRepository;
 
@@ -62,7 +62,11 @@ class _SettingsState extends State<Settings> {
         padding: EdgeInsets.symmetric(
             vertical: ResponsivityUtils.compute(4.0, context)),
         children: [
-          AccountSettingsGroup(),
+          SubscriptionInfo(
+            subscription: _cachedSubscription,
+          ),
+          AccountSelection(),
+          FollowersGraph(),
         ],
       );
     } else {
