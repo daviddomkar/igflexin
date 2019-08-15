@@ -25,9 +25,11 @@ packages:
   bezier_chart:
     dependency: "direct main"
     description:
-      path: "..\\bezier-chart"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "8416d973798047be98fb57355555eef50d290c12"
+      url: "https://github.com/DEXIT33/bezier-chart"
+    source: git
     version: "1.0.13"
   boolean_selector:
     dependency: transitive

@@ -18,6 +18,11 @@ service cloud.firestore
       allow read, write: if request.auth != null && request.auth.uid == user;
     }
 
+    match /users/{user}/accounts/{account}/stats/{stats}
+    {
+      allow read: if request.auth != null && request.auth.uid == user;
+    }
+
     match /payments/{payment}
     {
       allow read: if request.auth != null && request.auth.uid == resource.data.userID;

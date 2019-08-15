@@ -92,7 +92,6 @@ class SubscriptionRepository with ChangeNotifier {
   }
 
   Future<void> _onUserDataChanged(DocumentSnapshot data) async {
-    print('Ahoj');
     if (data.exists) {
       _beginCustomerSession();
       if (data.data.containsKey('subscription')) {

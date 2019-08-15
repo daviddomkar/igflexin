@@ -225,7 +225,14 @@ class __DashboardState extends State<_Dashboard> {
                   onPageChanged: _pageChanged,
                   children: [
                     Accounts(),
-                    Overview(),
+                    Overview(
+                      onAccountsIconTap: () {
+                        _bottomTapped(0);
+                      },
+                      onSettingsIconTap: () {
+                        _bottomTapped(2);
+                      },
+                    ),
                     Settings(),
                   ],
                 ),

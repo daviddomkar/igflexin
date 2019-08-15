@@ -4,6 +4,10 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
 class AccountGreeting extends StatefulWidget {
+  const AccountGreeting({Key key, this.onIconTap}) : super(key: key);
+
+  final Function onIconTap;
+
   @override
   _AccountGreetingState createState() => _AccountGreetingState();
 }
@@ -39,30 +43,64 @@ class _AccountGreetingState extends State<AccountGreeting> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              width: ResponsivityUtils.compute(300.0, context),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Hi, ' + _instagramRepository.selectedAccount.username,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: ResponsivityUtils.compute(24.0, context),
-                    ),
-                  ),
-                  Flexible(
-                    child: Text(
-                      'Showing stats for selected account',
+            if (_instagramRepository.selectedAccount != null)
+              Container(
+                width: ResponsivityUtils.compute(300.0, context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Hi, ' + _instagramRepository.selectedAccount.username,
                       style: TextStyle(
-                        fontSize: ResponsivityUtils.compute(14.0, context),
+                        fontWeight: FontWeight.bold,
+                        fontSize: ResponsivityUtils.compute(24.0, context),
                       ),
                     ),
-                  ),
-                ],
+                    Flexible(
+                      child: Text(
+                        'Showing stats for selected account',
+                        style: TextStyle(
+                          fontSize: ResponsivityUtils.compute(14.0, context),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            if (_instagramRepository.selectedAccount == null)
+              Container(
+                width: ResponsivityUtils.compute(300.0, context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Hi, let's get started!",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: ResponsivityUtils.compute(24.0, context),
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        'Add your account on Accounts page',
+                        style: TextStyle(
+                          fontSize: ResponsivityUtils.compute(14.0, context),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (_instagramRepository.selectedAccount == null)
+              IconButton(
+                iconSize: ResponsivityUtils.compute(32.0, context),
+                icon: Icon(Icons.people),
+                onPressed: () {
+                  widget.onIconTap();
+                },
+              ),
           ],
         ),
       ),

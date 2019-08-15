@@ -152,7 +152,9 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
   try {
     profilePictureURL = (await instagram.account.currentUser()).profile_pic_url;
 
-    const accountsToFollow: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
+    const accounts: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
+
+    const accountsToFollow = getRandom(accounts, 10);
 
     console.log('Unfollowing ' + account.data()!.username);
     for (const accountToFollow of accountsToFollow) {
@@ -208,7 +210,9 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
 
         profilePictureURL = (await instagram.account.currentUser()).profile_pic_url;
 
-        const accountsToFollow: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
+        const accounts: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
+
+        const accountsToFollow = getRandom(accounts, 10);
 
         console.log('Unfollowing ' + account.data()!.username);
         for (const accountToFollow of accountsToFollow) {
@@ -341,4 +345,20 @@ async function recordStats(account: DocumentSnapshot, followers: number) {
       console.log('Too early to record data.');
     }
   }
+}
+
+// @ts-ignore
+function getRandom(arr, n) {
+  // tslint:disable-next-line:prefer-const
+  let result = new Array(n), len = arr.length, taken = new Array(len);
+  if (n > len)
+    throw new RangeError("getRandom: more elements taken than available");
+  // tslint:disable-next-line:no-parameter-reassignment
+  while (n--) {
+    // tslint:disable-next-line:prefer-const
+    let x = Math.floor(Math.random() * len);
+    result[n] = arr[x in taken ? taken[x] : x];
+    taken[x] = --len in taken ? taken[len] : len;
+  }
+  return result;
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
+import 'package:igflexin/resources/stats.dart';
 import 'package:igflexin/resources/subscription.dart';
 import 'package:igflexin/routes/dashboard/pages/overview/widgets/account_greeting.dart';
 import 'package:igflexin/routes/dashboard/pages/overview/widgets/followers_graph.dart';
@@ -10,6 +11,12 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
 class Overview extends StatefulWidget {
+  const Overview({Key key, this.onAccountsIconTap, this.onSettingsIconTap})
+      : super(key: key);
+
+  final Function onAccountsIconTap;
+  final Function onSettingsIconTap;
+
   @override
   _OverviewState createState() => _OverviewState();
 }
@@ -64,9 +71,15 @@ class _OverviewState extends State<Overview> {
         children: [
           SubscriptionInfo(
             subscription: _cachedSubscription,
+            onIconTap: widget.onSettingsIconTap,
           ),
-          AccountGreeting(),
-          FollowersGraph(),
+          AccountGreeting(
+            onIconTap: widget.onAccountsIconTap,
+          ),
+          if (_instagramRepository.accounts.state == AccountsState.Some &&
+              _instagramRepository.accounts.data.isNotEmpty &&
+              _instagramRepository.stats.state != StatsState.None)
+            FollowersGraph(),
         ],
       );
     } else {

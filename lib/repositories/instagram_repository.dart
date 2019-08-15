@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:bezier_chart/bezier_chart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:igflexin/core/server.dart';
 import 'package:igflexin/model/instagram_response.dart';
 import 'package:igflexin/resources/accounts.dart';
+import 'package:igflexin/resources/stats.dart';
 
 class InstagramRepository with ChangeNotifier {
   InstagramRepository()
@@ -14,17 +16,22 @@ class InstagramRepository with ChangeNotifier {
     _authSubscription = _auth.onAuthStateChanged.listen(_onAuthStateChanged);
   }
 
-  AccountsResource _accounts;
+  AccountsResource _accounts =
+      AccountsResource(state: AccountsState.None, data: null);
   AccountsResource get accounts => _accounts;
 
   InstagramAccount _selectedAccount;
   InstagramAccount get selectedAccount => _selectedAccount;
+
+  StatsResource _stats = StatsResource(state: StatsState.None, data: null);
+  StatsResource get stats => _stats;
 
   FirebaseAuth _auth;
   Firestore _firestore;
 
   StreamSubscription<FirebaseUser> _authSubscription;
   StreamSubscription<QuerySnapshot> _accountsSubscription;
+  StreamSubscription<QuerySnapshot> _statsSubscription;
 
   Future<void> _onAuthStateChanged(FirebaseUser firebaseUser) async {
     if (firebaseUser == null) {
@@ -44,16 +51,6 @@ class InstagramRepository with ChangeNotifier {
   }
 
   Future<void> _onAccountsChanged(QuerySnapshot snapshot) async {
-    if (snapshot.documents.length > 1) {
-      _selectedAccount = InstagramAccount(
-        id: snapshot.documents[0].documentID,
-        username: snapshot.documents[0].data['username'],
-        paused: snapshot.documents[0].data['paused'],
-        status: snapshot.documents[0].data['status'],
-        profilePictureURL: snapshot.documents[0].data['profilePictureURL'],
-      );
-    }
-
     _accounts = AccountsResource(
         state: AccountsState.Some,
         data: snapshot.documents.map<InstagramAccount>((document) {
@@ -65,6 +62,13 @@ class InstagramRepository with ChangeNotifier {
             profilePictureURL: document.data['profilePictureURL'],
           );
         }).toList());
+
+    if (_accounts.data.isNotEmpty) {
+      selectAccount(
+        id: _accounts.data.first.id,
+      );
+    }
+
     notifyListeners();
   }
 
@@ -72,6 +76,46 @@ class InstagramRepository with ChangeNotifier {
     String id,
   }) {
     _selectedAccount = _accounts.data.firstWhere((account) => account.id == id);
+    loadStats();
+    notifyListeners();
+  }
+
+  Future<void> loadStats() async {
+    if (_statsSubscription != null) {
+      _statsSubscription.cancel();
+    }
+    _stats = StatsResource(state: StatsState.Pending, data: null);
+    notifyListeners();
+
+    _statsSubscription = _firestore
+        .collection('users')
+        .document((await _auth.currentUser()).uid)
+        .collection('accounts')
+        .document(_selectedAccount.id)
+        .collection('stats')
+        .snapshots()
+        .listen(_onStatsChanged);
+  }
+
+  Future<void> _onStatsChanged(QuerySnapshot snapshot) async {
+    final data = List<DataPoint<DateTime>>();
+
+    for (final document in snapshot.documents) {
+      List<DataPoint<DateTime>> chunk = (document.data['data'] as List<dynamic>)
+          .map<DataPoint<DateTime>>((chunk) {
+        return DataPoint<DateTime>(
+          value: double.parse(chunk['value'].toString()),
+          xAxis: (chunk['time'] as Timestamp).toDate(),
+        );
+      }).toList();
+      data.addAll(chunk);
+    }
+
+    _stats = StatsResource(
+      state: StatsState.Some,
+      data: data,
+    );
+
     notifyListeners();
   }
 
@@ -156,6 +200,10 @@ class InstagramRepository with ChangeNotifier {
 
   @override
   void dispose() {
+    if (_statsSubscription != null) {
+      _statsSubscription.cancel();
+    }
+
     if (_accountsSubscription != null) {
       _accountsSubscription.cancel();
     }
