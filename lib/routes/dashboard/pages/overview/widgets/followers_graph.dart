@@ -1,6 +1,8 @@
 import 'package:bezier_chart/bezier_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
+import 'package:igflexin/resources/stats.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
@@ -13,8 +15,11 @@ class FollowersGraph extends StatefulWidget {
 
 class _FollowersGraphState extends State<FollowersGraph> {
   SubscriptionRepository _subscriptionRepository;
+  InstagramRepository _instagramRepository;
   BezierChartScale _bezierChartScale = BezierChartScale.HOURLY;
-  int _redrawValue = 0;
+
+  List<DataPoint<DateTime>> _cachedData = List();
+  String lastId;
 
   @override
   void initState() {
@@ -26,31 +31,31 @@ class _FollowersGraphState extends State<FollowersGraph> {
     super.didChangeDependencies();
 
     _subscriptionRepository = Provider.of<SubscriptionRepository>(context);
-    _subscriptionRepository.addListener(_redrawGraph);
+    _instagramRepository = Provider.of<InstagramRepository>(context);
+
+    if (_instagramRepository.stats.state == StatsState.Some) {
+      _cachedData = _instagramRepository.stats.data;
+    }
+
+    _instagramRepository.addListener(_onDataUpdated);
   }
 
-  void _redrawGraph() {
-    setState(() {
-      _redrawValue++;
-    });
+  void _onDataUpdated() {
+    if (_instagramRepository.stats.state == StatsState.Some) {
+      _cachedData = _instagramRepository.stats.data;
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    _subscriptionRepository.removeListener(_redrawGraph);
+    _instagramRepository.removeListener(_onDataUpdated);
   }
 
   @override
   Widget build(BuildContext context) {
     final fromDate = DateTime(2019, 05, 22);
     final toDate = DateTime.now();
-
-    final date1 = DateTime.now().subtract(Duration(days: 2));
-    final date2 = DateTime.now().subtract(Duration(
-      days: 3,
-      hours: 12,
-    ));
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
@@ -98,116 +103,157 @@ class _FollowersGraphState extends State<FollowersGraph> {
                       fontSize: ResponsivityUtils.compute(26.0, context),
                     ),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
-                      color: Colors.white,
-                    ),
-                    height: ResponsivityUtils.compute(30.0, context),
-                    width: ResponsivityUtils.compute(110.0, context),
-                    padding: EdgeInsets.only(
-                      left: 10.0,
-                      right: 5.0,
-                    ),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        canvasColor: Colors.white,
+                  if (_cachedData != null &&
+                      _cachedData.isNotEmpty &&
+                      _instagramRepository.stats.state != StatsState.Pending)
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20.0),
+                        color: Colors.white,
                       ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton(
-                          iconEnabledColor: Colors.black,
-                          style: TextStyle(
-                            fontFamily: 'LatoLatin',
-                            color: Colors.black,
+                      height: ResponsivityUtils.compute(30.0, context),
+                      width: ResponsivityUtils.compute(110.0, context),
+                      padding: EdgeInsets.only(
+                        left: 10.0,
+                        right: 5.0,
+                      ),
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          canvasColor: Colors.white,
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton(
+                            iconEnabledColor: Colors.black,
+                            style: TextStyle(
+                              fontFamily: 'LatoLatin',
+                              color: Colors.black,
+                            ),
+                            elevation: 4,
+                            isDense: true,
+                            items: [
+                              DropdownMenuItem(
+                                value: BezierChartScale.HOURLY,
+                                child: Text(
+                                  'Hourly',
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: BezierChartScale.WEEKLY,
+                                child: Text(
+                                  'Weekly',
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: BezierChartScale.MONTHLY,
+                                child: Text(
+                                  'Monthly',
+                                ),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _bezierChartScale = value;
+                              });
+                            },
+                            value: _bezierChartScale,
                           ),
-                          elevation: 4,
-                          isDense: true,
-                          items: [
-                            DropdownMenuItem(
-                              value: BezierChartScale.HOURLY,
-                              child: Text(
-                                'Hourly',
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: BezierChartScale.WEEKLY,
-                              child: Text(
-                                'Weekly',
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: BezierChartScale.MONTHLY,
-                              child: Text(
-                                'Monthly',
-                              ),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              _bezierChartScale = value;
-                            });
-                          },
-                          value: _bezierChartScale,
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
-            Container(
-              height: ResponsivityUtils.compute(120.0, context),
-              child: BezierChart(
-                key: ValueKey(_bezierChartScale.index +
-                    _redrawValue +
-                    MediaQuery.of(context).orientation.index),
-                fromDate: fromDate,
-                bezierChartScale: _bezierChartScale,
-                toDate: toDate,
-                selectedDate: toDate,
-                series: [
-                  BezierLine(
-                    label: 'Followers',
-                    onMissingValue: (dateTime) {
-                      if (dateTime.day.isEven) {
-                        return 10.0;
-                      }
-                      return 5.0;
-                    },
-                    data: [
-                      DataPoint<DateTime>(value: 10, xAxis: date1),
-                      DataPoint<DateTime>(value: 50, xAxis: date2),
-                    ],
+            if (_cachedData != null &&
+                _cachedData.isNotEmpty &&
+                _instagramRepository.stats.state != StatsState.Pending)
+              Container(
+                height: ResponsivityUtils.compute(120.0, context),
+                child: BezierChart(
+                  key: ValueKey(_bezierChartScale.index +
+                      MediaQuery.of(context).orientation.index),
+                  fromDate: fromDate,
+                  bezierChartScale: _bezierChartScale,
+                  toDate: toDate,
+                  selectedDate: toDate,
+                  series: [
+                    BezierLine(
+                      onMissingValue: (datetime) {
+                        if (datetime.millisecondsSinceEpoch >
+                            _cachedData.last.xAxis.millisecondsSinceEpoch) {
+                          return _cachedData.last.value;
+                        } else {
+                          final value = _cachedData.indexWhere((value) =>
+                              value.xAxis.millisecondsSinceEpoch <
+                              datetime.millisecondsSinceEpoch);
+
+                          if (value != -1) {
+                            return _cachedData[value].value;
+                          } else {
+                            return _cachedData.first.value;
+                          }
+                        }
+                      },
+                      label: 'Followers',
+                      data: _cachedData,
+                    ),
+                  ],
+                  config: BezierChartConfig(
+                    startYAxisFromNonZeroValue: true,
+                    pinchZoom: false,
+                    bubbleIndicatorTitleStyle: TextStyle(
+                      fontFamily: 'LatoLatin',
+                      color: Colors.black,
+                    ),
+                    bubbleIndicatorLabelStyle: TextStyle(
+                      fontFamily: 'LatoLatin',
+                      color: Colors.black,
+                    ),
+                    bubbleIndicatorValueStyle: TextStyle(
+                      fontFamily: 'LatoLatin',
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    yAxisTextStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                    xAxisTextStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                    verticalIndicatorStrokeWidth: 3.0,
+                    showVerticalIndicator: false,
+                    showDataPoints: true,
+                    footerHeight: ResponsivityUtils.compute(52.0, context),
                   ),
-                ],
-                config: BezierChartConfig(
-                  pinchZoom: false,
-                  bubbleIndicatorTitleStyle: TextStyle(
-                    fontFamily: 'LatoLatin',
-                    color: Colors.black,
-                  ),
-                  bubbleIndicatorLabelStyle: TextStyle(
-                    fontFamily: 'LatoLatin',
-                    color: Colors.black,
-                  ),
-                  bubbleIndicatorValueStyle: TextStyle(
-                    fontFamily: 'LatoLatin',
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  yAxisTextStyle: TextStyle(
-                    color: Colors.white,
-                  ),
-                  xAxisTextStyle: TextStyle(
-                    color: Colors.white,
-                  ),
-                  verticalIndicatorStrokeWidth: 3.0,
-                  showVerticalIndicator: false,
-                  showDataPoints: true,
-                  footerHeight: ResponsivityUtils.compute(52.0, context),
                 ),
               ),
-            ),
+            if (_cachedData.isEmpty &&
+                _instagramRepository.stats.state != StatsState.Pending)
+              Expanded(
+                child: Center(
+                  child: Opacity(
+                    opacity: 0.5,
+                    child: Text(
+                      'No data yet',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: ResponsivityUtils.compute(24.0, context),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            if (_instagramRepository.stats.state == StatsState.Pending)
+              Expanded(
+                child: Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.0,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.white,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

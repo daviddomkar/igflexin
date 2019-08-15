@@ -6,9 +6,11 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
 class SubscriptionInfo extends StatelessWidget {
-  const SubscriptionInfo({Key key, this.subscription}) : super(key: key);
+  const SubscriptionInfo({Key key, this.subscription, this.onIconTap})
+      : super(key: key);
 
   final Subscription subscription;
+  final Function onIconTap;
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +76,9 @@ class SubscriptionInfo extends StatelessWidget {
               iconSize: ResponsivityUtils.compute(32.0, context),
               color: Colors.white,
               icon: Icon(Icons.settings),
-              onPressed: () {},
+              onPressed: () {
+                onIconTap();
+              },
             ),
           ],
         ),
