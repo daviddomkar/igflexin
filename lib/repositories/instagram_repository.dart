@@ -17,6 +17,9 @@ class InstagramRepository with ChangeNotifier {
   AccountsResource _accounts;
   AccountsResource get accounts => _accounts;
 
+  InstagramAccount _selectedAccount;
+  InstagramAccount get selectedAccount => _selectedAccount;
+
   FirebaseAuth _auth;
   Firestore _firestore;
 
@@ -41,6 +44,16 @@ class InstagramRepository with ChangeNotifier {
   }
 
   Future<void> _onAccountsChanged(QuerySnapshot snapshot) async {
+    if (snapshot.documents.length > 1) {
+      _selectedAccount = InstagramAccount(
+        id: snapshot.documents[0].documentID,
+        username: snapshot.documents[0].data['username'],
+        paused: snapshot.documents[0].data['paused'],
+        status: snapshot.documents[0].data['status'],
+        profilePictureURL: snapshot.documents[0].data['profilePictureURL'],
+      );
+    }
+
     _accounts = AccountsResource(
         state: AccountsState.Some,
         data: snapshot.documents.map<InstagramAccount>((document) {

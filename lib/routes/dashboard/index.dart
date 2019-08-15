@@ -1,27 +1,33 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Route;
 import 'package:flutter_system_bars/flutter_system_bars.dart';
+
 import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
-import 'package:igflexin/routes/app/router_controller.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/accounts/index.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/overview/index.dart';
-import 'package:igflexin/routes/app/routes/dashboard/pages/settings/index.dart';
+import 'package:igflexin/router_controller.dart';
+import 'package:igflexin/routes/dashboard/pages/accounts/index.dart';
+import 'package:igflexin/routes/dashboard/pages/overview/index.dart';
+import 'package:igflexin/routes/dashboard/pages/settings/index.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
 class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return RouterAnimationController<AppRouterController>(
-      duration: const Duration(milliseconds: 500),
-      builder: (context, controller) {
-        return SystemBarsInfoProvider(
-            builder: (context, child, systemBarsInfo, orientation) {
-          return _Dashboard(controller, systemBarsInfo, orientation);
-        });
-      },
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomPadding: false,
+      backgroundColor: Colors.white,
+      body: RouterAnimationController<MainRouterController>(
+        duration: const Duration(milliseconds: 500),
+        builder: (context, controller) {
+          return SystemBarsInfoProvider(
+              builder: (context, child, systemBarsInfo, orientation) {
+            return _Dashboard(controller, systemBarsInfo, orientation);
+          });
+        },
+      ),
     );
   }
 }

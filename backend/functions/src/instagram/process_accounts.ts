@@ -11,11 +11,11 @@ import {
   IgLoginTwoFactorRequiredError,
 } from 'instagram-private-api';
 
-const shttps = require('socks5-https-client/lib/Agent')
+const shttps = require('socks5-https-client/lib/Agent');
 
 export default async function processAccounts() {
 
-  const users = await admin.firestore().collection('users').where('lastAction', '<',  Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * 30))).get();
+  const users = await admin.firestore().collection('users').where('lastAction', '<',  Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * 25))).get();
 
   if (users.empty) {
     return;
@@ -326,7 +326,7 @@ async function recordStats(account: DocumentSnapshot, followers: number) {
   } else {
     const id = currentMonthDoc.docs[0].id;
     const doc = currentMonthDoc.docs[0].data()!;
-    if (doc.lastTime < Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * 60))) {
+    if ((doc.lastTime as Timestamp).toMillis() < Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * 60)).toMillis()) {
       const data: { time: Timestamp, value: number}[] = doc.data;
       data.push({
         time: Timestamp.now(),

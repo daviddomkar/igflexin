@@ -25,9 +25,9 @@ packages:
   bezier_chart:
     dependency: "direct main"
     description:
-      name: bezier_chart
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "..\\bezier-chart"
+      relative: true
+    source: path
     version: "1.0.13"
   boolean_selector:
     dependency: transitive
