@@ -68,6 +68,13 @@ class InstagramRepository with ChangeNotifier {
     notifyListeners();
   }
 
+  void selectAccount({
+    String id,
+  }) {
+    _selectedAccount = _accounts.data.firstWhere((account) => account.id == id);
+    notifyListeners();
+  }
+
   Future<void> pause({
     String id,
   }) async {

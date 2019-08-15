@@ -9,6 +9,7 @@ import 'package:igflexin/router_controller.dart';
 import 'package:igflexin/routes/dashboard/pages/accounts/index.dart';
 import 'package:igflexin/routes/dashboard/pages/overview/index.dart';
 import 'package:igflexin/routes/dashboard/pages/settings/index.dart';
+import 'package:igflexin/routes/dashboard/widgets/account_selection.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
@@ -147,6 +148,7 @@ class __DashboardState extends State<_Dashboard> {
               height: ResponsivityUtils.compute(72.0, context) +
                   widget.systemBarsInfo.statusBarHeight,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 500),
@@ -192,6 +194,22 @@ class __DashboardState extends State<_Dashboard> {
                           fontSize: ResponsivityUtils.compute(32.0, context),
                         ),
                       ),
+                    ),
+                  ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    transitionBuilder: (child, animation) {
+                      return FadeTransition(
+                        child: child,
+                        opacity: animation,
+                      );
+                    },
+                    child: Container(
+                      key: ValueKey(_selectedPageIndex),
+                      margin: EdgeInsets.only(
+                          right: ResponsivityUtils.compute(16.0, context)),
+                      child:
+                          _selectedPageIndex == 1 ? AccountSelection() : null,
                     ),
                   ),
                 ],

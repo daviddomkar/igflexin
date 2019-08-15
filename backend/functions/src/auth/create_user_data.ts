@@ -1,6 +1,7 @@
 import { CallableContext } from "firebase-functions/lib/providers/https";
 import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
+import ServerValue = admin.database.ServerValue;
 
 export default async function createUserData(data: any, context: CallableContext) {
   // Throw error if user is not authenticated
@@ -27,6 +28,7 @@ export default async function createUserData(data: any, context: CallableContext
   if (createNewData) {
     // Create user data
     await admin.firestore().collection('users').doc(uid).set({
+      lastAction: ServerValue.TIMESTAMP,
       eligibleForFreeTrial: true,
       userCompleted: true
     });

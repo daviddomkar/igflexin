@@ -3,7 +3,7 @@ import 'package:igflexin/repositories/instagram_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/resources/subscription.dart';
-import 'package:igflexin/routes/dashboard/pages/overview/widgets/account_selection.dart';
+import 'package:igflexin/routes/dashboard/pages/overview/widgets/account_greeting.dart';
 import 'package:igflexin/routes/dashboard/pages/overview/widgets/followers_graph.dart';
 import 'package:igflexin/routes/dashboard/pages/overview/widgets/subscription_info.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
@@ -65,7 +65,7 @@ class _OverviewState extends State<Overview> {
           SubscriptionInfo(
             subscription: _cachedSubscription,
           ),
-          AccountSelection(),
+          AccountGreeting(),
           FollowersGraph(),
         ],
       );
