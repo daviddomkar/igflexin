@@ -16,12 +16,16 @@ class Accounts extends StatefulWidget {
   _AccountsState createState() => _AccountsState();
 }
 
-class _AccountsState extends State<Accounts> {
+class _AccountsState extends State<Accounts>
+    with AutomaticKeepAliveClientMixin<Accounts> {
   SubscriptionRepository _subscriptionRepository;
   InstagramRepository _instagramRepository;
 
   Subscription _cachedSubscription;
   List<InstagramAccount> _cachedAccounts;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void didChangeDependencies() {
@@ -46,6 +50,8 @@ class _AccountsState extends State<Accounts> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
       child: _buildChild(),
