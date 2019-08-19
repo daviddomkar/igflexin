@@ -21,7 +21,8 @@ class Overview extends StatefulWidget {
   _OverviewState createState() => _OverviewState();
 }
 
-class _OverviewState extends State<Overview> {
+class _OverviewState extends State<Overview>
+    with AutomaticKeepAliveClientMixin<Overview> {
   SubscriptionRepository _subscriptionRepository;
   InstagramRepository _instagramRepository;
 
@@ -32,6 +33,9 @@ class _OverviewState extends State<Overview> {
   void initState() {
     super.initState();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void didChangeDependencies() {
@@ -57,6 +61,8 @@ class _OverviewState extends State<Overview> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
       child: _buildChild(),
