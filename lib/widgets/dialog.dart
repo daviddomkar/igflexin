@@ -22,6 +22,20 @@ void showModalWidgetLight(BuildContext context, Widget child) {
   });
 }
 
+void showModalWidget(BuildContext context, Widget child) {
+  showGeneralDialog(
+    context: context,
+    pageBuilder: (BuildContext buildContext, Animation<double> animation,
+        Animation<double> secondaryAnimation) {
+      return child;
+    },
+    barrierDismissible: false,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: null,
+    transitionDuration: const Duration(milliseconds: 0),
+  );
+}
+
 class RoundedAlertDialog extends StatefulWidget {
   const RoundedAlertDialog({
     Key key,

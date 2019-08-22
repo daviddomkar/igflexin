@@ -10,6 +10,7 @@ import 'package:flutter_stripe_sdk/model/card.dart';
 import 'package:flutter_stripe_sdk/model/payment_method.dart';
 import 'package:flutter_stripe_sdk/model/payment_method_create_params.dart';
 import 'package:igflexin/core/server.dart';
+import 'package:igflexin/model/payment_error.dart';
 
 import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/model/subscription_plan_theme.dart';
@@ -28,7 +29,8 @@ class SubscriptionRepository with ChangeNotifier {
         _firestore = Firestore.instance,
         _customerSession = null,
         _isApplePayAvailable = false,
-        _isGooglePayAvailable = false {
+        _isGooglePayAvailable = false,
+        _couponsEnabled = false {
     _authSubscription = _auth.onAuthStateChanged.listen(_onAuthStateChanged);
 
     PaymentConfiguration.init('pk_test_U7q3vkJbTG0ROvB1IHEznZ4s00haOEFHjX');
@@ -43,6 +45,8 @@ class SubscriptionRepository with ChangeNotifier {
     if (Platform.isAndroid) {
       _isGooglePayAvailable = false;
     }
+
+    _couponsEnabled = false;
   }
 
   SubscriptionPlanTheme _planTheme =
@@ -66,9 +70,11 @@ class SubscriptionRepository with ChangeNotifier {
 
   bool _isApplePayAvailable;
   bool _isGooglePayAvailable;
+  bool _couponsEnabled;
 
   bool get isApplePayAvailable => _isApplePayAvailable;
   bool get isGooglePayAvailable => _isGooglePayAvailable;
+  bool get couponsEnabled => _couponsEnabled;
 
   StreamSubscription<FirebaseUser> _authSubscription;
   StreamSubscription<DocumentSnapshot> _userDataSubscription;
@@ -163,15 +169,29 @@ class SubscriptionRepository with ChangeNotifier {
     await _customerSession.updateCurrentCustomer();
   }
 
+  Future<void> removePaymentMethod(PaymentMethod paymentMethod) async {
+    await _checkCustomerSession();
+    await _customerSession.detachPaymentMethod(id: paymentMethod.id);
+    await _customerSession.updateCurrentCustomer();
+  }
+
   Future<void> purchaseSelectedSubscriptionPlan(
       PaymentMethod paymentMethod) async {
     await _checkCustomerSession();
-    await Server.purchaseSubscription(
+    final result = await Server.purchaseSubscription(
       paymentMethodId: paymentMethod.id,
       subscriptionInterval:
           getStringFromSubscriptionPlanInterval(_selectedPlanInterval),
       subscriptionType: getStringFromSubscriptionPlanType(_selectedPlanType),
     );
+
+    if (result['status'] == 'requires_action') {
+      throw new PaymentErrorException(
+          PaymentErrorType.RequiresAction, result['clientSecret']);
+    } else if (result['status'] == 'requires_payment_method') {
+      throw new PaymentErrorException(
+          PaymentErrorType.RequiresPaymentMethod, null);
+    }
   }
 
   Future<void> _beginCustomerSession() async {

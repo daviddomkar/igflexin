@@ -29,62 +29,68 @@ export default async function purchaseSubscription(data: any, context: CallableC
 
   if (customer.subscriptions.total_count! > 0) {
     console.log('Fixing previous subscription');
-    throw new functions.https.HttpsError('failed-precondition', 'Customer already has a purchased subscription.');
-  } else {
-    const subscription = await stripe.subscriptions.create({
-      customer: customerId,
-      items: [{
-        plan: planId,
-      }],
-      expand: ['latest_invoice.payment_intent'],
-      trial_period_days: eligibleForFreeTrial ? 7 : 0,
-      // @ts-ignore
-      payment_behavior: 'allow_incomplete',
-      // @ts-ignore
-      default_payment_method: data.paymentMethodId,
+
+    if (customer.subscriptions.data[0].status === 'incomplete') {
+      await stripe.subscriptions.del(customer.subscriptions.data[0].id);
+    } else {
+      throw new functions.https.HttpsError('failed-precondition', 'Customer already has a purchased subscription.');
+    }
+  }
+
+  const subscription = await stripe.subscriptions.create({
+    customer: customerId,
+    items: [{
+      plan: planId,
+    }],
+    expand: ['latest_invoice.payment_intent'],
+    trial_period_days: eligibleForFreeTrial ? 7 : 0,
+    // @ts-ignore
+    payment_behavior: 'allow_incomplete',
+    // @ts-ignore
+    default_payment_method: data.paymentMethodId,
+  });
+
+  console.log(subscription);
+
+  const subscriptionStatus = subscription.status;
+
+  if (subscriptionStatus === 'trialing') {
+    await admin.firestore().collection('users').doc(uid).update({
+      subscription: {
+        interval: data.subscriptionInterval,
+        type: data.subscriptionType,
+        trialEnds: subscription.trial_end,
+      }
     });
+  } else {
+    const paymentIntentStatus = subscription.latest_invoice.payment_intent.status;
 
-    console.log(subscription);
-
-    const subscriptionStatus = subscription.status;
-
-    if (subscriptionStatus === 'trialing') {
+    if (subscriptionStatus === 'active' && paymentIntentStatus === 'succeeded') {
       await admin.firestore().collection('users').doc(uid).update({
         subscription: {
           interval: data.subscriptionInterval,
           type: data.subscriptionType,
-          trialEnds: subscription.trial_end,
         }
       });
-    } else {
-      const paymentIntentStatus = subscription.latest_invoice.payment_intent.status;
-
-      if (subscriptionStatus === 'active' && paymentIntentStatus === 'succeeded') {
-        await admin.firestore().collection('users').doc(uid).update({
-          subscription: {
-            interval: data.subscriptionInterval,
-            type: data.subscriptionType,
-          }
-        });
-      } else if (subscriptionStatus === 'incomplete' && paymentIntentStatus === 'requires_payment_method') {
-        return {
-          status: 'requires_payment_method',
-        }
-      } else if (subscriptionStatus === 'incomplete' && paymentIntentStatus === 'requires_action') {
-        return {
-          status: 'requires_action',
-        }
+    } else if (subscriptionStatus === 'incomplete' && paymentIntentStatus === 'requires_payment_method') {
+      return {
+        status: 'requires_payment_method',
+      }
+    } else if (subscriptionStatus === 'incomplete' && paymentIntentStatus === 'requires_action') {
+      return {
+        status: 'requires_action',
+        clientSecret: subscription.latest_invoice.payment_intent.client_secret,
       }
     }
+  }
 
-    if (eligibleForFreeTrial) {
-      await admin.firestore().collection('users').doc(uid).update({
-        eligibleForFreeTrial: false,
-      });
-    }
+  if (eligibleForFreeTrial) {
+    await admin.firestore().collection('users').doc(uid).update({
+      eligibleForFreeTrial: false,
+    });
+  }
 
-    return {
-      status: 'success',
-    }
+  return {
+    status: 'success',
   }
 }

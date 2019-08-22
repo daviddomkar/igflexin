@@ -47,7 +47,8 @@ class _SummaryState extends State<Summary> {
   }
 
   Widget _buildAnimation(BuildContext context, Widget child) {
-    SubscriptionPlan plan = SubscriptionPlan(_subscriptionRepository.selectedPlanType);
+    SubscriptionPlan plan =
+        SubscriptionPlan(_subscriptionRepository.selectedPlanType);
 
     return Transform.translate(
       offset: Offset(0.0, widget.offsetY.value),
@@ -101,7 +102,8 @@ class _SummaryState extends State<Summary> {
                     ),
                   ),
                   Text(
-                    _subscriptionRepository.selectedPlanInterval == SubscriptionPlanInterval.Month
+                    _subscriptionRepository.selectedPlanInterval ==
+                            SubscriptionPlanInterval.Month
                         ? plan.monthlyPrice
                         : plan.yearlyPrice,
                     textAlign: TextAlign.right,
@@ -114,37 +116,38 @@ class _SummaryState extends State<Summary> {
                 ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                vertical: ResponsivityUtils.compute(6.0, context),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Discount coupon:',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: ResponsivityUtils.compute(18.0, context),
-                    ),
-                  ),
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.ease,
-                    opacity: 0.8,
-                    child: Text(
-                      'Add coupon',
-                      textAlign: TextAlign.right,
+            if (_subscriptionRepository.couponsEnabled)
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: ResponsivityUtils.compute(6.0, context),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Discount coupon:',
+                      textAlign: TextAlign.left,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: ResponsivityUtils.compute(18.0, context),
                       ),
                     ),
-                  ),
-                ],
+                    AnimatedOpacity(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.ease,
+                      opacity: 0.8,
+                      child: Text(
+                        'Add coupon',
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: ResponsivityUtils.compute(18.0, context),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
