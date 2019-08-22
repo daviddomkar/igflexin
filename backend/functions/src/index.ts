@@ -14,7 +14,7 @@ export const createEphemeralKey = functions.https.onCall(async (data, context) =
 });
 
 export const purchaseSubscription = functions.https.onCall(async (data, context) => {
-  await (await import('./stripe/purchase_subscription')).default(data, context);
+  return await (await import('./stripe/purchase_subscription')).default(data, context);
 });
 
 // Instagram functions

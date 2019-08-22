@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
+import 'package:igflexin/resources/subscription.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:provider/provider.dart';
@@ -14,14 +16,39 @@ class SubscriptionSettingsGroup extends StatefulWidget {
 }
 
 class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
+  SubscriptionRepository _subscriptionRepository;
+
+  Subscription _cachedSubscription;
+
   @override
   void initState() {
     super.initState();
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _subscriptionRepository = Provider.of<SubscriptionRepository>(context);
+
+    if (_subscriptionRepository.subscription.state ==
+        SubscriptionState.Active) {
+      _cachedSubscription = _subscriptionRepository.subscription.data;
+    }
+
+    _subscriptionRepository.addListener(_subscriptionChanged);
+  }
+
+  void _subscriptionChanged() {
+    if (_subscriptionRepository.subscription.state ==
+        SubscriptionState.Active) {
+      _cachedSubscription = _subscriptionRepository.subscription.data;
+    }
+  }
+
+  @override
   void dispose() {
     super.dispose();
+    _subscriptionRepository.removeListener(_subscriptionChanged);
   }
 
   @override
@@ -65,59 +92,179 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                 color: Colors.white,
               ),
             ),
+            Container(
+              margin: EdgeInsets.all(
+                ResponsivityUtils.compute(20.0, context),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                      vertical: ResponsivityUtils.compute(4.0, context),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Type:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ResponsivityUtils.compute(18.0, context),
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          getPrettyStringFromSubscriptionPlanType(
+                              _cachedSubscription.type),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ResponsivityUtils.compute(18.0, context),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                      vertical: ResponsivityUtils.compute(4.0, context),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Status:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ResponsivityUtils.compute(18.0, context),
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'Active',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ResponsivityUtils.compute(18.0, context),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                      vertical: ResponsivityUtils.compute(4.0, context),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Payment method:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ResponsivityUtils.compute(18.0, context),
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'Visa card **4242',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ResponsivityUtils.compute(18.0, context),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                      vertical: ResponsivityUtils.compute(4.0, context),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Paying:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ResponsivityUtils.compute(18.0, context),
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          _cachedSubscription.interval ==
+                                  SubscriptionPlanInterval.Month
+                              ? SubscriptionPlan(_cachedSubscription.type)
+                                  .monthlyPrice
+                              : SubscriptionPlan(_cachedSubscription.type)
+                                  .yearlyPrice,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ResponsivityUtils.compute(18.0, context),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                      vertical: ResponsivityUtils.compute(4.0, context),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Next charge:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ResponsivityUtils.compute(18.0, context),
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'Unknown',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: ResponsivityUtils.compute(18.0, context),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  width: ResponsivityUtils.compute(320.0, context),
-                  margin: EdgeInsets.only(
-                      top: ResponsivityUtils.compute(10.0, context)),
-                  child: CurvedWhiteBorderedTransparentButton(
-                    child: Text(
-                      'Upgrade or downgrade',
-                      style: TextStyle(
-                        color: Colors.white,
+                for (var i = 0; i < 4; i++)
+                  if (i != 1 && !_subscriptionRepository.couponsEnabled)
+                    Container(
+                      margin: EdgeInsets.symmetric(
+                          vertical: ResponsivityUtils.compute(2.0, context)),
+                      height: ResponsivityUtils.compute(50.0, context),
+                      child: CurvedTransparentButton(
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            i == 0
+                                ? 'Upgrade or downgrade subscription'
+                                : i == 1
+                                    ? 'Apply coupon'
+                                    : i == 2
+                                        ? 'Manage payment methods'
+                                        : 'Cancel subscription',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        onPressed: () {},
                       ),
                     ),
-                    onPressed: () {},
-                  ),
-                ),
-                Container(
-                  width: ResponsivityUtils.compute(320.0, context),
-                  child: CurvedWhiteBorderedTransparentButton(
-                    child: Text(
-                      'Apply coupon',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    onPressed: () {},
-                  ),
-                ),
-                Container(
-                  width: ResponsivityUtils.compute(320.0, context),
-                  child: CurvedWhiteBorderedTransparentButton(
-                    child: Text(
-                      'Manage payment methods',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    onPressed: () {},
-                  ),
-                ),
-                Container(
-                  width: ResponsivityUtils.compute(320.0, context),
-                  child: CurvedWhiteBorderedTransparentButton(
-                    child: Text(
-                      'Cancel subscription',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    onPressed: () {},
-                  ),
-                ),
               ],
             ),
           ],

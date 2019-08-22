@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/router_controller.dart';
-import 'package:igflexin/routes/subscription_plan_payment_flow/widgets/card_selection_dialog.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
+import 'package:igflexin/widgets/dialog.dart';
+import 'package:igflexin/widgets/subscription_dialog/index.dart';
 
 class CreditOrDebitCardButton extends StatefulWidget {
   CreditOrDebitCardButton({Key key, @required this.controller})
@@ -37,6 +38,14 @@ class _CreditOrDebitCardButtonState extends State<CreditOrDebitCardButton> {
             ),
           ),
           onPressed: () {
+            showModalWidget(
+              context,
+              SubscriptionDialog(
+                actionType: SubscriptionActionType.Purchase,
+                routerController: Router.of<MainRouterController>(context),
+              ),
+            );
+            /*
             showGeneralDialog(
               context: context,
               pageBuilder: (BuildContext buildContext,
@@ -65,6 +74,7 @@ class _CreditOrDebitCardButtonState extends State<CreditOrDebitCardButton> {
                 );
               },
             );
+            */
           },
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:igflexin/repositories/auth_repository.dart';
+import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:provider/provider.dart';
@@ -12,9 +13,17 @@ class AccountSettingsGroup extends StatefulWidget {
 }
 
 class _AccountSettingsGroupState extends State<AccountSettingsGroup> {
+  SubscriptionRepository _subscriptionRepository;
+
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _subscriptionRepository = Provider.of<SubscriptionRepository>(context);
   }
 
   @override
@@ -52,11 +61,19 @@ class _AccountSettingsGroupState extends State<AccountSettingsGroup> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  width: ResponsivityUtils.compute(320.0, context),
+                  height: ResponsivityUtils.compute(50.0, context),
                   margin: EdgeInsets.only(
                       top: ResponsivityUtils.compute(10.0, context)),
-                  child: CurvedBlackBorderedTransparentButton(
-                    child: Text('Sign out'),
+                  child: CurvedTransparentButton(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Sign out',
+                        style: TextStyle(
+                            color: _subscriptionRepository
+                                .planTheme.gradientStartColor),
+                      ),
+                    ),
                     onPressed: () {
                       Provider.of<AuthRepository>(context).signOut();
                     },

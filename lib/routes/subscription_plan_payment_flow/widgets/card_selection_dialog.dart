@@ -30,8 +30,6 @@ class _CardSelectionDialogState extends State<CardSelectionDialog>
   SubscriptionRepository _subscriptionRepository;
   UserRepository _userRepository;
 
-  NavigatorState _navigator;
-
   List<PaymentMethod> _paymentMethods;
   PaymentMethod _selectedPaymentMethod;
 
@@ -175,8 +173,6 @@ class _CardSelectionDialogState extends State<CardSelectionDialog>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    _navigator = Navigator.of(context);
 
     _subscriptionRepository = Provider.of<SubscriptionRepository>(context);
     _userRepository = Provider.of<UserRepository>(context);
@@ -382,10 +378,8 @@ class _CardSelectionDialogState extends State<CardSelectionDialog>
                                 _subscriptionRepository.selectedPlanInterval)
                             .toLowerCase() +
                         'ly ' +
-                        getStringFromSubscriptionPlanType(
-                                _subscriptionRepository.selectedPlanType)
-                            .toLowerCase()
-                            .replaceAll(new RegExp(r'_'), ' ') +
+                        getPrettyStringFromSubscriptionPlanType(
+                            _subscriptionRepository.selectedPlanType) +
                         ' plan' +
                         ' with ' +
                         '${_selectedPaymentMethod.card.brand[0].toUpperCase()}${_selectedPaymentMethod.card.brand.substring(1)}' +

@@ -200,8 +200,8 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
                                 .setSelectedPlanInterval(
                                     SubscriptionPlanInterval.Month);
 
-                            /*Router.of<MainRouterController>(context)
-                                .push('subscription_plan_payment_flow');*/
+                            Router.of<MainRouterController>(context)
+                                .push('subscription_plan_payment_flow');
                           },
                         ),
                       ],
@@ -231,8 +231,8 @@ class _SubscriptionPlanDetailState extends State<SubscriptionPlanDetail> {
                                 .setSelectedPlanInterval(
                                     SubscriptionPlanInterval.Year);
 
-                            /*Router.of<MainRouterController>(context)
-                                .push('subscription_plan_payment_flow');*/
+                            Router.of<MainRouterController>(context)
+                                .push('subscription_plan_payment_flow');
                           },
                         ),
                       ],

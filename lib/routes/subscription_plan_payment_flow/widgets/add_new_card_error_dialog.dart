@@ -46,7 +46,9 @@ class _AddNewCardErrorDialogState extends State<AddNewCardErrorDialog>
           style: TextStyle(
             fontSize: ResponsivityUtils.compute(23.0, context),
             fontWeight: FontWeight.bold,
-            color: Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
+            color: Provider.of<SubscriptionRepository>(context)
+                .planTheme
+                .gradientStartColor,
           ),
         ),
         content: Text(
@@ -56,11 +58,12 @@ class _AddNewCardErrorDialogState extends State<AddNewCardErrorDialog>
         actions: [
           GradientButton(
             width: ResponsivityUtils.compute(80.0, context),
-            height: ResponsivityUtils.compute(40.0, context),
+            height: ResponsivityUtils.compute(45.0, context),
             child: Text(
               'OK',
               style: TextStyle(
-                  fontSize: ResponsivityUtils.compute(15.0, context), color: Colors.white),
+                  fontSize: ResponsivityUtils.compute(15.0, context),
+                  color: Colors.white),
             ),
             onPressed: () {
               _animationController.reverse().then((_) {
