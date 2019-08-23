@@ -25,8 +25,10 @@ class TermsOfServiceAndPrivacyPolicy extends StatelessWidget {
         text: TextSpan(children: [
           TextSpan(
               text: 'By using this app you agree with IGFlexin\'s\n',
-              style: TextStyle(color: Colors.white, fontSize: ResponsivityUtils.compute(14.0, context))),
-          TextSpan(
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: ResponsivityUtils.compute(14.0, context))),
+          /*TextSpan(
               text: 'Terms of Service',
               style: TextStyle(
                   color: Colors.white,
@@ -38,7 +40,7 @@ class TermsOfServiceAndPrivacyPolicy extends StatelessWidget {
                   launch('https://igflexin.app/privacy-policy.htm');
                 }),
           TextSpan(
-              text: ' and ', style: TextStyle(color: Colors.white, fontSize: ResponsivityUtils.compute(14.0, context))),
+              text: ' and ', style: TextStyle(color: Colors.white, fontSize: ResponsivityUtils.compute(14.0, context))),*/
           TextSpan(
               text: 'Privacy Policy',
               style: TextStyle(
@@ -50,7 +52,11 @@ class TermsOfServiceAndPrivacyPolicy extends StatelessWidget {
                 ..onTap = () {
                   launch('https://igflexin.app/privacy-policy.htm');
                 }),
-          TextSpan(text: '.', style: TextStyle(color: Colors.white, fontSize: ResponsivityUtils.compute(14.0, context)))
+          TextSpan(
+              text: '.',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: ResponsivityUtils.compute(14.0, context)))
         ]),
       ),
     );
