@@ -3,6 +3,7 @@ import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 import * as Stripe from 'stripe';
 import { STRIPE_SECRET_KEY } from "../core/keys";
+import Timestamp = admin.firestore.Timestamp;
 
 const stripe = new Stripe(STRIPE_SECRET_KEY);
 
@@ -42,7 +43,7 @@ export default async function purchaseSubscription(data: any, context: CallableC
     items: [{
       plan: planId,
     }],
-    expand: ['latest_invoice.payment_intent'],
+    expand: ['latest_invoice.payment_intent', 'default_payment_method'],
     trial_period_days: eligibleForFreeTrial ? 7 : 0,
     // @ts-ignore
     payment_behavior: 'allow_incomplete',
@@ -55,21 +56,46 @@ export default async function purchaseSubscription(data: any, context: CallableC
   const subscriptionStatus = subscription.status;
 
   if (subscriptionStatus === 'trialing') {
+    let paymentIntentSecret = '';
+
+    try {
+      paymentIntentSecret = subscription.latest_invoice!.payment_intent!.client_secret;
+    } catch (e) {}
+
     await admin.firestore().collection('users').doc(uid).update({
       subscription: {
+        status: 'active',
         interval: data.subscriptionInterval,
         type: data.subscriptionType,
-        trialEnds: subscription.trial_end,
+        trialEnds: Timestamp.fromMillis(subscription.trial_end * 1000),
+        nextCharge: Timestamp.fromMillis(subscription.trial_end * 1000),
+        paymentIntentSecret: paymentIntentSecret,
+        paymentMethodId: subscription.default_payment_method.id,
+        paymentMethodBrand: subscription.default_payment_method.card.brand,
+        paymentMethodLast4: subscription.default_payment_method.card.last4,
       }
     });
   } else {
     const paymentIntentStatus = subscription.latest_invoice.payment_intent.status;
 
     if (subscriptionStatus === 'active' && paymentIntentStatus === 'succeeded') {
+      let paymentIntentSecret = '';
+
+      try {
+        paymentIntentSecret = subscription.latest_invoice!.payment_intent!.client_secret;
+      } catch (e) {}
+
       await admin.firestore().collection('users').doc(uid).update({
         subscription: {
+          status: 'active',
           interval: data.subscriptionInterval,
           type: data.subscriptionType,
+          trialEnds: null,
+          nextCharge: Timestamp.fromMillis(subscription.current_period_end * 1000),
+          paymentIntentSecret: paymentIntentSecret,
+          paymentMethodId: subscription.default_payment_method.id,
+          paymentMethodBrand: subscription.default_payment_method.card.brand,
+          paymentMethodLast4: subscription.default_payment_method.card.last4,
         }
       });
     } else if (subscriptionStatus === 'incomplete' && paymentIntentStatus === 'requires_payment_method') {

@@ -100,16 +100,27 @@ class SubscriptionRepository with ChangeNotifier {
   Future<void> _onUserDataChanged(DocumentSnapshot data) async {
     if (data.exists) {
       _beginCustomerSession();
-      if (data.data.containsKey('subscription')) {
+      if (data.data.containsKey('subscription') &&
+          data.data['subscription'] != null) {
         _subscription = SubscriptionResource(
             state: SubscriptionState.Active,
             data: Subscription(
+              status: data.data['subscription']['status'] as String,
               interval: getSubscriptionPlanIntervalFromString(
                 data.data['subscription']['interval'] as String,
               ),
               type: getSubscriptionPlanTypeFromString(
                 data.data['subscription']['type'] as String,
               ),
+              nextCharge: data.data['subscription']['nextCharge'],
+              trialEnds: data.data['subscription']['trialEnds'],
+              paymentIntentSecret: data.data['subscription']
+                  ['paymentIntentSecret'],
+              paymentMethodId: data.data['subscription']['paymentMethodId'],
+              paymentMethodBrand: data.data['subscription']
+                  ['paymentMethodBrand'],
+              paymentMethodLast4: data.data['subscription']
+                  ['paymentMethodLast4'],
             ));
 
         _planTheme = SubscriptionPlanTheme(_subscription.data.type);
@@ -192,6 +203,11 @@ class SubscriptionRepository with ChangeNotifier {
       throw new PaymentErrorException(
           PaymentErrorType.RequiresPaymentMethod, null);
     }
+  }
+
+  Future<void> authenticatePayment(String paymentIntentSecret) async {
+    await _checkCustomerSession();
+    await _stripe.authenticatePayment(paymentIntentSecret);
   }
 
   Future<void> _beginCustomerSession() async {
