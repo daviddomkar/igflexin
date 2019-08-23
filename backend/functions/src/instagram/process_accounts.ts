@@ -101,7 +101,7 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
   let ip = '23.89.245.9';
   let port = 53112;
 
-  if (lastIpUsed !== null) {
+  if (lastIpUsed === null) {
     const ips = await admin.firestore().collection('proxies').get();
 
     const validIps = ips.docs.filter(doc => {
@@ -117,6 +117,11 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
       lastIpUsed: ip,
     });
   } else {
+    const ipData = (await admin.firestore().collection('proxies').where('ip', '==', lastIpUsed).limit(1).get()).docs[0].data()!;
+
+    ip = ipData.ip;
+    port = ipData.port;
+
     await account.ref.update({
       lastIpUsed: ip,
     });
@@ -181,6 +186,9 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
 
     if (signOut) {
       await instagram.account.logout();
+      await account.ref.update({
+        lastIpUsed: null,
+      });
     }
 
     const cookiesToSave = await instagram.state.serializeCookieJar();
@@ -239,6 +247,9 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
 
         if (signOut) {
           await instagram.account.logout();
+          await account.ref.update({
+            lastIpUsed: null,
+          });
         }
 
         const cookiesToSave = await instagram.state.serializeCookieJar();

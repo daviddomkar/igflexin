@@ -7,6 +7,7 @@ import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/utils/keyboard_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
+import 'package:igflexin/widgets/subscription_dialog/action_required.dart';
 import 'package:igflexin/widgets/subscription_dialog/confirm_payment.dart';
 import 'package:igflexin/widgets/subscription_dialog/payment_methods.dart';
 import 'package:provider/provider.dart';
@@ -152,7 +153,23 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
       switch (widget.actionType) {
         case SubscriptionActionType.Purchase:
           if (_paymentIntentSecret != null) {
-            // TODO The action on your side is required to finish the payment
+            return ActionRequired(
+              paymentIntentSecret: _paymentIntentSecret,
+              routerController: widget.routerController,
+              onError: () {
+                setState(() {
+                  _error = 'Could not complete action. Please try again later.';
+                  _selectedPaymentMethod = null;
+                  _paymentIntentSecret = null;
+                });
+              },
+              onDispose: () {
+                if (!_disposeNow) {
+                  _disposeNow = true;
+                  Navigator.pop(context);
+                }
+              },
+            );
           } else if (_selectedPaymentMethod != null) {
             return ConfirmPayment(
               selectedPaymentMethod: _selectedPaymentMethod,
@@ -178,6 +195,7 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
                   setState(() {
                     _error =
                         'Error purchasing subscription. Please try again later.';
+                    _selectedPaymentMethod = null;
                   });
                 }
               },
@@ -312,6 +330,14 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
         if (_error != null) {
           setState(() {
             _error = null;
+          });
+          return false;
+        }
+
+        if (_paymentIntentSecret != null) {
+          setState(() {
+            _paymentIntentSecret = null;
+            _selectedPaymentMethod = null;
           });
           return false;
         }

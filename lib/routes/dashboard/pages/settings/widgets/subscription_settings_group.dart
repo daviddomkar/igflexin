@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
+import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/resources/subscription.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
@@ -53,6 +54,8 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
 
   @override
   Widget build(BuildContext context) {
+    print(_cachedSubscription.trialEnds);
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
       curve: Curves.ease,
@@ -141,7 +144,10 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                           ),
                         ),
                         Text(
-                          'Active',
+                          _cachedSubscription.trialEnds != null
+                              ? 'In trial period'
+                              : getPrettyStringFromSubscriptionStatus(
+                                  _cachedSubscription.status),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: ResponsivityUtils.compute(18.0, context),
@@ -151,89 +157,103 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                       ],
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.symmetric(
-                      vertical: ResponsivityUtils.compute(4.0, context),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Payment method:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: ResponsivityUtils.compute(18.0, context),
-                            color: Colors.white,
+                  if (_cachedSubscription.status == 'active' ||
+                      _cachedSubscription.status == 'requires_action')
+                    Container(
+                      margin: EdgeInsets.symmetric(
+                        vertical: ResponsivityUtils.compute(4.0, context),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Payment method:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  ResponsivityUtils.compute(18.0, context),
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Visa card **4242',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: ResponsivityUtils.compute(18.0, context),
-                            color: Colors.white,
+                          Text(
+                            '${_cachedSubscription.paymentMethodBrand[0].toUpperCase()}${_cachedSubscription.paymentMethodBrand.substring(1)}' +
+                                ' card **' +
+                                _cachedSubscription.paymentMethodLast4,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  ResponsivityUtils.compute(18.0, context),
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(
-                      vertical: ResponsivityUtils.compute(4.0, context),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Paying:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: ResponsivityUtils.compute(18.0, context),
-                            color: Colors.white,
+                  if (_cachedSubscription.status == 'active' ||
+                      _cachedSubscription.status == 'requires_action')
+                    Container(
+                      margin: EdgeInsets.symmetric(
+                        vertical: ResponsivityUtils.compute(4.0, context),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Paying:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  ResponsivityUtils.compute(18.0, context),
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        Text(
-                          _cachedSubscription.interval ==
-                                  SubscriptionPlanInterval.Month
-                              ? SubscriptionPlan(_cachedSubscription.type)
-                                  .monthlyPrice
-                              : SubscriptionPlan(_cachedSubscription.type)
-                                  .yearlyPrice,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: ResponsivityUtils.compute(18.0, context),
-                            color: Colors.white,
+                          Text(
+                            _cachedSubscription.interval ==
+                                    SubscriptionPlanInterval.Month
+                                ? SubscriptionPlan(_cachedSubscription.type)
+                                    .monthlyPrice
+                                : SubscriptionPlan(_cachedSubscription.type)
+                                    .yearlyPrice,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  ResponsivityUtils.compute(18.0, context),
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(
-                      vertical: ResponsivityUtils.compute(4.0, context),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Next charge:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: ResponsivityUtils.compute(18.0, context),
-                            color: Colors.white,
+                  if (_cachedSubscription.status == 'active')
+                    Container(
+                      margin: EdgeInsets.symmetric(
+                        vertical: ResponsivityUtils.compute(4.0, context),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Next charge:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  ResponsivityUtils.compute(18.0, context),
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Unknown',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: ResponsivityUtils.compute(18.0, context),
-                            color: Colors.white,
+                          Text(
+                            formatSubscriptionDate(
+                                _cachedSubscription.nextCharge.toDate()),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  ResponsivityUtils.compute(18.0, context),
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
