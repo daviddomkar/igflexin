@@ -387,10 +387,14 @@ class _PaymentMethodsState extends State<PaymentMethods>
                                           ),
                                         ],
                                       ),
-                                      onPressed: () {
-                                        widget.onPaymentMethodSelected(
-                                            _paymentMethods[index]);
-                                      },
+                                      onPressed: widget
+                                                  .onPaymentMethodSelected !=
+                                              null
+                                          ? () {
+                                              widget.onPaymentMethodSelected(
+                                                  _paymentMethods[index]);
+                                            }
+                                          : null,
                                     ),
                                   ),
                                 ),

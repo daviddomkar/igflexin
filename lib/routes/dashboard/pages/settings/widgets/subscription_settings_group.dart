@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
-import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/resources/subscription.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
+import 'package:igflexin/widgets/dialog.dart';
+import 'package:igflexin/widgets/subscription_dialog/index.dart';
 import 'package:provider/provider.dart';
 
 class SubscriptionSettingsGroup extends StatefulWidget {
@@ -109,7 +110,7 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Type:',
+                          'Plan:',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: ResponsivityUtils.compute(18.0, context),
@@ -146,8 +147,10 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                         Text(
                           _cachedSubscription.trialEnds != null
                               ? 'In trial period'
-                              : getPrettyStringFromSubscriptionStatus(
-                                  _cachedSubscription.status),
+                              : _cachedSubscription.paymentMethodId.length == 0
+                                  ? 'Requires payment method'
+                                  : getPrettyStringFromSubscriptionStatus(
+                                      _cachedSubscription.status),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: ResponsivityUtils.compute(18.0, context),
@@ -157,8 +160,9 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                       ],
                     ),
                   ),
-                  if (_cachedSubscription.status == 'active' ||
-                      _cachedSubscription.status == 'requires_action')
+                  if ((_cachedSubscription.status == 'active' ||
+                          _cachedSubscription.status == 'requires_action') &&
+                      _cachedSubscription.paymentMethodId.length > 0)
                     Container(
                       margin: EdgeInsets.symmetric(
                         vertical: ResponsivityUtils.compute(4.0, context),
@@ -189,8 +193,9 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                         ],
                       ),
                     ),
-                  if (_cachedSubscription.status == 'active' ||
-                      _cachedSubscription.status == 'requires_action')
+                  if ((_cachedSubscription.status == 'active' ||
+                          _cachedSubscription.status == 'requires_action') &&
+                      _cachedSubscription.paymentMethodId.length > 0)
                     Container(
                       margin: EdgeInsets.symmetric(
                         vertical: ResponsivityUtils.compute(4.0, context),
@@ -224,7 +229,9 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                         ],
                       ),
                     ),
-                  if (_cachedSubscription.status == 'active')
+                  if ((_cachedSubscription.status == 'active' &&
+                          _cachedSubscription.paymentMethodId.length > 0) ||
+                      _cachedSubscription.paymentMethodId.length > 0)
                     Container(
                       margin: EdgeInsets.symmetric(
                         vertical: ResponsivityUtils.compute(4.0, context),
@@ -233,7 +240,9 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Next charge:',
+                            _cachedSubscription.status == 'active'
+                                ? 'Next charge:'
+                                : 'Expires:',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize:
@@ -260,31 +269,201 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                for (var i = 0; i < 4; i++)
-                  if (i != 1 && !_subscriptionRepository.couponsEnabled)
-                    Container(
-                      margin: EdgeInsets.symmetric(
-                          vertical: ResponsivityUtils.compute(2.0, context)),
-                      height: ResponsivityUtils.compute(50.0, context),
-                      child: CurvedTransparentButton(
-                        child: Container(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            i == 0
-                                ? 'Upgrade or downgrade subscription'
-                                : i == 1
-                                    ? 'Apply coupon'
-                                    : i == 2
-                                        ? 'Manage payment methods'
-                                        : 'Cancel subscription',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
+                if (_cachedSubscription.status == 'active' &&
+                    _cachedSubscription.paymentMethodId.length > 0)
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                        vertical: ResponsivityUtils.compute(2.0, context)),
+                    height: ResponsivityUtils.compute(50.0, context),
+                    child: CurvedTransparentButton(
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Upgrade or downgrade subscription',
+                          style: TextStyle(
+                            color: Colors.white,
                           ),
                         ),
-                        onPressed: () {},
+                      ),
+                      onPressed: () {
+                        showModalWidgetLight(
+                            context,
+                            SubscriptionDialog(
+                              actionType: SubscriptionActionType.Renew,
+                            ));
+                      },
+                    ),
+                  ),
+                if (_cachedSubscription.status == 'active' &&
+                    _cachedSubscription.paymentMethodId.length > 0)
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                        vertical: ResponsivityUtils.compute(2.0, context)),
+                    height: ResponsivityUtils.compute(50.0, context),
+                    child: CurvedTransparentButton(
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Change billing cycle to ' +
+                              (_cachedSubscription.interval ==
+                                      SubscriptionPlanInterval.Month
+                                  ? 'yearly'
+                                  : 'monthly'),
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        showModalWidgetLight(
+                            context,
+                            SubscriptionDialog(
+                              actionType: SubscriptionActionType.Renew,
+                            ));
+                      },
+                    ),
+                  ),
+                if (_cachedSubscription.status == 'requires_payment_method' ||
+                    _cachedSubscription.paymentMethodId.length == 0)
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                        vertical: ResponsivityUtils.compute(2.0, context)),
+                    height: ResponsivityUtils.compute(50.0, context),
+                    child: CurvedTransparentButton(
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Attach payment method',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        showModalWidgetLight(
+                            context,
+                            SubscriptionDialog(
+                              actionType: SubscriptionActionType.Renew,
+                            ));
+                      },
+                    ),
+                  ),
+                if (_cachedSubscription.status == 'requires_action')
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                        vertical: ResponsivityUtils.compute(2.0, context)),
+                    height: ResponsivityUtils.compute(50.0, context),
+                    child: CurvedTransparentButton(
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Complete action',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        showModalWidgetLight(
+                            context,
+                            SubscriptionDialog(
+                              actionType: SubscriptionActionType.Renew,
+                            ));
+                      },
+                    ),
+                  ),
+                if (_cachedSubscription.status == 'canceled')
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                        vertical: ResponsivityUtils.compute(2.0, context)),
+                    height: ResponsivityUtils.compute(50.0, context),
+                    child: CurvedTransparentButton(
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Renew subscription',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        showModalWidgetLight(
+                            context,
+                            SubscriptionDialog(
+                              actionType: SubscriptionActionType.Renew,
+                            ));
+                      },
+                    ),
+                  ),
+                if (_subscriptionRepository.couponsEnabled &&
+                    _cachedSubscription.status == 'active' &&
+                    _cachedSubscription.paymentMethodId.length > 0)
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                        vertical: ResponsivityUtils.compute(2.0, context)),
+                    height: ResponsivityUtils.compute(50.0, context),
+                    child: CurvedTransparentButton(
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Apply coupon',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {},
+                    ),
+                  ),
+                Container(
+                  margin: EdgeInsets.symmetric(
+                      vertical: ResponsivityUtils.compute(2.0, context)),
+                  height: ResponsivityUtils.compute(50.0, context),
+                  child: CurvedTransparentButton(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Manage payment methods',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
+                    onPressed: () {
+                      showModalWidgetLight(
+                          context,
+                          SubscriptionDialog(
+                            actionType:
+                                SubscriptionActionType.ManagePaymentMethods,
+                          ));
+                    },
+                  ),
+                ),
+                if (_cachedSubscription.status != 'canceled')
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                        vertical: ResponsivityUtils.compute(2.0, context)),
+                    height: ResponsivityUtils.compute(50.0, context),
+                    child: CurvedTransparentButton(
+                      child: Container(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Cancel subscription',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        showModalWidgetLight(
+                            context,
+                            SubscriptionDialog(
+                              actionType: SubscriptionActionType.Cancel,
+                            ));
+                      },
+                    ),
+                  ),
               ],
             ),
           ],

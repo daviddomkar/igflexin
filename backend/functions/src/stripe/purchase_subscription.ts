@@ -64,6 +64,7 @@ export default async function purchaseSubscription(data: any, context: CallableC
 
     await admin.firestore().collection('users').doc(uid).update({
       subscription: {
+        id: subscription.id,
         status: 'active',
         interval: data.subscriptionInterval,
         type: data.subscriptionType,
@@ -87,6 +88,7 @@ export default async function purchaseSubscription(data: any, context: CallableC
 
       await admin.firestore().collection('users').doc(uid).update({
         subscription: {
+          id: subscription.id,
           status: 'active',
           interval: data.subscriptionInterval,
           type: data.subscriptionType,

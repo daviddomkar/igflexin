@@ -19,6 +19,10 @@ export const purchaseSubscription = https.onCall(async (data, context) => {
   return await (await import('./stripe/purchase_subscription')).default(data, context);
 });
 
+export const attachPaymentMethod = https.onCall(async (data, context) => {
+  await (await import('./stripe/attach_payment_method')).default(data, context);
+});
+
 export const webhook = https.onRequest(app);
 
 // Instagram functions

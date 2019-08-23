@@ -69,6 +69,7 @@ app.post('/', async (req, res) => {
 
       await userReference.update({
         subscription: {
+          id: subscription.id,
           status: 'active',
           interval: subscriptionData.interval,
           type: subscriptionData.type,
@@ -133,6 +134,7 @@ app.post('/', async (req, res) => {
       if (subscription.latest_invoice!.payment_intent!.status === 'requires_payment_method') {
         await userReference.update({
           subscription: {
+            id: subscription.id,
             status: 'requires_payment_method',
             interval: subscriptionData.interval,
             type: subscriptionData.type,
@@ -147,6 +149,7 @@ app.post('/', async (req, res) => {
       } else if (subscription.latest_invoice!.payment_intent!.status === 'requires_action') {
         await userReference.update({
           subscription: {
+            id: subscription.id,
             status: 'requires_action',
             interval: subscriptionData.interval,
             type: subscriptionData.type,
@@ -159,6 +162,66 @@ app.post('/', async (req, res) => {
             paymentMethodBrand: subscription.default_payment_method.card.brand,
             // @ts-ignore
             paymentMethodLast4: subscription.default_payment_method.card.last4,
+          }
+        });
+      }
+    } else {
+      // @ts-ignore
+      if (subscriptionEvent.status !== 'incomplete_expired' && subscriptionEvent.status !== 'incomplete'  && subscriptionEvent.status !== 'canceled'  && subscriptionEvent.status !== 'unpaid') {
+        // @ts-ignore
+        const subscription = await stripe.subscriptions.retrieve(subscriptionEvent.id, {
+          expand: ['latest_invoice.payment_intent', 'default_payment_method'],
+        });
+
+        const planId = subscription.plan!.id;
+
+        const subscriptionData = (await admin.firestore().collection('system').doc('stripe').collection('plans').doc(planId).get()).data()!;
+        const userReference = (await admin.firestore().collection('users').where('customerId', '==', subscription.customer as string).limit(1).get()).docs[0].ref;
+
+        let paymentIntentSecret = '';
+        let currentPeriodEnd = Timestamp.fromMillis(0);
+
+        try {
+          paymentIntentSecret = subscription.latest_invoice!.payment_intent!.client_secret;
+        } catch (e) {}
+
+        try {
+          currentPeriodEnd = Timestamp.fromMillis(subscription.current_period_end * 1000)
+        } catch (e) {}
+
+        let paymentMethodId = '';
+
+        try {
+          // @ts-ignore
+          paymentMethodId = subscription.default_payment_method.id;
+        } catch (e) {}
+
+        let paymentMethodBrand = '';
+
+        try {
+          // @ts-ignore
+          paymentMethodBrand = subscription.default_payment_method.card.brand;
+        } catch (e) {}
+
+        let paymentMethodLast4 = '';
+
+        try {
+          // @ts-ignore
+          paymentMethodLast4 = subscription.default_payment_method.card.last4;
+        } catch (e) {}
+
+        await userReference.update({
+          subscription: {
+            id: subscription.id,
+            status: subscription.cancel_at_period_end ? 'canceled' : 'active',
+            interval: subscriptionData.interval,
+            type: subscriptionData.type,
+            trialEnds: subscription.trial_end !== null ? Timestamp.fromMillis(subscription.trial_end * 1000) : null,
+            nextCharge: currentPeriodEnd,
+            paymentIntentSecret: paymentIntentSecret,
+            paymentMethodId: paymentMethodId,
+            paymentMethodBrand: paymentMethodBrand,
+            paymentMethodLast4: paymentMethodLast4,
           }
         });
       }
