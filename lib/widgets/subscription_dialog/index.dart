@@ -21,6 +21,9 @@ class WillPopNotifier extends ChangeNotifier {
 enum SubscriptionActionType {
   Purchase,
   UpgradeOrDowngrade,
+  ChangeBillingCycle,
+  RequiresPaymentMethod,
+  RequiresAction,
   ManagePaymentMethods,
   Cancel,
   Renew,
@@ -224,8 +227,22 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
         case SubscriptionActionType.UpgradeOrDowngrade:
           // TODO: Handle this case.
           break;
-        case SubscriptionActionType.ManagePaymentMethods:
+        case SubscriptionActionType.ChangeBillingCycle:
           // TODO: Handle this case.
+          break;
+        case SubscriptionActionType.RequiresPaymentMethod:
+          // TODO: Handle this case.
+          break;
+        case SubscriptionActionType.RequiresAction:
+          // TODO: Handle this case.
+          break;
+        case SubscriptionActionType.ManagePaymentMethods:
+          return PaymentMethods(
+            willPopNotifier: _willPopNotifier,
+            willPop: (willPop) {
+              _willPop = willPop;
+            },
+          );
           break;
         case SubscriptionActionType.Cancel:
           // TODO: Handle this case.

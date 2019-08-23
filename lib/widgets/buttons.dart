@@ -58,6 +58,7 @@ class CurvedTransparentButton extends StatelessWidget {
       color: Colors.transparent,
       child: child,
       onPressed: onPressed,
+      disabledTextColor: Colors.black,
       shape: const StadiumBorder(),
     );
   }
