@@ -210,6 +210,19 @@ class SubscriptionRepository with ChangeNotifier {
     await _stripe.authenticatePayment(paymentIntentSecret);
   }
 
+  Future<bool> attachPaymentMethod(PaymentMethod paymentMethod) async {
+    await _checkCustomerSession();
+    final result =
+        await Server.attachPaymentMethod(paymentMethodId: paymentMethod.id);
+
+    return result['requiresPayment'];
+  }
+
+  Future<void> payInvoice(PaymentMethod paymentMethod) async {
+    await _checkCustomerSession();
+    await Server.payInvoice(paymentMethodId: paymentMethod.id);
+  }
+
   Future<void> _beginCustomerSession() async {
     await CustomerSession.initCustomerSessionUsingFunction(
       (String apiVersion, EphemeralKeyUpdateListener keyUpdateListener) async {

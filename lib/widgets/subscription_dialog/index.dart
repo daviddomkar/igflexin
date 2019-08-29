@@ -8,9 +8,13 @@ import 'package:igflexin/utils/keyboard_utils.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:igflexin/widgets/subscription_dialog/action_required.dart';
+import 'package:igflexin/widgets/subscription_dialog/attach_payment_method.dart';
 import 'package:igflexin/widgets/subscription_dialog/confirm_payment.dart';
+import 'package:igflexin/widgets/subscription_dialog/pay_invoice.dart';
 import 'package:igflexin/widgets/subscription_dialog/payment_methods.dart';
 import 'package:provider/provider.dart';
+
+import '../../router_controller.dart';
 
 class WillPopNotifier extends ChangeNotifier {
   void notify() {
@@ -60,6 +64,8 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
   String _error;
   WillPopNotifier _willPopNotifier = new WillPopNotifier();
 
+  bool _requiresPayment = false;
+
   @override
   void initState() {
     super.initState();
@@ -94,6 +100,7 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
 
   @override
   void dispose() {
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -231,10 +238,79 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
           // TODO: Handle this case.
           break;
         case SubscriptionActionType.RequiresPaymentMethod:
-          // TODO: Handle this case.
+          if (_selectedPaymentMethod != null) {
+            if (_requiresPayment) {
+              return PayInvoice(
+                paymentMethod: _selectedPaymentMethod,
+                onSuccess: () {
+                  setState(() {
+                    _requiresPayment = false;
+                    _selectedPaymentMethod = null;
+                  });
+                  Navigator.maybePop(context);
+                },
+                onError: () {
+                  setState(() {
+                    _error =
+                        'Error occured while paying for subscription with new payment method. Please try again later.';
+                    _selectedPaymentMethod = null;
+                    _requiresPayment = false;
+                  });
+                },
+              );
+            } else {
+              return AttachPaymentMethod(
+                paymentMethod: _selectedPaymentMethod,
+                onSuccess: (requiresPayment) {
+                  if (requiresPayment) {
+                    setState(() {
+                      _requiresPayment = true;
+                    });
+                  } else {
+                    setState(() {
+                      _selectedPaymentMethod = null;
+                    });
+                    Navigator.maybePop(context);
+                  }
+                },
+                onError: () {
+                  setState(() {
+                    _error =
+                        'Error occured while attaching payment method. Please try again later.';
+                    _selectedPaymentMethod = null;
+                  });
+                },
+              );
+            }
+          } else {
+            return PaymentMethods(
+              title: 'Select card',
+              willPopNotifier: _willPopNotifier,
+              onPaymentMethodSelected: (paymentMethod) {
+                setState(() {
+                  _selectedPaymentMethod = paymentMethod;
+                });
+              },
+              willPop: (willPop) {
+                _willPop = willPop;
+              },
+            );
+          }
           break;
         case SubscriptionActionType.RequiresAction:
-          // TODO: Handle this case.
+          return ActionRequired(
+            paymentIntentSecret:
+                _subscriptionRepository.subscription.data.paymentIntentSecret,
+            routerController: widget.routerController,
+            onSuccess: () {
+              Navigator.maybePop(context);
+            },
+            onError: () {
+              setState(() {
+                _error = 'Could not complete action. Please try again later.';
+              });
+            },
+          );
           break;
         case SubscriptionActionType.ManagePaymentMethods:
           return PaymentMethods(
@@ -354,6 +430,14 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
         if (_paymentIntentSecret != null) {
           setState(() {
             _paymentIntentSecret = null;
+            _selectedPaymentMethod = null;
+          });
+          return false;
+        }
+
+        if (_requiresPayment) {
+          setState(() {
+            _requiresPayment = false;
             _selectedPaymentMethod = null;
           });
           return false;

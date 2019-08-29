@@ -6,7 +6,7 @@ import { STRIPE_SECRET_KEY } from "../core/keys";
 
 const stripe = new Stripe(STRIPE_SECRET_KEY);
 
-export default async function cancelSubscription(data: any, context: CallableContext) {
+export default async function renewSubscription(data: any, context: CallableContext) {
 
   if (!context.auth) {
     throw new functions.https.HttpsError('failed-precondition', 'The function must be called while authenticated.');
@@ -17,7 +17,7 @@ export default async function cancelSubscription(data: any, context: CallableCon
   const subscriptionId = userData.subscription.id;
 
   const subscription = await stripe.subscriptions.update(subscriptionId, {
-    cancel_at_period_end: true,
+    cancel_at_period_end: false,
   });
 
   await (await import('./update_subscription')).default(subscription);

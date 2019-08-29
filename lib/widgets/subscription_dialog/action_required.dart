@@ -12,13 +12,15 @@ class ActionRequired extends StatefulWidget {
     Key key,
     this.paymentIntentSecret,
     this.routerController,
+    this.onSuccess,
     this.onError,
     this.onDispose,
   }) : super(key: key);
 
   final RouterController routerController;
   final String paymentIntentSecret;
-  final Function() onError;
+  final Function onSuccess;
+  final Function onError;
   final Function onDispose;
 
   @override
@@ -95,7 +97,8 @@ class _ActionRequiredState extends State<ActionRequired>
 
   void _routerListener() {
     if (widget.routerController.currentRoute.name !=
-        'subscription_plan_payment_flow') {
+            'subscription_plan_payment_flow' &&
+        widget.onSuccess == null) {
       widget.onDispose();
     }
   }
@@ -104,6 +107,7 @@ class _ActionRequiredState extends State<ActionRequired>
   void dispose() {
     widget.routerController.removeListener(_routerListener);
     widget.routerController.unregisterAnimationController(_animationController);
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -196,6 +200,9 @@ class _ActionRequiredState extends State<ActionRequired>
                 try {
                   await _subscriptionRepository
                       .authenticatePayment(widget.paymentIntentSecret);
+                  if (widget.onSuccess != null) {
+                    widget.onSuccess();
+                  }
                 } catch (e) {
                   widget.onError();
                 }
