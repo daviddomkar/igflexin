@@ -492,9 +492,10 @@ class _CreditCardFormState extends State<CreditCardForm> {
                       controller: _cardHolderNameController,
                       keyboardType: TextInputType.text,
                       textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) {
+                      onFieldSubmitted: (_) async {
                         FocusScope.of(context)
                             .requestFocus(_cardHolderNameFocusNode);
+                        await validateForm();
                       },
                       validator: _validateField,
                       decoration: InputDecoration(
@@ -571,115 +572,7 @@ class _CreditCardFormState extends State<CreditCardForm> {
                       ],
                     ),
                     onPressed: () async {
-                      if (_formKey.currentState.validate()) {
-                        if (_addingCard) return;
-
-                        var expiryDate = _expiryDateController.text.split('/');
-
-                        setState(() {
-                          _addingCard = true;
-                        });
-
-                        try {
-                          await _subscriptionRepository.addCard(
-                            Card(
-                              number: _cardNumberController.text,
-                              cvv: _cvvController.text,
-                              expMonth: int.parse(expiryDate[0]),
-                              expYear: int.parse(expiryDate[1]),
-                            ),
-                            PaymentMethodBillingDetails(
-                              name: _cardHolderNameController.text,
-                              email: Provider.of<UserRepository>(context)
-                                  .user
-                                  .data
-                                  .email,
-                            ),
-                          );
-                          await widget.refreshPaymentMethods();
-                          Provider.of<SystemBarsRepository>(context)
-                              .setLightForeground();
-                          widget.onDisposeReady();
-                        } catch (e) {
-                          setState(() {
-                            _addingCard = false;
-                          });
-
-                          showModalWidgetLight(
-                              context,
-                              ErrorDialog(
-                                message:
-                                    'An error occurred while adding a card. Check your card information!',
-                              ));
-                        }
-                      } else {
-                        setState(() {
-                          _autoValidate = true;
-                        });
-
-                        if (_validateField(_cardNumber) != null) {
-                          _scrollController.animateTo(
-                            0.0,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.ease,
-                          );
-
-                          Future.delayed(const Duration(milliseconds: 500), () {
-                            _expiryDateFocusNode.unfocus();
-                            _cvvFocusNode.unfocus();
-                            _cardHolderNameFocusNode.unfocus();
-                            FocusScope.of(context)
-                                .requestFocus(_cardNumberFocusNode);
-                          });
-                        } else if (_validateExpiryDate(_expiryDate) != null) {
-                          _scrollController.animateTo(
-                            ResponsivityUtils.compute(20.0, context) * 4 +
-                                180.0,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.ease,
-                          );
-
-                          Future.delayed(const Duration(milliseconds: 500), () {
-                            _cardNumberFocusNode.unfocus();
-                            _cvvFocusNode.unfocus();
-                            _cardHolderNameFocusNode.unfocus();
-                            FocusScope.of(context)
-                                .requestFocus(_expiryDateFocusNode);
-                          });
-                        } else if (_validateField(_cvv) != null) {
-                          _scrollController.animateTo(
-                            ResponsivityUtils.compute(20.0, context) * 6 +
-                                180.0 +
-                                120.0,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.ease,
-                          );
-
-                          Future.delayed(const Duration(milliseconds: 500), () {
-                            _cardNumberFocusNode.unfocus();
-                            _cardHolderNameFocusNode.unfocus();
-                            _expiryDateFocusNode.unfocus();
-                            FocusScope.of(context).requestFocus(_cvvFocusNode);
-                          });
-                        } else if (_validateField(_cardHolderName) != null) {
-                          _scrollController.animateTo(
-                            ResponsivityUtils.compute(20.0, context) * 8 +
-                                180.0 +
-                                120.0 +
-                                120.0,
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.ease,
-                          );
-
-                          Future.delayed(const Duration(milliseconds: 500), () {
-                            _cardNumberFocusNode.unfocus();
-                            _cvvFocusNode.unfocus();
-                            _expiryDateFocusNode.unfocus();
-                            FocusScope.of(context)
-                                .requestFocus(_cardHolderNameFocusNode);
-                          });
-                        }
-                      }
+                      await validateForm();
                     },
                   ),
                 ),
@@ -689,6 +582,105 @@ class _CreditCardFormState extends State<CreditCardForm> {
         );
       });
     });
+  }
+
+  Future<void> validateForm() async {
+    if (_formKey.currentState.validate()) {
+      if (_addingCard) return;
+
+      var expiryDate = _expiryDateController.text.split('/');
+
+      setState(() {
+        _addingCard = true;
+      });
+
+      try {
+        await _subscriptionRepository.addCard(
+          Card(
+            number: _cardNumberController.text,
+            cvv: _cvvController.text,
+            expMonth: int.parse(expiryDate[0]),
+            expYear: int.parse(expiryDate[1]),
+          ),
+          PaymentMethodBillingDetails(
+            name: _cardHolderNameController.text,
+            email: Provider.of<UserRepository>(context).user.data.email,
+          ),
+        );
+        await widget.refreshPaymentMethods();
+        Provider.of<SystemBarsRepository>(context).setLightForeground();
+        widget.onDisposeReady();
+      } catch (e) {
+        setState(() {
+          _addingCard = false;
+        });
+
+        showModalWidgetLight(
+            context,
+            ErrorDialog(
+              message:
+                  'An error occurred while adding a card. Check your card information!',
+            ));
+      }
+    } else {
+      setState(() {
+        _autoValidate = true;
+      });
+
+      if (_validateField(_cardNumber) != null) {
+        _scrollController.animateTo(
+          0.0,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.ease,
+        );
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _expiryDateFocusNode.unfocus();
+          _cvvFocusNode.unfocus();
+          _cardHolderNameFocusNode.unfocus();
+          FocusScope.of(context).requestFocus(_cardNumberFocusNode);
+        });
+      } else if (_validateExpiryDate(_expiryDate) != null) {
+        _scrollController.animateTo(
+          ResponsivityUtils.compute(20.0, context) * 4 + 180.0,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.ease,
+        );
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _cardNumberFocusNode.unfocus();
+          _cvvFocusNode.unfocus();
+          _cardHolderNameFocusNode.unfocus();
+          FocusScope.of(context).requestFocus(_expiryDateFocusNode);
+        });
+      } else if (_validateField(_cvv) != null) {
+        _scrollController.animateTo(
+          ResponsivityUtils.compute(20.0, context) * 6 + 180.0 + 120.0,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.ease,
+        );
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _cardNumberFocusNode.unfocus();
+          _cardHolderNameFocusNode.unfocus();
+          _expiryDateFocusNode.unfocus();
+          FocusScope.of(context).requestFocus(_cvvFocusNode);
+        });
+      } else if (_validateField(_cardHolderName) != null) {
+        _scrollController.animateTo(
+          ResponsivityUtils.compute(20.0, context) * 8 + 180.0 + 120.0 + 120.0,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.ease,
+        );
+
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _cardNumberFocusNode.unfocus();
+          _cvvFocusNode.unfocus();
+          _expiryDateFocusNode.unfocus();
+          FocusScope.of(context).requestFocus(_cardHolderNameFocusNode);
+        });
+      }
+    }
   }
 
   String _validateField(String value) {

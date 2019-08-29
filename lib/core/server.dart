@@ -28,6 +28,44 @@ class Server {
     }
   }
 
+  static Future<dynamic> attachPaymentMethod({
+    String paymentMethodId,
+  }) async {
+    try {
+      final result = await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'attachPaymentMethod')
+          .call(<String, dynamic>{
+        'paymentMethodId': paymentMethodId,
+      });
+
+      return result.data;
+    } catch (e) {
+      print((e as CloudFunctionsException).code);
+      print((e as CloudFunctionsException).message);
+      print((e as CloudFunctionsException).details);
+      print('attachPaymentMethod call exception');
+      throw e;
+    }
+  }
+
+  static Future<void> payInvoice({
+    String paymentMethodId,
+  }) async {
+    try {
+      await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'payInvoice')
+          .call(<String, dynamic>{
+        'paymentMethodId': paymentMethodId,
+      });
+    } catch (e) {
+      print((e as CloudFunctionsException).code);
+      print((e as CloudFunctionsException).message);
+      print((e as CloudFunctionsException).details);
+      print('payInvoice call exception');
+      throw e;
+    }
+  }
+
   static Future<void> createUserData() async {
     try {
       await CloudFunctions.instance

@@ -20,7 +20,19 @@ export const purchaseSubscription = https.onCall(async (data, context) => {
 });
 
 export const attachPaymentMethod = https.onCall(async (data, context) => {
-  await (await import('./stripe/attach_payment_method')).default(data, context);
+  return await (await import('./stripe/attach_payment_method')).default(data, context);
+});
+
+export const payInvoice = https.onCall(async (data, context) => {
+  await (await import('./stripe/pay_invoice')).default(data, context);
+});
+
+export const cancelSubscription = https.onCall(async (data, context) => {
+  await (await import('./stripe/cancel_subscription')).default(data, context);
+});
+
+export const renewSubscription = https.onCall(async (data, context) => {
+  await (await import('./stripe/renew_subscription')).default(data, context);
 });
 
 export const webhook = https.onRequest(app);

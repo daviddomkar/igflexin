@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe_sdk/model/payment_method.dart';
+import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
 import '../buttons.dart';
 
-class AttachPaymentMethod extends StatefulWidget {
-  AttachPaymentMethod({
+class PayInvoice extends StatefulWidget {
+  PayInvoice({
     Key key,
     this.paymentMethod,
     this.onSuccess,
@@ -15,16 +16,16 @@ class AttachPaymentMethod extends StatefulWidget {
   }) : super(key: key);
 
   final PaymentMethod paymentMethod;
-  final Function(bool) onSuccess;
+  final Function onSuccess;
   final Function onError;
 
   @override
-  _AttachPaymentMethodState createState() {
-    return _AttachPaymentMethodState();
+  _PayInvoiceState createState() {
+    return _PayInvoiceState();
   }
 }
 
-class _AttachPaymentMethodState extends State<AttachPaymentMethod>
+class _PayInvoiceState extends State<PayInvoice>
     with SingleTickerProviderStateMixin {
   SubscriptionRepository _subscriptionRepository;
 
@@ -54,7 +55,7 @@ class _AttachPaymentMethodState extends State<AttachPaymentMethod>
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Attach payment method',
+            'Pay for subscription',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: ResponsivityUtils.compute(23.0, context),
@@ -69,11 +70,29 @@ class _AttachPaymentMethodState extends State<AttachPaymentMethod>
               horizontal: ResponsivityUtils.compute(10.0, context),
             ),
             child: Text(
-              'Payment method ' +
+              'Subscription already expired and needs to be renewed for the next month with ' +
                   '${widget.paymentMethod.card.brand[0].toUpperCase()}${widget.paymentMethod.card.brand.substring(1)}' +
                   ' card **' +
                   widget.paymentMethod.card.last4 +
-                  ' will be attached to subscription.',
+                  '. You will be charged ' +
+                  (Provider.of<SubscriptionRepository>(context)
+                              .subscription
+                              .data
+                              .interval ==
+                          SubscriptionPlanInterval.Month
+                      ? SubscriptionPlan(
+                              Provider.of<SubscriptionRepository>(context)
+                                  .subscription
+                                  .data
+                                  .type)
+                          .monthlyPrice
+                      : SubscriptionPlan(
+                              Provider.of<SubscriptionRepository>(context)
+                                  .subscription
+                                  .data
+                                  .type)
+                          .yearlyPrice) +
+                  '.',
               textAlign: TextAlign.center,
             ),
           ),
@@ -126,9 +145,8 @@ class _AttachPaymentMethodState extends State<AttachPaymentMethod>
               });
 
               try {
-                final requiresPayment = await _subscriptionRepository
-                    .attachPaymentMethod(widget.paymentMethod);
-                widget.onSuccess(requiresPayment);
+                await _subscriptionRepository.payInvoice(widget.paymentMethod);
+                widget.onSuccess();
               } catch (e) {
                 widget.onError();
               }

@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:igflexin/model/subscription_plan.dart';
+import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/subscription.dart';
+import 'package:igflexin/router_controller.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:igflexin/widgets/dialog.dart';
@@ -229,9 +232,11 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                         ],
                       ),
                     ),
-                  if ((_cachedSubscription.status == 'active' &&
-                          _cachedSubscription.paymentMethodId.length > 0) ||
-                      _cachedSubscription.paymentMethodId.length > 0)
+                  if (_cachedSubscription.status == 'active' &&
+                      _cachedSubscription.nextCharge
+                              .toDate()
+                              .millisecondsSinceEpoch >=
+                          Timestamp.now().millisecondsSinceEpoch)
                     Container(
                       margin: EdgeInsets.symmetric(
                         vertical: ResponsivityUtils.compute(4.0, context),
@@ -240,7 +245,9 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            _cachedSubscription.status == 'active'
+                            _cachedSubscription.status == 'active' &&
+                                    _cachedSubscription.paymentMethodId.length >
+                                        0
                                 ? 'Next charge:'
                                 : 'Expires:',
                             style: TextStyle(
@@ -343,7 +350,8 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                         showModalWidgetLight(
                             context,
                             SubscriptionDialog(
-                              actionType: SubscriptionActionType.Renew,
+                              actionType:
+                                  SubscriptionActionType.RequiresPaymentMethod,
                             ));
                       },
                     ),
@@ -365,10 +373,13 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                       ),
                       onPressed: () {
                         showModalWidgetLight(
-                            context,
-                            SubscriptionDialog(
-                              actionType: SubscriptionActionType.Renew,
-                            ));
+                          context,
+                          SubscriptionDialog(
+                            routerController:
+                                Router.of<MainRouterController>(context),
+                            actionType: SubscriptionActionType.RequiresAction,
+                          ),
+                        );
                       },
                     ),
                   ),
