@@ -223,6 +223,16 @@ class SubscriptionRepository with ChangeNotifier {
     await Server.payInvoice(paymentMethodId: paymentMethod.id);
   }
 
+  Future<void> cancelSubscription() async {
+    await _checkCustomerSession();
+    await Server.cancelSubscription();
+  }
+
+  Future<void> renewSubscription() async {
+    await _checkCustomerSession();
+    await Server.renewSubscription();
+  }
+
   Future<void> _beginCustomerSession() async {
     await CustomerSession.initCustomerSessionUsingFunction(
       (String apiVersion, EphemeralKeyUpdateListener keyUpdateListener) async {

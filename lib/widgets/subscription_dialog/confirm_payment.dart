@@ -17,12 +17,14 @@ class ConfirmPayment extends StatefulWidget {
     this.routerController,
     this.onError,
     this.onDispose,
+    this.willPop,
   }) : super(key: key);
 
   final RouterController routerController;
   final PaymentMethod selectedPaymentMethod;
   final Function(PaymentErrorException) onError;
   final Function onDispose;
+  final Function(bool) willPop;
 
   @override
   _ConfirmPaymentState createState() {
@@ -227,11 +229,15 @@ class _ConfirmPaymentState extends State<ConfirmPayment>
                   _processing = true;
                 });
 
+                widget.willPop(false);
+
                 try {
                   await _subscriptionRepository
                       .purchaseSelectedSubscriptionPlan(
                           widget.selectedPaymentMethod);
+                  widget.willPop(true);
                 } catch (e) {
+                  widget.willPop(true);
                   if (e is PaymentErrorException) {
                     widget.onError(e);
                   } else {
