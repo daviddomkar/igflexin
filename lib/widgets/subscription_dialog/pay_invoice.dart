@@ -13,11 +13,13 @@ class PayInvoice extends StatefulWidget {
     this.paymentMethod,
     this.onSuccess,
     this.onError,
+    this.willPop,
   }) : super(key: key);
 
   final PaymentMethod paymentMethod;
   final Function onSuccess;
   final Function onError;
+  final Function(bool) willPop;
 
   @override
   _PayInvoiceState createState() {
@@ -144,10 +146,14 @@ class _PayInvoiceState extends State<PayInvoice>
                 _processing = true;
               });
 
+              widget.willPop(false);
+
               try {
                 await _subscriptionRepository.payInvoice(widget.paymentMethod);
+                widget.willPop(true);
                 widget.onSuccess();
               } catch (e) {
+                widget.willPop(true);
                 widget.onError();
               }
             },

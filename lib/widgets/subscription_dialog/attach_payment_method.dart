@@ -12,11 +12,13 @@ class AttachPaymentMethod extends StatefulWidget {
     this.paymentMethod,
     this.onSuccess,
     this.onError,
+    this.willPop,
   }) : super(key: key);
 
   final PaymentMethod paymentMethod;
   final Function(bool) onSuccess;
   final Function onError;
+  final Function(bool) willPop;
 
   @override
   _AttachPaymentMethodState createState() {
@@ -125,11 +127,15 @@ class _AttachPaymentMethodState extends State<AttachPaymentMethod>
                 _processing = true;
               });
 
+              widget.willPop(false);
+
               try {
                 final requiresPayment = await _subscriptionRepository
                     .attachPaymentMethod(widget.paymentMethod);
+                widget.willPop(true);
                 widget.onSuccess(requiresPayment);
               } catch (e) {
+                widget.willPop(true);
                 widget.onError();
               }
             },

@@ -66,6 +66,34 @@ class Server {
     }
   }
 
+  static Future<void> cancelSubscription() async {
+    try {
+      await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'cancelSubscription')
+          .call();
+    } catch (e) {
+      print((e as CloudFunctionsException).code);
+      print((e as CloudFunctionsException).message);
+      print((e as CloudFunctionsException).details);
+      print('cancelSubscription call exception');
+      throw e;
+    }
+  }
+
+  static Future<void> renewSubscription() async {
+    try {
+      await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'renewSubscription')
+          .call();
+    } catch (e) {
+      print((e as CloudFunctionsException).code);
+      print((e as CloudFunctionsException).message);
+      print((e as CloudFunctionsException).details);
+      print('renewSubscription call exception');
+      throw e;
+    }
+  }
+
   static Future<void> createUserData() async {
     try {
       await CloudFunctions.instance

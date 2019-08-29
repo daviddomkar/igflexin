@@ -15,6 +15,7 @@ class ActionRequired extends StatefulWidget {
     this.onSuccess,
     this.onError,
     this.onDispose,
+    this.willPop,
   }) : super(key: key);
 
   final RouterController routerController;
@@ -22,6 +23,7 @@ class ActionRequired extends StatefulWidget {
   final Function onSuccess;
   final Function onError;
   final Function onDispose;
+  final Function(bool) willPop;
 
   @override
   _ActionRequiredState createState() {
@@ -197,13 +199,17 @@ class _ActionRequiredState extends State<ActionRequired>
                   _processing = true;
                 });
 
+                widget.willPop(false);
+
                 try {
                   await _subscriptionRepository
                       .authenticatePayment(widget.paymentIntentSecret);
+                  widget.willPop(true);
                   if (widget.onSuccess != null) {
                     widget.onSuccess();
                   }
                 } catch (e) {
+                  widget.willPop(true);
                   widget.onError();
                 }
               },

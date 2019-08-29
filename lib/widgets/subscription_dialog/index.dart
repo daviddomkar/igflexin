@@ -9,9 +9,11 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/widgets/buttons.dart';
 import 'package:igflexin/widgets/subscription_dialog/action_required.dart';
 import 'package:igflexin/widgets/subscription_dialog/attach_payment_method.dart';
+import 'package:igflexin/widgets/subscription_dialog/cancel.dart';
 import 'package:igflexin/widgets/subscription_dialog/confirm_payment.dart';
 import 'package:igflexin/widgets/subscription_dialog/pay_invoice.dart';
 import 'package:igflexin/widgets/subscription_dialog/payment_methods.dart';
+import 'package:igflexin/widgets/subscription_dialog/renew.dart';
 import 'package:provider/provider.dart';
 
 import '../../router_controller.dart';
@@ -179,6 +181,9 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
                   Navigator.pop(context);
                 }
               },
+              willPop: (willPop) {
+                _willPop = willPop;
+              },
             );
           } else if (_selectedPaymentMethod != null) {
             return ConfirmPayment(
@@ -214,6 +219,9 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
                   _disposeNow = true;
                   Navigator.pop(context);
                 }
+              },
+              willPop: (willPop) {
+                _willPop = willPop;
               },
             );
           } else {
@@ -257,6 +265,9 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
                     _requiresPayment = false;
                   });
                 },
+                willPop: (willPop) {
+                  _willPop = willPop;
+                },
               );
             } else {
               return AttachPaymentMethod(
@@ -279,6 +290,9 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
                         'Error occured while attaching payment method. Please try again later.';
                     _selectedPaymentMethod = null;
                   });
+                },
+                willPop: (willPop) {
+                  _willPop = willPop;
                 },
               );
             }
@@ -310,6 +324,9 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
                 _error = 'Could not complete action. Please try again later.';
               });
             },
+            willPop: (willPop) {
+              _willPop = willPop;
+            },
           );
           break;
         case SubscriptionActionType.ManagePaymentMethods:
@@ -321,10 +338,36 @@ class _SubscriptionDialogState extends State<SubscriptionDialog>
           );
           break;
         case SubscriptionActionType.Cancel:
-          // TODO: Handle this case.
+          return Cancel(
+            onSuccess: () {
+              Navigator.maybePop(context);
+            },
+            onError: () {
+              setState(() {
+                _error =
+                    'Could not cancel subscription at the moment. Please try again later.';
+              });
+            },
+            willPop: (willPop) {
+              _willPop = willPop;
+            },
+          );
           break;
         case SubscriptionActionType.Renew:
-          // TODO: Handle this case.
+          return Renew(
+            onSuccess: () {
+              Navigator.maybePop(context);
+            },
+            onError: () {
+              setState(() {
+                _error =
+                    'Could not renew subscription at the moment. Please try again later.';
+              });
+            },
+            willPop: (willPop) {
+              _willPop = willPop;
+            },
+          );
           break;
       }
     }
