@@ -37,7 +37,7 @@ class TermsOfServiceAndPrivacyPolicy extends StatelessWidget {
                   fontSize: ResponsivityUtils.compute(14.0, context)),
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  launch('https://igflexin.app/privacy-policy.htm');
+                  launch('https://igflexin.app/privacy-policy.html');
                 }),
           TextSpan(
               text: ' and ', style: TextStyle(color: Colors.white, fontSize: ResponsivityUtils.compute(14.0, context))),*/
@@ -50,7 +50,7 @@ class TermsOfServiceAndPrivacyPolicy extends StatelessWidget {
                   fontSize: ResponsivityUtils.compute(14.0, context)),
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  launch('https://igflexin.app/privacy-policy.htm');
+                  launch('https://igflexin.app/privacy-policy.html');
                 }),
           TextSpan(
               text: '.',

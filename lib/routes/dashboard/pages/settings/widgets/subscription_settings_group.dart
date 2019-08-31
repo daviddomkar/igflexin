@@ -276,6 +276,8 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+
+                /*
                 if (_cachedSubscription.status == 'active' &&
                     _cachedSubscription.paymentMethodId.length > 0)
                   Container(
@@ -301,6 +303,9 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                       },
                     ),
                   ),
+                */
+
+                /*
                 if (_cachedSubscription.status == 'active' &&
                     _cachedSubscription.paymentMethodId.length > 0)
                   Container(
@@ -330,6 +335,7 @@ class _SubscriptionSettingsGroupState extends State<SubscriptionSettingsGroup> {
                       },
                     ),
                   ),
+                 */
                 if (_cachedSubscription.status == 'requires_payment_method' ||
                     _cachedSubscription.paymentMethodId.length == 0)
                   Container(
