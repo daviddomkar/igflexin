@@ -178,7 +178,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: d20b43376c7040d07b32fecf603139b395fd0433
+      resolved-ref: fb68852ab4957cd79947c6cb7b02fe27ba2f4317
       url: "https://github.com/DEXIT33/flutter_stripe_sdk"
     source: git
     version: "0.0.1"
@@ -202,7 +202,7 @@ packages:
       name: google_sign_in
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.6"
+    version: "4.0.7"
   http:
     dependency: transitive
     description:
@@ -312,7 +312,7 @@ packages:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.6+3"
+    version: "1.1.6+4"
   stack_trace:
     dependency: transitive
     description:

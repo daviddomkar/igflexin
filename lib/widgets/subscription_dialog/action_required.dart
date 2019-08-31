@@ -84,7 +84,7 @@ class _ActionRequiredState extends State<ActionRequired>
     );
 
     _height = Tween(
-            begin: ResponsivityUtils.compute(190.0, context),
+            begin: ResponsivityUtils.compute(205.0, context),
             end: MediaQuery.of(context).size.height)
         .animate(
       CurvedAnimation(
