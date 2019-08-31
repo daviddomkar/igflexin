@@ -94,7 +94,7 @@ class _ConfirmPaymentState extends State<ConfirmPayment>
 
     _height = Tween(
             begin: ResponsivityUtils.compute(
-                _eligibleForFreeTrial ? 210.0 : 190.0, context),
+                _eligibleForFreeTrial ? 225.0 : 205.0, context),
             end: MediaQuery.of(context).size.height)
         .animate(
       CurvedAnimation(

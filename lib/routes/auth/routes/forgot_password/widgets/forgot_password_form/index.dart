@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:igflexin/repositories/auth_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/auth_info.dart';
+import 'package:igflexin/routes/auth/routes/forgot_password/widgets/forgot_password_form/send_email_for_password_change_button.dart';
 
 import 'package:igflexin/routes/auth/widgets/text_form_field.dart';
 
@@ -16,10 +17,8 @@ import 'package:igflexin/widgets/buttons.dart';
 
 import 'package:provider/provider.dart';
 
-import 'send_email_for_password_change_button.dart';
-
-class LogInForm extends StatefulWidget {
-  LogInForm({Key key, this.controller})
+class ForgotPasswordForm extends StatefulWidget {
+  ForgotPasswordForm({Key key, this.controller})
       : opacityTitle = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
           parent: controller,
           curve: new Interval(0.000, 0.250, curve: Curves.easeOut),
@@ -46,10 +45,10 @@ class LogInForm extends StatefulWidget {
   final Animation<double> offsetYTextFields;
 
   @override
-  _LogInFormState createState() => _LogInFormState();
+  _ForgotPasswordFormState createState() => _ForgotPasswordFormState();
 }
 
-class _LogInFormState extends State<LogInForm> {
+class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
@@ -184,7 +183,7 @@ class _LogInFormState extends State<LogInForm> {
             margin: EdgeInsets.only(top: ResponsivityUtils.compute(50.0, context)),
             child: Transform.scale(
               scale: 1.0,
-              child: LogInButton(
+              child: SendEmailForPasswordChangeButton(
                 controller: widget.controller,
                 onPressed: () {
                   if (_formKey.currentState.validate()) {
