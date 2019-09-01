@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' hide Title;
+import 'package:flutter/material.dart' hide Title, BackButton;
 import 'package:flutter/painting.dart';
 import 'package:flutter_system_bars/flutter_system_bars.dart';
 import 'package:igflexin/repositories/router_repository.dart';
@@ -10,6 +10,7 @@ import 'package:igflexin/routes/subscription_plan_payment_flow/widgets/google_pa
 import 'package:igflexin/routes/subscription_plan_payment_flow/widgets/summary.dart';
 import 'package:igflexin/routes/subscription_plan_payment_flow/widgets/title.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
+import 'package:igflexin/widgets/back_button.dart';
 import 'package:provider/provider.dart';
 
 class SubscriptionPlanPaymentFlow extends StatelessWidget {
@@ -18,49 +19,61 @@ class SubscriptionPlanPaymentFlow extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       resizeToAvoidBottomPadding: true,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.0, 1.0],
-            colors: [
-              Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor,
-              Provider.of<SubscriptionRepository>(context).planTheme.gradientEndColor,
-            ],
-          ),
-        ),
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints viewportConstraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: viewportConstraints.maxHeight,
-                ),
-                child: IntrinsicHeight(
-                  child: RouterAnimationController<MainRouterController>(
-                    duration: const Duration(milliseconds: 2000),
-                    builder: (context, controller) {
-                      return SystemBarsInfoProvider(
-                        builder: (context, child, systemBarsInfo, orientation) {
-                          return Container(
-                            margin: EdgeInsets.symmetric(
-                                vertical: systemBarsInfo.hasSoftwareNavigationBar
-                                    ? systemBarsInfo.navigationBarHeight
-                                    : systemBarsInfo.statusBarHeight),
-                            child: _SubscriptionPaymentFlow(
-                              controller: controller,
-                            ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                stops: [0.0, 1.0],
+                colors: [
+                  Provider.of<SubscriptionRepository>(context)
+                      .planTheme
+                      .gradientStartColor,
+                  Provider.of<SubscriptionRepository>(context)
+                      .planTheme
+                      .gradientEndColor,
+                ],
+              ),
+            ),
+            child: LayoutBuilder(
+              builder:
+                  (BuildContext context, BoxConstraints viewportConstraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: viewportConstraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: RouterAnimationController<MainRouterController>(
+                        duration: const Duration(milliseconds: 2000),
+                        builder: (context, controller) {
+                          return SystemBarsInfoProvider(
+                            builder:
+                                (context, child, systemBarsInfo, orientation) {
+                              return Container(
+                                margin: EdgeInsets.symmetric(
+                                    vertical:
+                                        systemBarsInfo.hasSoftwareNavigationBar
+                                            ? systemBarsInfo.navigationBarHeight
+                                            : systemBarsInfo.statusBarHeight),
+                                child: _SubscriptionPaymentFlow(
+                                  controller: controller,
+                                ),
+                              );
+                            },
                           );
                         },
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
+          ),
+          BackButton(),
+        ],
       ),
     );
   }
@@ -78,7 +91,8 @@ class _SubscriptionPaymentFlow extends StatelessWidget {
       children: [
         Title(
           controller: controller,
-          interval: Provider.of<SubscriptionRepository>(context).selectedPlanInterval,
+          interval:
+              Provider.of<SubscriptionRepository>(context).selectedPlanInterval,
           type: Provider.of<SubscriptionRepository>(context).selectedPlanType,
         ),
         Padding(
@@ -91,22 +105,27 @@ class _SubscriptionPaymentFlow extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(bottom: ResponsivityUtils.compute(5.0, context)),
+          padding:
+              EdgeInsets.only(bottom: ResponsivityUtils.compute(5.0, context)),
           child: CreditOrDebitCardButton(
             controller: controller,
           ),
         ),
-        if (Provider.of<SubscriptionRepository>(context).isApplePayAvailable) ...{
+        if (Provider.of<SubscriptionRepository>(context)
+            .isApplePayAvailable) ...{
           Padding(
-            padding: EdgeInsets.only(top: ResponsivityUtils.compute(5.0, context)),
+            padding:
+                EdgeInsets.only(top: ResponsivityUtils.compute(5.0, context)),
             child: ApplePayButton(
               controller: controller,
             ),
           ),
         },
-        if (Provider.of<SubscriptionRepository>(context).isGooglePayAvailable) ...{
+        if (Provider.of<SubscriptionRepository>(context)
+            .isGooglePayAvailable) ...{
           Padding(
-            padding: EdgeInsets.only(top: ResponsivityUtils.compute(5.0, context)),
+            padding:
+                EdgeInsets.only(top: ResponsivityUtils.compute(5.0, context)),
             child: GooglePayButton(
               controller: controller,
             ),
