@@ -7,7 +7,6 @@ import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/repositories/system_bars_repository.dart';
 import 'package:igflexin/repositories/user_repository.dart';
 import 'package:igflexin/router_controller.dart';
-import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -54,45 +53,9 @@ class IGFlexinApp extends StatelessWidget {
             fontFamily: 'LatoLatin',
           ),
           home: RouterPopScope(
-            child: Stack(
-              children: [
-                Router<MainRouterController>(
-                  builder: (context) => MainRouterController(context),
-                ),
-                BackButton(),
-              ],
+            child: Router<MainRouterController>(
+              builder: (context) => MainRouterController(context),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class BackButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Material(
-        type: MaterialType.transparency,
-        color: Colors.transparent,
-        child: Container(
-          margin: EdgeInsets.only(
-            top: ResponsivityUtils.compute(30.0, context),
-          ),
-          child: IconButton(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            icon: Icon(
-              Icons.arrow_back_ios,
-              size: ResponsivityUtils.compute(40.0, context),
-              color: Colors.white,
-            ),
-            onPressed: () {
-              print('jaj');
-              Navigator.maybePop(context);
-            },
           ),
         ),
       ),

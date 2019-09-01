@@ -150,6 +150,13 @@ packages:
       url: "https://github.com/DEXIT33/flutter_credit_card"
     source: git
     version: "0.1.1"
+  flutter_email_sender:
+    dependency: "direct main"
+    description:
+      name: flutter_email_sender
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.3"
   flutter_facebook_login:
     dependency: "direct main"
     description:

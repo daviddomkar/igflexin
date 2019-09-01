@@ -1,6 +1,6 @@
-import 'package:flutter/widgets.dart';
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 class RouterRepository {
@@ -34,7 +34,8 @@ class RouterRepository {
     await Future.wait(futures);
   }
 
-  Future<void> reverseAnimationControllersExceptLast(RouterController controller) async {
+  Future<void> reverseAnimationControllersExceptLast(
+      RouterController controller) async {
     var startIndex = _controllers.indexOf(controller);
 
     List<Future<void>> futures = List<Future<void>>();
@@ -43,7 +44,8 @@ class RouterRepository {
       var index = 0;
 
       _controllers[i].controllers.forEach((animationController) {
-        if (i != startIndex || index != _controllers[i].controllers.length - 1) {
+        if (i != startIndex ||
+            index != _controllers[i].controllers.length - 1) {
           futures.add(animationController.reverse());
         }
 
@@ -93,7 +95,11 @@ class Router<C extends RouterController> extends StatefulWidget {
   final ValueBuilder<C> builder;
 
   static C of<C extends RouterController>(BuildContext context) {
-    return Provider.of<C>(context);
+    try {
+      return Provider.of<C>(context);
+    } catch (e) {
+      return null;
+    }
   }
 
   @override
@@ -158,7 +164,8 @@ abstract class RouterController extends ChangeNotifier {
   RouterController(BuildContext context, this.routes, String startingRouteName)
       : controllers = List(),
         this.history = List() {
-    this.currentRoute = this.routes.firstWhere((route) => route.name == startingRouteName);
+    this.currentRoute =
+        this.routes.firstWhere((route) => route.name == startingRouteName);
     this._routerRepository = Provider.of<RouterRepository>(context);
   }
 
@@ -203,7 +210,8 @@ abstract class RouterController extends ChangeNotifier {
       await _routerRepository.reverseAnimationControllersExceptLast(this);
     }
 
-    Route nextRoute = this.routes.firstWhere((route) => route.name == routeName);
+    Route nextRoute =
+        this.routes.firstWhere((route) => route.name == routeName);
 
     if (nextRoute.clearsHistory) {
       history.clear();
@@ -256,7 +264,8 @@ abstract class RouterController extends ChangeNotifier {
 typedef Widget RouterAnimationControllerBuilder(
     BuildContext context, AnimationController controller);
 
-class RouterAnimationController<C extends RouterController> extends StatefulWidget {
+class RouterAnimationController<C extends RouterController>
+    extends StatefulWidget {
   RouterAnimationController({@required this.duration, @required this.builder});
 
   final Duration duration;
@@ -269,7 +278,8 @@ class RouterAnimationController<C extends RouterController> extends StatefulWidg
 }
 
 class _RouterAnimationControllerState<C extends RouterController>
-    extends State<RouterAnimationController> with SingleTickerProviderStateMixin {
+    extends State<RouterAnimationController>
+    with SingleTickerProviderStateMixin {
   RouterController _routerController;
   AnimationController _controller;
 

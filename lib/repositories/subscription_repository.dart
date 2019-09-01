@@ -4,22 +4,19 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/widgets.dart';
+import 'package:flutter_stripe_sdk/customer_session.dart';
+import 'package:flutter_stripe_sdk/ephemeral_key_update_listener.dart';
 import 'package:flutter_stripe_sdk/model/card.dart';
 import 'package:flutter_stripe_sdk/model/payment_method.dart';
 import 'package:flutter_stripe_sdk/model/payment_method_create_params.dart';
+import 'package:flutter_stripe_sdk/payment_configuration.dart';
+import 'package:flutter_stripe_sdk/stripe.dart';
 import 'package:igflexin/core/server.dart';
 import 'package:igflexin/model/payment_error.dart';
-
 import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/model/subscription_plan_theme.dart';
 import 'package:igflexin/resources/subscription.dart';
-
-import 'package:flutter_stripe_sdk/stripe.dart';
-import 'package:flutter_stripe_sdk/payment_configuration.dart';
-import 'package:flutter_stripe_sdk/customer_session.dart';
-import 'package:flutter_stripe_sdk/ephemeral_key_update_listener.dart';
 
 class SubscriptionRepository with ChangeNotifier {
   SubscriptionRepository()
@@ -33,7 +30,7 @@ class SubscriptionRepository with ChangeNotifier {
         _couponsEnabled = false {
     _authSubscription = _auth.onAuthStateChanged.listen(_onAuthStateChanged);
 
-    PaymentConfiguration.init('pk_test_U7q3vkJbTG0ROvB1IHEznZ4s00haOEFHjX');
+    PaymentConfiguration.init('pk_live_quXubQm5xOZXtEr53iq5fmHs00pse8eiUq');
     _stripe = Stripe(PaymentConfiguration.instance.publishableKey);
 
     // TODO make this actually true

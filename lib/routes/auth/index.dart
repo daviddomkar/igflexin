@@ -28,25 +28,21 @@ class Auth extends StatelessWidget {
             ],
           ),
         ),
-        child: Align(
-          alignment: Alignment.center,
-          child: LayoutBuilder(
-            builder:
-                (BuildContext context, BoxConstraints viewportConstraints) {
-              return SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: viewportConstraints.maxHeight,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Router<AuthRouterController>(
-                      builder: (context) => AuthRouterController(context),
-                    ),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints viewportConstraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: viewportConstraints.maxHeight,
+                ),
+                child: IntrinsicHeight(
+                  child: Router<AuthRouterController>(
+                    builder: (context) => AuthRouterController(context),
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
