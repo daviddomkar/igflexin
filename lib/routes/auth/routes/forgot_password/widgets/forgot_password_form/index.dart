@@ -14,6 +14,7 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/utils/validation_utils.dart';
 import 'package:igflexin/widgets/dialog.dart';
 import 'package:igflexin/widgets/buttons.dart';
+import 'package:igflexin/widgets/error_dialog.dart';
 
 import 'package:provider/provider.dart';
 
@@ -53,61 +54,10 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
 
-  bool _errorDialogVisible = false;
+  bool _processing = false;
+
   bool _autoValidate = false;
   String _email;
-  String _password;
-
-  AuthRepository _authRepository;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    _authRepository = Provider.of<AuthRepository>(context);
-    _authRepository.addListener(_authInfoListener);
-  }
-
-  void _authInfoListener() {
-    if (_authRepository.info.state == AuthInfoState.Error) {
-      if (!_errorDialogVisible) {
-        _errorDialogVisible = true;
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return RoundedAlertDialog(
-              title: Text(
-                'Log In Error',
-                style: TextStyle(
-                    color:
-                        Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor),
-              ),
-              content: Text(
-                AuthRepository.getAuthErrorMessage(_authRepository.info.data),
-                textAlign: TextAlign.center,
-              ),
-              actions: [
-                GradientButton(
-                  width: ResponsivityUtils.compute(80.0, context),
-                  height: ResponsivityUtils.compute(35.0, context),
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                        fontSize: ResponsivityUtils.compute(15.0, context), color: Colors.white),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          },
-        ).then((value) {
-          _errorDialogVisible = false;
-        });
-      }
-    }
-  }
 
   Widget _buildAnimation(BuildContext context, Widget child) {
     return Form(
@@ -124,7 +74,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
               child: Container(
                 margin: EdgeInsets.only(bottom: ResponsivityUtils.compute(30.0, context)),
                 child: Text(
-                  'LOG IN TO YOUR ACCOUNT',
+                  'FORGOT YOUR PASSWORD?',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -145,7 +95,7 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
                   focusNode: _emailFocusNode,
                   child: WhiteTextFormField(
                     focusNode: _emailFocusNode,
-                    label: 'Email',
+                    label: 'Your IGFlexin Email',
                     onSaved: (value) {
                       value = ValidationUtils.trimLeadingAndTrailingWhitespace(value);
                       _email = value;
@@ -157,39 +107,33 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
               ),
             ),
           ),
-          Transform.translate(
-            offset: Offset(0.0, widget.offsetYTextFields.value),
-            child: Opacity(
-              opacity: widget.opacityTextFields.value,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: ResponsivityUtils.compute(10.0, context)),
-                child: EnsureVisibleWhenFocused(
-                  focusNode: _passwordFocusNode,
-                  child: WhiteTextFormField(
-                    focusNode: _passwordFocusNode,
-                    label: 'Password',
-                    onSaved: (value) {
-                      value = ValidationUtils.trimLeadingAndTrailingWhitespace(value);
-                      _password = value;
-                    },
-                    validator: _validatePassword,
-                    obscureText: true,
-                  ),
-                ),
-              ),
-            ),
-          ),
           Container(
-            margin: EdgeInsets.only(top: ResponsivityUtils.compute(50.0, context)),
+            margin: EdgeInsets.only(top: ResponsivityUtils.compute(30.0, context)),
             child: Transform.scale(
               scale: 1.0,
               child: SendEmailForPasswordChangeButton(
+                processing: _processing,
                 controller: widget.controller,
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     _formKey.currentState.save();
-                    Provider.of<AuthRepository>(context)
-                        .logInWithEmailAndPassword(_email, _password);
+                    try {
+                      if (_processing) return;
+
+                      setState(() {
+                        _processing = true;
+                      });
+                      await Provider.of<AuthRepository>(context).sendPasswordResetEmail(email: _email);
+                      Navigator.maybePop(context);
+                    } catch (e) {
+                      setState(() {
+                        _processing = false;
+                      });
+                      showModalWidget(context, ErrorDialog(
+                        title: 'Error',
+                        message: 'Could not send password reset email at the moment. Try again later!',
+                      ));
+                    }
                   } else {
                     setState(
                       () {
@@ -217,21 +161,6 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
       return 'This field is required!';
     } else if (!regex.hasMatch(value)) {
       return 'Enter valid email!';
-    } else {
-      return null;
-    }
-  }
-
-  String _validatePassword(String value) {
-    Pattern pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$';
-    RegExp regex = new RegExp(pattern);
-
-    value = ValidationUtils.trimLeadingAndTrailingWhitespace(value);
-
-    if (value.isEmpty) {
-      return 'This field is required!';
-    } else if (!regex.hasMatch(value)) {
-      return 'Password has to have minimum of eight characters, at least one uppercase letter, one lowercase letter and one number!';
     } else {
       return null;
     }

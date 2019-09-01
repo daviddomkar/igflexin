@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart' hide Route;
-
 import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
-
 import 'package:igflexin/routes/auth/router_controller.dart';
 import 'package:provider/provider.dart';
 
@@ -30,21 +28,25 @@ class Auth extends StatelessWidget {
             ],
           ),
         ),
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints viewportConstraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: viewportConstraints.maxHeight,
-                ),
-                child: IntrinsicHeight(
-                  child: Router<AuthRouterController>(
-                    builder: (context) => AuthRouterController(context),
+        child: Align(
+          alignment: Alignment.center,
+          child: LayoutBuilder(
+            builder:
+                (BuildContext context, BoxConstraints viewportConstraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: viewportConstraints.maxHeight,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Router<AuthRouterController>(
+                      builder: (context) => AuthRouterController(context),
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

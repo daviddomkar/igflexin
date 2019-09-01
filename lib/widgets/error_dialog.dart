@@ -9,10 +9,11 @@ import 'package:provider/provider.dart';
 import 'buttons.dart';
 
 class ErrorDialog extends StatefulWidget {
-  ErrorDialog({Key key, this.title, this.message}) : super(key: key);
+  ErrorDialog({Key key, this.title, this.message, this.onClose}) : super(key: key);
 
   final String title;
   final String message;
+  final Function onClose;
 
   @override
   _ErrorDialogState createState() {
@@ -151,6 +152,9 @@ class _ErrorDialogState extends State<ErrorDialog>
                                         ),
                                         onPressed: () {
                                           setState(() {
+                                            if (widget.onClose != null) {
+                                              widget.onClose();
+                                            }
                                             Navigator.maybePop(context);
                                           });
                                         },
