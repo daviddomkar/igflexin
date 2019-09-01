@@ -8,10 +8,9 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 
 import 'package:flutter_system_bars/flutter_system_bars.dart';
 
-import '../../widgets/auth_provider_icons_bar.dart';
 import 'widgets/problems_with_logging_in.dart';
 
-const double _BOTTOM_HEIGHT_ = 104.0;
+const double _BOTTOM_HEIGHT_ = 60.0;
 
 class ForgotPassword extends StatelessWidget {
   Widget build(BuildContext context) {
@@ -76,16 +75,10 @@ class _ForgotPassword extends StatelessWidget {
             height: ResponsivityUtils.compute(_BOTTOM_HEIGHT_, context),
             margin: EdgeInsets.only(
                 bottom:
-                    orientation == Orientation.portrait ? systemBarsInfo.navigationBarHeight : 0.0),
+                orientation == Orientation.portrait ? systemBarsInfo.navigationBarHeight : 0.0),
             child: Align(
               alignment: Alignment.topCenter,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  AuthProviderIconsBar(controller: controller),
-                  ProblemsWithLoggingIn(controller: controller),
-                ],
-              ),
+              child: ProblemsWithLoggingIn(controller: controller),
             ),
           ),
         ],

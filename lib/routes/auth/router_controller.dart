@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart' hide Route;
 import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/routes/auth/routes/forgot_password/index.dart';
 
 import 'routes/intro/index.dart';
 import 'routes/log_in/index.dart';
@@ -16,6 +17,9 @@ class AuthRouterController extends RouterController {
       }),
       Route('signup', (context) {
         return SignUp();
+      }),
+      Route('forgot_password', (context) {
+        return ForgotPassword();
       }),
     ];
   }

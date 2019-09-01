@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Dialog, AlertDialog;
 import 'package:igflexin/repositories/system_bars_repository.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
+import 'package:igflexin/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 
 void showModalWidgetLight(BuildContext context, Widget child) {

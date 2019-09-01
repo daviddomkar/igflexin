@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:igflexin/repositories/router_repository.dart';
 
 import 'package:igflexin/utils/responsivity_utils.dart';
 
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../router_controller.dart';
 
 class ProblemsWithLoggingIn extends StatelessWidget {
   ProblemsWithLoggingIn({Key key, this.controller})
@@ -31,7 +34,7 @@ class ProblemsWithLoggingIn extends StatelessWidget {
           ),
           recognizer: TapGestureRecognizer()
             ..onTap = () {
-              launch('https://example.com'); //TODO tady to musí něco udělat normálního xd
+              Router.of<AuthRouterController>(context).push('forgot_password');
             },
         ),
       ),

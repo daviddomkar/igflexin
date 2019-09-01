@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:igflexin/repositories/router_repository.dart';
+import 'package:igflexin/routes/auth/router_controller.dart';
 
 import 'package:igflexin/utils/responsivity_utils.dart';
 
@@ -22,17 +24,32 @@ class ProblemsWithLoggingIn extends StatelessWidget {
       opacity: opacity.value,
       child: RichText(
         textAlign: TextAlign.center,
-        text: TextSpan(
-          text: 'Problems with logging in?',
-          style: TextStyle(
-            color: Colors.white,
-            decoration: TextDecoration.underline,
-            fontSize: ResponsivityUtils.compute(14.0, context),
+        text: TextSpan(children: [
+          TextSpan(
+            text: 'Other problems? ',
+            style: TextStyle(
+              color: Colors.white,
+              decoration: TextDecoration.underline,
+              fontSize: ResponsivityUtils.compute(14.0, context),
+            ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                Router.of<AuthRouterController>(context);
+              },
           ),
-          recognizer: TapGestureRecognizer()
-            ..onTap = () {
-              launch('https://example.com'); //TODO tady to musí něco udělat normálního xd
-            },
+        TextSpan(
+            text: 'Contact us.',
+            style: TextStyle(
+                color: Colors.white,
+                decoration: TextDecoration.underline,
+                fontWeight: FontWeight.bold,
+                fontSize: ResponsivityUtils.compute(14.0, context)),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                launch('https://igflexin.app/privacy-policy.html');
+              }),
+        ],
+
         ),
       ),
     );

@@ -94,6 +94,10 @@ class AuthRepository with ChangeNotifier {
     await _auth.signOut();
   }
 
+  Future<void> sendPasswordResetEmail({@required String email}) async {
+    await _auth.sendPasswordResetEmail(email: email);
+  }
+
   Future<void> _onAuthStateChanged(FirebaseUser firebaseUser) async {
     if (firebaseUser == null) {
       _info = AuthInfoResource(state: AuthInfoState.None, data: null);
