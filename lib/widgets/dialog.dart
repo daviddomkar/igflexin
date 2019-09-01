@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Dialog, AlertDialog;
 import 'package:igflexin/repositories/system_bars_repository.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
+import 'package:igflexin/widgets/error_dialog.dart';
 import 'package:provider/provider.dart';
 
 void showModalWidgetLight(BuildContext context, Widget child) {
@@ -20,6 +21,20 @@ void showModalWidgetLight(BuildContext context, Widget child) {
   ).then((_) {
     Provider.of<SystemBarsRepository>(context).setDarkForeground();
   });
+}
+
+void showModalWidget(BuildContext context, Widget child) {
+  showGeneralDialog(
+    context: context,
+    pageBuilder: (BuildContext buildContext, Animation<double> animation,
+        Animation<double> secondaryAnimation) {
+      return child;
+    },
+    barrierDismissible: false,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: null,
+    transitionDuration: const Duration(milliseconds: 0),
+  );
 }
 
 class RoundedAlertDialog extends StatefulWidget {

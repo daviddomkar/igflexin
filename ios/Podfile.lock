@@ -200,7 +200,7 @@ PODS:
   - sqflite (0.0.1):
     - Flutter
     - FMDB (~> 2.7.2)
-  - Stripe (15.0.1)
+  - Stripe (16.0.7)
   - url_launcher (0.0.1):
     - Flutter
 
@@ -212,7 +212,7 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
-  - Flutter (from `.symlinks/flutter/ios-release`)
+  - Flutter (from `.symlinks/flutter/ios`)
   - flutter_facebook_login (from `.symlinks/plugins/flutter_facebook_login/ios`)
   - flutter_statusbarcolor (from `.symlinks/plugins/flutter_statusbarcolor/ios`)
   - flutter_stripe_sdk (from `.symlinks/plugins/flutter_stripe_sdk/ios`)
@@ -269,7 +269,7 @@ EXTERNAL SOURCES:
   firebase_messaging:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
-    :path: ".symlinks/flutter/ios-release"
+    :path: ".symlinks/flutter/ios"
   flutter_facebook_login:
     :path: ".symlinks/plugins/flutter_facebook_login/ios"
   flutter_statusbarcolor:
@@ -292,7 +292,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   Stripe:
-    :commit: ea7c1671a0ec25cafb89b51195f312bad56f2ac1
+    :commit: 0e6e09ea8f9409f573b8d79282d171f4ce5e604e
     :git: https://github.com/DEXIT33/stripe-ios.git
 
 SPEC CHECKSUMS:
@@ -338,7 +338,7 @@ SPEC CHECKSUMS:
   path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
   Protobuf: 3f617b9a6e73605565086864c9bc26b2bf2dd5a3
   sqflite: ff1d9da63c06588cc8d1faf7256d741f16989d5a
-  Stripe: 2c4d0a88817361a102886315ff452d90f65e898b
+  Stripe: 67f64f64314503b396a71c55535d5307d7e5c9ff
   url_launcher: 0067ddb8f10d36786672aa0722a21717dba3a298
 
 PODFILE CHECKSUM: c284698fb3e01a28849f5030e48a96cc9b4bc7ce

@@ -4,21 +4,19 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/widgets.dart';
+import 'package:flutter_stripe_sdk/customer_session.dart';
+import 'package:flutter_stripe_sdk/ephemeral_key_update_listener.dart';
 import 'package:flutter_stripe_sdk/model/card.dart';
 import 'package:flutter_stripe_sdk/model/payment_method.dart';
 import 'package:flutter_stripe_sdk/model/payment_method_create_params.dart';
+import 'package:flutter_stripe_sdk/payment_configuration.dart';
+import 'package:flutter_stripe_sdk/stripe.dart';
 import 'package:igflexin/core/server.dart';
-
+import 'package:igflexin/model/payment_error.dart';
 import 'package:igflexin/model/subscription_plan.dart';
 import 'package:igflexin/model/subscription_plan_theme.dart';
 import 'package:igflexin/resources/subscription.dart';
-
-import 'package:flutter_stripe_sdk/stripe.dart';
-import 'package:flutter_stripe_sdk/payment_configuration.dart';
-import 'package:flutter_stripe_sdk/customer_session.dart';
-import 'package:flutter_stripe_sdk/ephemeral_key_update_listener.dart';
 
 class SubscriptionRepository with ChangeNotifier {
   SubscriptionRepository()
@@ -28,10 +26,11 @@ class SubscriptionRepository with ChangeNotifier {
         _firestore = Firestore.instance,
         _customerSession = null,
         _isApplePayAvailable = false,
-        _isGooglePayAvailable = false {
+        _isGooglePayAvailable = false,
+        _couponsEnabled = false {
     _authSubscription = _auth.onAuthStateChanged.listen(_onAuthStateChanged);
 
-    PaymentConfiguration.init('pk_test_U7q3vkJbTG0ROvB1IHEznZ4s00haOEFHjX');
+    PaymentConfiguration.init('pk_live_quXubQm5xOZXtEr53iq5fmHs00pse8eiUq');
     _stripe = Stripe(PaymentConfiguration.instance.publishableKey);
 
     // TODO make this actually true
@@ -43,6 +42,8 @@ class SubscriptionRepository with ChangeNotifier {
     if (Platform.isAndroid) {
       _isGooglePayAvailable = false;
     }
+
+    _couponsEnabled = false;
   }
 
   SubscriptionPlanTheme _planTheme =
@@ -66,9 +67,11 @@ class SubscriptionRepository with ChangeNotifier {
 
   bool _isApplePayAvailable;
   bool _isGooglePayAvailable;
+  bool _couponsEnabled;
 
   bool get isApplePayAvailable => _isApplePayAvailable;
   bool get isGooglePayAvailable => _isGooglePayAvailable;
+  bool get couponsEnabled => _couponsEnabled;
 
   StreamSubscription<FirebaseUser> _authSubscription;
   StreamSubscription<DocumentSnapshot> _userDataSubscription;
@@ -94,16 +97,27 @@ class SubscriptionRepository with ChangeNotifier {
   Future<void> _onUserDataChanged(DocumentSnapshot data) async {
     if (data.exists) {
       _beginCustomerSession();
-      if (data.data.containsKey('subscription')) {
+      if (data.data.containsKey('subscription') &&
+          data.data['subscription'] != null) {
         _subscription = SubscriptionResource(
             state: SubscriptionState.Active,
             data: Subscription(
+              status: data.data['subscription']['status'] as String,
               interval: getSubscriptionPlanIntervalFromString(
                 data.data['subscription']['interval'] as String,
               ),
               type: getSubscriptionPlanTypeFromString(
                 data.data['subscription']['type'] as String,
               ),
+              nextCharge: data.data['subscription']['nextCharge'],
+              trialEnds: data.data['subscription']['trialEnds'],
+              paymentIntentSecret: data.data['subscription']
+                  ['paymentIntentSecret'],
+              paymentMethodId: data.data['subscription']['paymentMethodId'],
+              paymentMethodBrand: data.data['subscription']
+                  ['paymentMethodBrand'],
+              paymentMethodLast4: data.data['subscription']
+                  ['paymentMethodLast4'],
             ));
 
         _planTheme = SubscriptionPlanTheme(_subscription.data.type);
@@ -163,15 +177,57 @@ class SubscriptionRepository with ChangeNotifier {
     await _customerSession.updateCurrentCustomer();
   }
 
+  Future<void> removePaymentMethod(PaymentMethod paymentMethod) async {
+    await _checkCustomerSession();
+    await _customerSession.detachPaymentMethod(id: paymentMethod.id);
+    await _customerSession.updateCurrentCustomer();
+  }
+
   Future<void> purchaseSelectedSubscriptionPlan(
       PaymentMethod paymentMethod) async {
     await _checkCustomerSession();
-    await Server.purchaseSubscription(
+    final result = await Server.purchaseSubscription(
       paymentMethodId: paymentMethod.id,
       subscriptionInterval:
           getStringFromSubscriptionPlanInterval(_selectedPlanInterval),
       subscriptionType: getStringFromSubscriptionPlanType(_selectedPlanType),
     );
+
+    if (result['status'] == 'requires_action') {
+      throw new PaymentErrorException(
+          PaymentErrorType.RequiresAction, result['clientSecret']);
+    } else if (result['status'] == 'requires_payment_method') {
+      throw new PaymentErrorException(
+          PaymentErrorType.RequiresPaymentMethod, null);
+    }
+  }
+
+  Future<void> authenticatePayment(String paymentIntentSecret) async {
+    await _checkCustomerSession();
+    await _stripe.authenticatePayment(paymentIntentSecret);
+  }
+
+  Future<bool> attachPaymentMethod(PaymentMethod paymentMethod) async {
+    await _checkCustomerSession();
+    final result =
+        await Server.attachPaymentMethod(paymentMethodId: paymentMethod.id);
+
+    return result['requiresPayment'];
+  }
+
+  Future<void> payInvoice(PaymentMethod paymentMethod) async {
+    await _checkCustomerSession();
+    await Server.payInvoice(paymentMethodId: paymentMethod.id);
+  }
+
+  Future<void> cancelSubscription() async {
+    await _checkCustomerSession();
+    await Server.cancelSubscription();
+  }
+
+  Future<void> renewSubscription() async {
+    await _checkCustomerSession();
+    await Server.renewSubscription();
   }
 
   Future<void> _beginCustomerSession() async {

@@ -1,15 +1,12 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Route;
-
 import 'package:igflexin/repositories/auth_repository.dart';
 import 'package:igflexin/repositories/instagram_repository.dart';
+import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/repositories/system_bars_repository.dart';
 import 'package:igflexin/repositories/user_repository.dart';
-
-import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/router_controller.dart';
-
 import 'package:provider/provider.dart';
 
 void main() {

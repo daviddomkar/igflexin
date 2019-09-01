@@ -13,9 +13,12 @@ import {
 
 const shttps = require('socks5-https-client/lib/Agent');
 
+const minutes = 10;
+const accountsNumber = 5;
+
 export default async function processAccounts() {
 
-  const users = await admin.firestore().collection('users').where('lastAction', '<',  Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * 25))).get();
+  const users = await admin.firestore().collection('users').where('lastAction', '<',  Timestamp.fromMillis(Timestamp.now().toMillis() - (1000 * 60 * minutes))).get();
 
   if (users.empty) {
     return;
@@ -97,15 +100,14 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
     lastIpUsed = account.data()!.lastIpUsed;
   }
 
-  // TODO Change this
-  let ip = '23.89.245.9';
-  let port = 53112;
+  let ip = '165.231.93.3';
+  let port = 	22455;
 
-  if (lastIpUsed !== null) {
+  if (lastIpUsed === null) {
     const ips = await admin.firestore().collection('proxies').get();
 
     const validIps = ips.docs.filter(doc => {
-      return lastIpUsed !== doc.data().ip;
+      return !doc.data().invalid;
     });
 
     const newIp = validIps[Math.floor(Math.random() * validIps.length)];
@@ -117,9 +119,16 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
       lastIpUsed: ip,
     });
   } else {
-    await account.ref.update({
-      lastIpUsed: ip,
-    });
+    try {
+      const ipData = (await admin.firestore().collection('proxies').where('ip', '==', lastIpUsed).where('invalid', '==', false).limit(1).get()).docs[0].data()!;
+
+      ip = ipData.ip;
+      port = ipData.port;
+
+      await account.ref.update({
+        lastIpUsed: ip,
+      });
+    } catch(e) {}
   }
 
   let signOut = false;
@@ -154,7 +163,7 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
 
     const accounts: string[] = (await admin.firestore().collection('system').doc('instagram').get()).data()!.accountsToFollow;
 
-    const accountsToFollow = getRandom(accounts, 10);
+    const accountsToFollow = getRandom(accounts, accountsNumber);
 
     console.log('Unfollowing ' + account.data()!.username);
     for (const accountToFollow of accountsToFollow) {
@@ -180,7 +189,11 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
     await recordStats(account, igUser.follower_count);
 
     if (signOut) {
+      console.log('Logging out due to error');
       await instagram.account.logout();
+      await account.ref.update({
+        lastIpUsed: null,
+      });
     }
 
     const cookiesToSave = await instagram.state.serializeCookieJar();
@@ -238,7 +251,11 @@ async function processAccount(user: DocumentSnapshot, account: DocumentSnapshot)
         await recordStats(account, igUser.follower_count);
 
         if (signOut) {
+          console.log('Logging out due to error');
           await instagram.account.logout();
+          await account.ref.update({
+            lastIpUsed: null,
+          });
         }
 
         const cookiesToSave = await instagram.state.serializeCookieJar();

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart' hide Route;
 import 'package:flutter_system_bars/flutter_system_bars.dart';
+import 'package:igflexin/repositories/instagram_repository.dart';
 
 import 'package:igflexin/repositories/router_repository.dart';
 import 'package:igflexin/repositories/subscription_repository.dart';
@@ -65,6 +66,8 @@ class __DashboardState extends State<_Dashboard> {
   Animation<double> _titleBarOffsetY;
   Animation<double> _bottomNavigationBarOffsetY;
 
+  InstagramRepository _instagramRepository;
+
   PageController _pageController = PageController(
     initialPage: 1,
     keepPage: true,
@@ -78,6 +81,8 @@ class __DashboardState extends State<_Dashboard> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    _instagramRepository = Provider.of<InstagramRepository>(context);
 
     _titleBarOffsetY = Tween(
             begin: (ResponsivityUtils.compute(72.0, context) +
@@ -209,7 +214,7 @@ class __DashboardState extends State<_Dashboard> {
                       margin: EdgeInsets.only(
                           right: ResponsivityUtils.compute(16.0, context)),
                       child:
-                          _selectedPageIndex == 1 ? AccountSelection() : null,
+                          _selectedPageIndex == 1 && _instagramRepository.selectedAccount != null ? AccountSelection() : null,
                     ),
                   ),
                 ],

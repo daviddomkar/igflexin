@@ -27,7 +27,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "8416d973798047be98fb57355555eef50d290c12"
+      resolved-ref: bc4b0f62e0e016721ac3a66b13e4b650733d53cc
       url: "https://github.com/DEXIT33/bezier-chart"
     source: git
     version: "1.0.13"
@@ -86,7 +86,7 @@ packages:
       name: crypto
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.6"
+    version: "2.1.2"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -150,6 +150,13 @@ packages:
       url: "https://github.com/DEXIT33/flutter_credit_card"
     source: git
     version: "0.1.1"
+  flutter_email_sender:
+    dependency: "direct main"
+    description:
+      name: flutter_email_sender
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.3"
   flutter_facebook_login:
     dependency: "direct main"
     description:
@@ -178,7 +185,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "4e8a0958872ad2823fa0bd3455c4c62b745969cb"
+      resolved-ref: fb68852ab4957cd79947c6cb7b02fe27ba2f4317
       url: "https://github.com/DEXIT33/flutter_stripe_sdk"
     source: git
     version: "0.0.1"
@@ -202,7 +209,7 @@ packages:
       name: google_sign_in
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.4"
+    version: "4.0.7"
   http:
     dependency: transitive
     description:
@@ -279,14 +286,14 @@ packages:
       name: platform
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.0"
+    version: "2.2.1"
   provider:
     dependency: "direct main"
     description:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0+1"
+    version: "3.1.0"
   quiver:
     dependency: transitive
     description:
@@ -312,7 +319,7 @@ packages:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.6+3"
+    version: "1.1.6+4"
   stack_trace:
     dependency: transitive
     description:
@@ -368,7 +375,7 @@ packages:
       name: url_launcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.1.1"
+    version: "5.1.2"
   uuid:
     dependency: transitive
     description:

@@ -183,7 +183,7 @@ class _FollowersGraphState extends State<FollowersGraph> {
                           return _cachedData.last.value;
                         } else {
                           final value = _cachedData.indexWhere((value) =>
-                              value.xAxis.millisecondsSinceEpoch <
+                              value.xAxis.millisecondsSinceEpoch >
                               datetime.millisecondsSinceEpoch);
 
                           if (value != -1) {

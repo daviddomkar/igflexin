@@ -4,6 +4,7 @@ import 'package:igflexin/repositories/subscription_repository.dart';
 import 'package:igflexin/resources/accounts.dart';
 import 'package:igflexin/resources/subscription.dart';
 import 'package:igflexin/routes/dashboard/pages/settings/widgets/account_settings_group.dart';
+import 'package:igflexin/routes/dashboard/pages/settings/widgets/subscription_settings_group.dart';
 import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +13,8 @@ class Settings extends StatefulWidget {
   _SettingsState createState() => _SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
+class _SettingsState extends State<Settings>
+    with AutomaticKeepAliveClientMixin<Settings> {
   SubscriptionRepository _subscriptionRepository;
   InstagramRepository _instagramRepository;
 
@@ -23,6 +25,9 @@ class _SettingsState extends State<Settings> {
   void initState() {
     super.initState();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void didChangeDependencies() {
@@ -48,6 +53,8 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 250),
       child: _buildChild(),
@@ -60,6 +67,7 @@ class _SettingsState extends State<Settings> {
         padding: EdgeInsets.symmetric(
             vertical: ResponsivityUtils.compute(4.0, context)),
         children: [
+          SubscriptionSettingsGroup(),
           AccountSettingsGroup(),
         ],
       );

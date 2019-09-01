@@ -4,22 +4,92 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:igflexin/model/instagram_response.dart';
 
 class Server {
-  static Future<void> purchaseSubscription({
+  static Future<dynamic> purchaseSubscription({
     String paymentMethodId,
     String subscriptionType,
     String subscriptionInterval,
   }) async {
     try {
-      await CloudFunctions.instance
+      final result = await CloudFunctions.instance
           .getHttpsCallable(functionName: 'purchaseSubscription')
           .call(<String, dynamic>{
         'paymentMethodId': paymentMethodId,
         'subscriptionType': subscriptionType,
         'subscriptionInterval': subscriptionInterval,
       });
+
+      return result.data;
     } catch (e) {
       print((e as CloudFunctionsException).code);
+      print((e as CloudFunctionsException).message);
+      print((e as CloudFunctionsException).details);
       print('purchaseSubscription call exception');
+      throw e;
+    }
+  }
+
+  static Future<dynamic> attachPaymentMethod({
+    String paymentMethodId,
+  }) async {
+    try {
+      final result = await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'attachPaymentMethod')
+          .call(<String, dynamic>{
+        'paymentMethodId': paymentMethodId,
+      });
+
+      return result.data;
+    } catch (e) {
+      print((e as CloudFunctionsException).code);
+      print((e as CloudFunctionsException).message);
+      print((e as CloudFunctionsException).details);
+      print('attachPaymentMethod call exception');
+      throw e;
+    }
+  }
+
+  static Future<void> payInvoice({
+    String paymentMethodId,
+  }) async {
+    try {
+      await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'payInvoice')
+          .call(<String, dynamic>{
+        'paymentMethodId': paymentMethodId,
+      });
+    } catch (e) {
+      print((e as CloudFunctionsException).code);
+      print((e as CloudFunctionsException).message);
+      print((e as CloudFunctionsException).details);
+      print('payInvoice call exception');
+      throw e;
+    }
+  }
+
+  static Future<void> cancelSubscription() async {
+    try {
+      await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'cancelSubscription')
+          .call();
+    } catch (e) {
+      print((e as CloudFunctionsException).code);
+      print((e as CloudFunctionsException).message);
+      print((e as CloudFunctionsException).details);
+      print('cancelSubscription call exception');
+      throw e;
+    }
+  }
+
+  static Future<void> renewSubscription() async {
+    try {
+      await CloudFunctions.instance
+          .getHttpsCallable(functionName: 'renewSubscription')
+          .call();
+    } catch (e) {
+      print((e as CloudFunctionsException).code);
+      print((e as CloudFunctionsException).message);
+      print((e as CloudFunctionsException).details);
+      print('renewSubscription call exception');
       throw e;
     }
   }

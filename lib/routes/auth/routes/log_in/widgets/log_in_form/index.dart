@@ -13,6 +13,7 @@ import 'package:igflexin/utils/responsivity_utils.dart';
 import 'package:igflexin/utils/validation_utils.dart';
 import 'package:igflexin/widgets/dialog.dart';
 import 'package:igflexin/widgets/buttons.dart';
+import 'package:igflexin/widgets/error_dialog.dart';
 
 import 'package:provider/provider.dart';
 
@@ -73,39 +74,13 @@ class _LogInFormState extends State<LogInForm> {
     if (_authRepository.info.state == AuthInfoState.Error) {
       if (!_errorDialogVisible) {
         _errorDialogVisible = true;
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return RoundedAlertDialog(
-              title: Text(
-                'Log In Error',
-                style: TextStyle(
-                    color:
-                        Provider.of<SubscriptionRepository>(context).planTheme.gradientStartColor),
-              ),
-              content: Text(
-                AuthRepository.getAuthErrorMessage(_authRepository.info.data),
-                textAlign: TextAlign.center,
-              ),
-              actions: [
-                GradientButton(
-                  width: ResponsivityUtils.compute(80.0, context),
-                  height: ResponsivityUtils.compute(35.0, context),
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                        fontSize: ResponsivityUtils.compute(15.0, context), color: Colors.white),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
+        showModalWidget(context, ErrorDialog(
+          title: 'LogIn error',
+          message: AuthRepository.getAuthErrorMessage(_authRepository.info.data),
+          onClose: () {
+            _errorDialogVisible = false;
           },
-        ).then((value) {
-          _errorDialogVisible = false;
-        });
+        ));
       }
     }
   }
