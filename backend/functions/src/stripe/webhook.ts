@@ -12,7 +12,7 @@ app.post('/', async (req, res) => {
 
   const stripe = new Stripe(STRIPE_SECRET_KEY);
 
-  const webhookSecret = 'whsec_9jjjwBoDEJbc3hSL9EU0icW0RwTzyUiu';//'whsec_wk5CPXDNOKKsnSF7y9cFEUz1xQIHrSOh';
+  const webhookSecret = '';
   const sig = req.headers['stripe-signature'];
 
   let event;
